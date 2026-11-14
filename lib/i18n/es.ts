@@ -549,6 +549,10 @@ export const es: Strings = {
           label: "Fecha de recogida",
           hint: "Cuando el admin fija o cambia la fecha o la hora de recogida de un ciclo en el que has pedido.",
         },
+        draft_reminder: {
+          label: "Pedido por confirmar",
+          hint: "El día antes del cierre, si tienes un pedido o cambios sin confirmar.",
+        },
         picked_up: {
           label: "Pedido recogido",
           hint: "Cuando se marca que has recogido tu pedido. Lo encuentras igualmente en el Historial.",
@@ -2446,6 +2450,15 @@ export const es: Strings = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Pedido por confirmar: ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `Tienes un pedido sin confirmar para "${title}". Pulsa "${action}" antes de ${deadline}. Si no lo confirmas, el pedido no se enviará.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `Tienes un pedido sin pagar para "${title}". Pulsa "${action}" y completa el pago con tarjeta antes de ${deadline}. Si no completas el pago, el pedido no se enviará.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `Tienes cambios sin confirmar para "${title}". Pulsa "${action}" antes de ${deadline}. Si no los confirmas, el pedido ya confirmado sigue siendo válido.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `Tienes cambios sin confirmar para "${title}". Pulsa "${action}" y completa el pago con tarjeta antes de ${deadline}. Si no completas el pago, el pedido ya confirmado sigue siendo válido.`,
     openAlertTitle: (title: string) => `Ya se puede pedir: ${title}`,
     openAlertBody: (title: string, deadline: string) => `Pediste que te avisáramos: puedes pedir "${title}" hasta el ${deadline}.`,
     orderClosedTitle: "Pedido cerrado",

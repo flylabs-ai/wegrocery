@@ -202,6 +202,15 @@ export async function mergeMembers(
                         OR EXISTS (SELECT 1 FROM orders o WHERE o.member_id = ${survivorId} AND o.cycle_id = d.cycle_id))`),
     db.execute(sql`UPDATE order_drafts SET member_id = ${survivorId} WHERE member_id = ${absorbedId}`),
   );
+  // A reminder already reserved follows the account's drafts, including a
+  // family join. Keep the first reservation if both accounts have one.
+  statements.push(
+    db.execute(sql`INSERT INTO draft_reminders (cycle_id, member_id, sent_at)
+      SELECT cycle_id, ${survivorId}, sent_at FROM draft_reminders WHERE member_id = ${absorbedId}
+      ON CONFLICT (cycle_id, member_id) DO UPDATE
+        SET sent_at = LEAST(draft_reminders.sent_at, EXCLUDED.sent_at)`),
+    db.execute(sql`DELETE FROM draft_reminders WHERE member_id = ${absorbedId}`),
+  );
   // A linked person keeps their own notifications (shown next to the account's).
   if (!link) statements.push(db.execute(sql`UPDATE notifications SET member_id = ${survivorId} WHERE member_id = ${absorbedId}`));
   // A linked person gets their preferences back if they leave the family.

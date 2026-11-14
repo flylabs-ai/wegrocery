@@ -14,14 +14,15 @@ export const NOTIFICATION_CATEGORIES = [
   "wallet_topup",
   "pickup",
   "picked_up",
+  "draft_reminder",
 ] as const;
 
 export type NotificationCategory = (typeof NOTIFICATION_CATEGORIES)[number];
 
 export type ChannelPrefs = { app: boolean; email: boolean };
 
-// Per-category defaults. App is on for everything but picked_up; email is off for every
-// category until the member turns it on in the panel (since 1.17.0, also for
+// Per-category defaults. App is on for everything but picked_up; email is off
+// except for draft_reminder until the member turns it on (since 1.17.0, also for
 // cycle_opened: one email per member per cycle weighs on the email quota, and
 // the sign-in links must get through). Members who saved their preferences
 // keep them: only the absent rows follow these defaults.
@@ -35,6 +36,9 @@ export const CATEGORY_DEFAULTS: Record<NotificationCategory, ChannelPrefs> = {
   // there, so both channels stay off until they turn one on; Storico shows
   // the pickup either way.
   picked_up: { app: false, email: false },
+  // The one useful reminder outside the app: only members with an unconfirmed
+  // draft are told before the deadline. Each channel can still be switched off.
+  draft_reminder: { app: true, email: true },
 };
 
 // Maps a raw `notifications.type` value to its category. Legacy DB values are
@@ -77,6 +81,7 @@ const TYPE_TO_CATEGORY: Record<string, NotificationCategory> = {
   pickup_changed: "pickup",
   // The member's order was marked collected (lib/actions/admin-pickups.ts).
   order_picked_up: "picked_up",
+  order_draft_reminder: "draft_reminder",
 };
 
 export function categoryForType(type: string): NotificationCategory | null {

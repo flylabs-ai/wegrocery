@@ -549,6 +549,10 @@ export const it = {
           label: "Data di ritiro",
           hint: "Quando l'admin fissa o cambia la data o l'orario di ritiro di un ciclo in cui hai ordinato.",
         },
+        draft_reminder: {
+          label: "Ordine da confermare",
+          hint: "Il giorno prima della chiusura, se hai un ordine o delle modifiche non confermate.",
+        },
         picked_up: {
           label: "Ordine ritirato",
           hint: "Quando viene segnato che hai ritirato il tuo ordine. Lo trovi comunque nello Storico.",
@@ -2454,6 +2458,15 @@ export const it = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Ordine da confermare: ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `Hai un ordine non confermato per "${title}". Premi "${action}" entro ${deadline}. Se non lo confermi, l'ordine non verrà inviato.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `Hai un ordine non pagato per "${title}". Premi "${action}" e completa il pagamento con carta entro ${deadline}. Se non completi il pagamento, l'ordine non verrà inviato.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `Hai modifiche non confermate per "${title}". Premi "${action}" entro ${deadline}. Se non le confermi, resta valido l'ordine già confermato.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `Hai modifiche non confermate per "${title}". Premi "${action}" e completa il pagamento con carta entro ${deadline}. Se non completi il pagamento, resta valido l'ordine già confermato.`,
     openAlertTitle: (title: string) => `Sono aperti gli ordini: ${title}`,
     openAlertBody: (title: string, deadline: string) => `Avevi chiesto di essere avvisato: puoi ordinare "${title}" fino a ${deadline}.`,
     orderClosedTitle: "Ordine chiuso",
