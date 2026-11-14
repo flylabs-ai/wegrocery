@@ -1,7 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["fra1"],
-  "crons": [{ "path": "/api/cron/open-cycles", "schedule": "0 5 * * *" }],
+  "crons": [
+    { "path": "/api/cron/open-cycles", "schedule": "0 5 * * *" },
+    { "path": "/api/cron/draft-reminders", "schedule": "0 5 * * *" },
+    { "path": "/api/cron/draft-reminders", "schedule": "0 17 * * *" }
+  ],
   "git": {
     "deploymentEnabled": {
       "**": false,
