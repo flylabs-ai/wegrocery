@@ -25,6 +25,8 @@ A bullet that only matters to whoever hosts, runs or develops the app
 ## [Unreleased]
 
 ### Added
+- 🔔 **A reminder to confirm your order.** If you still have a draft before a cycle closes, a notification and email tell you how to confirm it in time. Choose the channels in Profile → Notifications.
+- 🗄️ [tech] **Draft reminder setup.** Migration `0055_draft_reminders.sql` records one reminder per member and cycle; the existing `CRON_SECRET` enables two daily reminder runs, at 05:00 and 17:00 UTC.
 - 📝 **See unconfirmed drafts.** In an open cycle's Overview and Orders, admins and order referents can see who still has a new order or changes to confirm, with an estimated amount and the last edit time.
 
 ### Changed

@@ -26,6 +26,8 @@ dettagli tecnici", la release su GitHub la tiene.
 ## [Unreleased]
 
 ### Aggiunte
+- 🔔 **Un promemoria per confermare l'ordine.** Se hai ancora una bozza prima della chiusura del ciclo, una notifica e un'email ti ricordano come confermarla in tempo. Scegli i canali in Profilo → Notifiche.
+- 🗄️ [tecnico] **Configurazione dei promemoria.** La migrazione `0055_draft_reminders.sql` registra un promemoria per socio e ciclo; il `CRON_SECRET` già esistente abilita due giri giornalieri, alle 05:00 e alle 17:00 UTC.
 - 📝 **Vedi le bozze non confermate.** In Panoramica e Ordini di un ciclo aperto, admin e referenti ordini vedono chi ha un nuovo ordine o modifiche da confermare, con importo indicativo e ultima modifica.
 
 ### Modificato

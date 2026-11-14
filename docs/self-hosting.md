@@ -190,6 +190,22 @@ environment and redeploy; without it the route answers 404 and admins open
 planned cycles by hand. It works on the Hobby plan (Vercel then runs it at
 some minute of that hour).
 
+### Unconfirmed order reminders
+
+After migration `0055_draft_reminders.sql`, the same `CRON_SECRET` also enables
+`/api/cron/draft-reminders`. It has two daily entries in `vercel.json`, at
+05:00 and 17:00 UTC. Members with a new order or changes still to confirm are
+reminded once per cycle, while the deadline is between 1 and 30 hours away.
+Both app and email channels are on by default for this category; members can
+change them in Profile → Notifications. No email is sent without the usual
+email configuration. Without `CRON_SECRET`, the route answers 404.
+
+There are three daily cron entries in total. Vercel supports multiple entries
+on the same route, and Hobby allows up to 100 jobs per project, each daily;
+on Hobby each may run at any minute of its scheduled hour. See the official
+[cron configuration](https://vercel.com/docs/schedules/cron-jobs/manage-cron-jobs#reading-the-cron-schedule-header)
+and [limits](https://vercel.com/docs/schedules/cron-jobs/usage-and-pricing).
+
 ### Membership card check (WallyFor)
 
 Specific to groups that manage their membership on WallyFor: with
