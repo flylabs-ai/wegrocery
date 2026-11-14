@@ -549,6 +549,10 @@ export const en: Strings = {
           label: "Pickup date",
           hint: "When the admin sets or changes the pickup date or time of a cycle you ordered in.",
         },
+        draft_reminder: {
+          label: "Order to confirm",
+          hint: "The day before the deadline, if you have an unconfirmed order or changes.",
+        },
         picked_up: {
           label: "Order collected",
           hint: "When your order is marked as collected. You find it in History either way.",
@@ -2446,6 +2450,15 @@ export const en: Strings = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Confirm your order: ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `You have an unconfirmed order for "${title}". Select "${action}" by ${deadline}. If you do not confirm it, the order will not be sent.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `You have an unpaid order for "${title}". Select "${action}" and complete the card payment by ${deadline}. If you do not complete the payment, the order will not be sent.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `You have unconfirmed changes for "${title}". Select "${action}" by ${deadline}. If you do not confirm them, your confirmed order remains valid.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `You have unconfirmed changes for "${title}". Select "${action}" and complete the card payment by ${deadline}. If you do not complete the payment, your confirmed order remains valid.`,
     openAlertTitle: (title: string) => `Orders are open: ${title}`,
     openAlertBody: (title: string, deadline: string) => `You asked to be told: you can order "${title}" until ${deadline}.`,
     orderClosedTitle: "Order closed",

@@ -549,6 +549,10 @@ export const fr: Strings = {
           label: "Date de retrait",
           hint: "Quand l'admin fixe ou change la date ou l'heure de retrait d'un cycle où vous avez commandé.",
         },
+        draft_reminder: {
+          label: "Commande à confirmer",
+          hint: "La veille de la clôture, si vous avez une commande ou des modifications non confirmées.",
+        },
         picked_up: {
           label: "Commande retirée",
           hint: "Quand votre commande est marquée comme retirée. Vous la retrouvez de toute façon dans l'Historique.",
@@ -2446,6 +2450,15 @@ export const fr: Strings = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Commande à confirmer : ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `Vous avez une commande non confirmée pour "${title}". Choisissez "${action}" avant ${deadline}. Sans confirmation, la commande ne sera pas envoyée.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `Vous avez une commande non payée pour "${title}". Choisissez "${action}" et terminez le paiement par carte avant ${deadline}. Sans paiement terminé, la commande ne sera pas envoyée.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `Vous avez des modifications non confirmées pour "${title}". Choisissez "${action}" avant ${deadline}. Sans confirmation, la commande déjà confirmée reste valable.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `Vous avez des modifications non confirmées pour "${title}". Choisissez "${action}" et terminez le paiement par carte avant ${deadline}. Sans paiement terminé, la commande déjà confirmée reste valable.`,
     openAlertTitle: (title: string) => `Les commandes sont ouvertes : ${title}`,
     openAlertBody: (title: string, deadline: string) => `Vous avez demandé à être prévenu : vous pouvez commander « ${title} » jusqu'au ${deadline}.`,
     orderClosedTitle: "Commande clôturée",
