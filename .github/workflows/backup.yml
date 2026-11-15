@@ -2,15 +2,23 @@ name: Daily Neon Backup
 
 # Runs every day at 03:00 UTC (≈ 04:00–05:00 Europe/Rome).
 # Dumps the production Neon database with pg_dump, gzips the result,
-# uploads it to Google Drive via rclone, then prunes backups older than
+# ENCRYPTS it with age and uploads it to Google Drive via rclone, then prunes backups older than
 # 90 days from the same folder. Also runnable on demand from the Actions
 # tab via "Run workflow".
 #
 # Required GitHub repository secrets:
 #   - DATABASE_URL        Neon production connection string (postgresql://...)
+#   - BACKUP_AGE_RECIPIENT  age public key ("age1..."). Its private key stays
+#                         with whoever runs the group, never in GitHub: it is
+#                         the one that opens a backup for a real restore.
+#   - BACKUP_AGE_RECIPIENT_RESTORE (optional) public key of the key made only
+#                         for restore-test.yml, which can then decrypt too.
 #   - RCLONE_CONFIG       Full contents of ~/.config/rclone/rclone.conf
 #                         (must define a remote named exactly `gdrive`)
 #   - GDRIVE_BACKUP_PATH  Destination, e.g. `gdrive:PortaMoneta/GAS-Backups`
+#
+# The dump holds member data, so only ciphertext leaves the runner: without
+# BACKUP_AGE_RECIPIENT the job fails instead of uploading a readable file.
 #
 # Restore: see AGENTS.md → "Backup & Restore" section.
 #
@@ -56,7 +64,7 @@ jobs:
       # The install usually takes ~12 s, but once (2026-10-01) it hung with no
       # output until the job timeout. Every network command is now bounded and
       # retried, so a stalled mirror costs about a minute, not the whole job.
-      - name: Install PostgreSQL 17 client (matches Neon)
+      - name: Install PostgreSQL 17 client (matches Neon) and age
         timeout-minutes: 8
         run: |
           set -euo pipefail
@@ -78,12 +86,13 @@ jobs:
             https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
             | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
           retry sudo timeout -k 10 90 apt-get $APT_OPTS update
-          retry sudo timeout -k 10 120 apt-get $APT_OPTS install -y --no-install-recommends postgresql-client-17
+          retry sudo timeout -k 10 120 apt-get $APT_OPTS install -y --no-install-recommends postgresql-client-17 age
           # The Ubuntu runner pre-installs pg-client 16 and the /usr/bin/pg_dump
           # wrapper picks it instead of 17. Prepend the v17 bin dir to PATH so
           # subsequent steps see pg_dump 17.
           echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
           /usr/lib/postgresql/17/bin/pg_dump --version
+          age --version
 
       - name: Install rclone
         timeout-minutes: 3
@@ -102,20 +111,27 @@ jobs:
           chmod 600 "$HOME/.config/rclone/rclone.conf"
           rclone listremotes
 
-      - name: Dump database
+      - name: Dump and encrypt the database
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_AGE_RECIPIENT: ${{ secrets.BACKUP_AGE_RECIPIENT }}
+          BACKUP_AGE_RECIPIENT_RESTORE: ${{ secrets.BACKUP_AGE_RECIPIENT_RESTORE }}
         run: |
           set -euo pipefail
+          test -n "$BACKUP_AGE_RECIPIENT" || { echo "BACKUP_AGE_RECIPIENT is missing: refusing to upload a readable dump" >&2; exit 1; }
           DATE=$(date -u +%Y-%m-%d)
-          FILE="gas-backup-${DATE}.sql.gz"
+          FILE="gas-backup-${DATE}.sql.gz.age"
+          RECIPIENTS=(-r "$BACKUP_AGE_RECIPIENT")
+          if [ -n "$BACKUP_AGE_RECIPIENT_RESTORE" ]; then RECIPIENTS+=(-r "$BACKUP_AGE_RECIPIENT_RESTORE"); fi
           echo "Dumping to ${FILE}…"
+          # Nothing readable is ever written to disk: dump | gzip | age.
           pg_dump \
             --no-owner \
             --no-privileges \
             --format=plain \
             "$DATABASE_URL" \
-            | gzip -9 > "$FILE"
+            | gzip -9 \
+            | age "${RECIPIENTS[@]}" -o "$FILE"
           ls -lh "$FILE"
           echo "BACKUP_FILE=$FILE" >> "$GITHUB_ENV"
 
@@ -129,7 +145,8 @@ jobs:
           echo "Uploaded $BACKUP_FILE to ${{ secrets.GDRIVE_BACKUP_PATH }}"
 
       # Retention: 90 days. Scoped to this workflow's own files only
-      # (gas-backup-*.sql.gz, top level of the destination folder), so any
+      # (gas-backup-*.sql.gz.age and the unencrypted gas-backup-*.sql.gz of
+      # before, top level of the destination folder), so any
       # other file kept there by hand is never touched. Runs after a
       # successful upload only, so a failing dump never prunes old backups.
       # Google Drive moves deleted files to the trash (rclone default).
@@ -145,6 +162,7 @@ jobs:
             *) echo "GDRIVE_BACKUP_PATH is not a remote path, skipping prune" >&2; exit 1 ;;
           esac
           rclone delete "$DEST" \
+            --include "gas-backup-*.sql.gz.age" \
             --include "gas-backup-*.sql.gz" \
             --min-age 90d \
             --max-depth 1 \
@@ -154,7 +172,7 @@ jobs:
       - name: Cleanup local files
         if: always()
         run: |
-          rm -f gas-backup-*.sql.gz
+          rm -f gas-backup-*.sql.gz gas-backup-*.sql.gz.age
           rm -f "$HOME/.config/rclone/rclone.conf"
 
   invariants:

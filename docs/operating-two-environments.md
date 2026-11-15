@@ -185,7 +185,7 @@ too, otherwise the nightly reset (`.github/workflows/demo-reset.yml`) will fail.
    tested by hand on the staging URL (flows touched by the change, plus a
    login and the home balance).
 2. **Manual backup**: Actions → "Daily Neon Backup" → *Run workflow*, and check
-   the new `gas-backup-YYYY-MM-DD.sql.gz` on Drive. For a risky migration also
+   the new `gas-backup-YYYY-MM-DD.sql.gz.age` on Drive. For a risky migration also
    create a Neon branch from `production` (e.g. `pre-release-YYYYMMDD`) as an
    instant restore point.
 3. **Migrations on production**: `--status` shows the expected pending files;
