@@ -25,6 +25,13 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.47.2] - 2026-11-15
+
+*Occhi aperti su cosa carica ogni pagina.*
+
+### Sicurezza
+- 🛡️ [tecnico] **Content Security Policy in osservazione.** Ogni pagina ha una policy con un nonce per richiesta in `Content-Security-Policy-Report-Only`: per ora non blocca nulla, i browser segnalano a `/api/csp-report` cosa bloccherebbe e i log runtime tengono una riga per ogni violazione diversa. Diventa vincolante dopo una settimana senza violazioni vere.
+
 ## [1.47.1] - 15 novembre 2026
 
 *Più sicura dietro le quinte.*
