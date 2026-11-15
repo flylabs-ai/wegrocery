@@ -1198,6 +1198,8 @@ export const it = {
       importListing: "📥 Importa listino",
       recapOrders: "Vedi gli ordini →",
       unconfirmedDrafts: "Bozze non confermate",
+      unpaidDraftsLabel: "Bozze non pagate",
+      draftsValue: "Valore indicativo bozze",
       draftsUnpaid: "Non pagate: restano fuori dall'ordine",
       draftsUnconfirmed: "Non confermate: restano fuori dall'ordine",
       draftNewOrder: "Nuovo ordine",
@@ -1205,7 +1207,7 @@ export const it = {
       draftEstimate: (amount: string) => `circa ${amount}`,
       draftModified: (when: string) => `modificata ${when}`,
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Bozze non pagate: ${drafts} (restano fuori dall'ordine). Pagamenti in corso: ${pending} (se arrivano dopo la chiusura vengono rimborsati).`,
+        `Bozze non pagate: ${drafts} (restano fuori dall'ordine). Tentativi di pagamento aperti: ${pending}. Possono riferirsi alle bozze già elencate. I pagamenti ricevuti dopo la chiusura vengono rimborsati.`,
       cycleClosed: (n: number) => `Ciclo chiuso. ${n} addebiti generati.`,
       editClosedBanner:
         "Stai modificando un ciclo gia' chiuso. Le modifiche alle spese di spedizione ricalcoleranno gli addebiti dei soci e invieranno una notifica di rettifica. Chiusura ordini e livello di accesso non sono modificabili a ciclo chiuso.",
@@ -1382,6 +1384,10 @@ export const it = {
       },
     },
     orders: {
+      confirmedTitle: "Ordini confermati",
+      filterAria: "Mostra ordini e bozze",
+      filters: { confirmed: "Confermati", drafts: "Bozze", all: "Entrambi" },
+      noDrafts: "Non ci sono bozze non confermate per questo ciclo.",
       distintaHint: "La distinta in Excel: per socio, per prodotto e i totali.",
       splitAria: "Mostra gli ordini",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 ciclo" : `${cycles} cicli`} · ${total} totale`,

@@ -7,6 +7,7 @@ import { CsvExportButton } from "./ordini-client";
 import { CycleOrdersByMember } from "./closed-cycle-details";
 import { OrdersSplit } from "./orders-split";
 import { CycleDraftsCard } from "./cycle-drafts-card";
+import { CycleOrdersContent } from "./cycle-orders-content";
 
 // Admin → Ciclo → Ordini: the cycle's orders in one place, "Per socio" and
 // "Per prodotto" (side by side from a PC), with the one "Scarica distinta".
@@ -79,7 +80,7 @@ export async function CycleOrdersView({
     </Card>
   );
 
-  return (
+  const confirmed = (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-primary-bg px-4 py-3">
@@ -102,8 +103,17 @@ export async function CycleOrdersView({
           <CsvExportButton cycleId={cycleId} />
         </div>
       )}
-      {cycleStatus === "open" && <CycleDraftsCard drafts={drafts} cardPayment={cardPayment} />}
       <OrdersSplit byMember={byMember} byProduct={byProduct} />
     </div>
+  );
+
+  return (
+    <CycleOrdersContent
+      key={cycleId}
+      isOpen={cycleStatus === "open"}
+      draftCount={drafts.length}
+      confirmed={confirmed}
+      drafts={<CycleDraftsCard drafts={drafts} cardPayment={cardPayment} />}
+    />
   );
 }

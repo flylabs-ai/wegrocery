@@ -256,12 +256,12 @@ export function OpenCycleOverview({
   cycle,
   stats,
   suppliers,
-  draftsCard,
+  draftsSummary,
 }: {
   cycle: SerializedCycle;
   stats: CycleStats;
   suppliers: Supplier[];
-  draftsCard: ReactNode;
+  draftsSummary: ReactNode;
 }) {
   const { perOrderWarning } = closeWarnings(cycle, stats);
   return (
@@ -277,7 +277,7 @@ export function OpenCycleOverview({
             <div className="text-[20px] font-bold tabular-nums text-foreground">{formatEur(stats.grandTotal)}</div>
           </div>
         </div>
-        {draftsCard && <div className="mt-3">{draftsCard}</div>}
+        {draftsSummary && <div className="mt-3">{draftsSummary}</div>}
         {perOrderWarning && (
           <div className="mt-3 rounded-lg border border-primary-mid bg-primary-bg p-3 text-[13px] text-foreground">
             {perOrderWarning}

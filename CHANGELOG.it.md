@@ -28,7 +28,7 @@ dettagli tecnici", la release su GitHub la tiene.
 ### Aggiunte
 - 🔔 **Un promemoria per confermare l'ordine.** Se hai ancora una bozza prima della chiusura del ciclo, una notifica e un'email ti ricordano come confermarla in tempo. Scegli i canali in Profilo → Notifiche.
 - 🗄️ [tecnico] **Configurazione dei promemoria.** La migrazione `0055_draft_reminders.sql` registra un promemoria per socio e ciclo; il `CRON_SECRET` già esistente abilita due giri giornalieri, alle 05:00 e alle 17:00 UTC.
-- 📝 **Vedi le bozze non confermate.** In Panoramica e Ordini di un ciclo aperto, admin e referenti ordini vedono chi ha un nuovo ordine o modifiche da confermare, con importo indicativo e ultima modifica.
+- 📝 **Distingui le bozze dagli ordini confermati.** In Panoramica vedi numero e valore indicativo delle bozze; in Ordini le trovi sotto i confermati, con i filtri Confermati/Bozze/Entrambi. L'avviso chiarisce che un tentativo di pagamento aperto può riguardare una bozza già elencata.
 
 ### Modificato
 - 🪵 [tecnico] **L'apertura automatica lascia traccia.** Ogni giro giornaliero di `/api/cron/open-cycles` scrive una riga nei log runtime con il numero di cicli aperti e i loro id.
