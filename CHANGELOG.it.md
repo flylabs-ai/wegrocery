@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+- 🛡️ **Codice di sicurezza dal FlyLabs Kit** [tecnico]: header di sicurezza, Content Security Policy (ancora in sola osservazione), endpoint dei report CSP e controllo dei cron vengono ora dal modulo `sicurezza` 1.0 del kit. Stessa policy della 1.47.2.
+- 🌍 **Controlli delle lingue dal FlyLabs Kit** [tecnico]: i quattro pacchetti di testi sono ora confrontati con quello italiano (chiavi, segnaposti, funzioni) e la lingua viene dal modulo `i18n` 1.0 del kit.
+
 ## [1.47.2] - 2026-11-15
 
 *Occhi aperti su cosa carica ogni pagina.*

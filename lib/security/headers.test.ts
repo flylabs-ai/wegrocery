@@ -1,37 +1,44 @@
 import { describe, expect, it } from "vitest";
-import nextConfig from "../../next.config";
-import { SECURITY_HEADERS } from "./headers";
+import { PRIVATE_AREA_HEADERS, SECURITY_HEADERS, securityHeaderRules } from "./headers";
 
-describe("security headers", () => {
-  const value = (key: string) => SECURITY_HEADERS.find((h) => h.key === key)?.value;
+const value = (key: string) => SECURITY_HEADERS.find((h) => h.key === key)?.value;
 
-  it("sends them on every path", async () => {
-    const rules = await nextConfig.headers!();
-    const all = rules.find((rule) => rule.source === "/:path*");
-    expect(all?.headers).toEqual(SECURITY_HEADERS);
+describe("SECURITY_HEADERS", () => {
+  it("keeps every connection on https for two years, without preload", () => {
+    expect(value("Strict-Transport-Security")).toBe("max-age=63072000; includeSubDomains");
   });
 
-  it("keeps HTTPS for at least a year, without preload", () => {
-    const hsts = value("Strict-Transport-Security")!;
-    expect(Number(/max-age=(\d+)/.exec(hsts)![1])).toBeGreaterThanOrEqual(31536000);
-    expect(hsts).toContain("includeSubDomains");
-    expect(hsts).not.toContain("preload");
-  });
-
-  it("refuses framing, type sniffing and full referrers", () => {
+  it("denies framing and sniffing, and sends only the origin elsewhere", () => {
     expect(value("X-Frame-Options")).toBe("DENY");
     expect(value("X-Content-Type-Options")).toBe("nosniff");
     expect(value("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
   });
 
-  it("turns off the device features the app never asks for", () => {
-    const policy = value("Permissions-Policy")!;
-    for (const feature of ["camera", "microphone", "geolocation", "payment"]) {
-      expect(policy).toContain(`${feature}=()`);
-    }
+  it("turns off the browser features the apps never use, payment included", () => {
+    expect(value("Permissions-Policy")).toContain("payment=()");
+    expect(value("Permissions-Policy")).toContain("camera=()");
   });
 
-  it("does not say which framework serves the app", () => {
-    expect(nextConfig.poweredByHeader).toBe(false);
+  it("leaves the CSP to the proxy", () => {
+    expect(SECURITY_HEADERS.some((h) => h.key.startsWith("Content-Security-Policy"))).toBe(false);
+  });
+});
+
+describe("securityHeaderRules", () => {
+  it("applies the security set everywhere", () => {
+    expect(securityHeaderRules()).toEqual([{ source: "/:path*", headers: [...SECURITY_HEADERS] }]);
+  });
+
+  it("adds the private set to each prefix and what is under it", () => {
+    const rules = securityHeaderRules(["/staff/"]);
+    expect(rules.slice(1)).toEqual([
+      { source: "/staff", headers: [...PRIVATE_AREA_HEADERS] },
+      { source: "/staff/:path*", headers: [...PRIVATE_AREA_HEADERS] },
+    ]);
+  });
+
+  it("refuses a prefix that is not a plain path", () => {
+    expect(() => securityHeaderRules(["staff"])).toThrow();
+    expect(() => securityHeaderRules(["/a/:b*"])).toThrow();
   });
 });

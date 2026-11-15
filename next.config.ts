@@ -1,13 +1,13 @@
 import type { NextConfig } from "next";
 import { brandImagePatterns } from "./lib/brand/image-patterns";
-import { SECURITY_HEADERS } from "./lib/security/headers";
+import { securityHeaderRules } from "./lib/security/headers";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   // On every path, pages, API routes and static files alike: see
   // lib/security/headers.ts for what each one is for.
   async headers() {
-    return [{ source: "/:path*", headers: [...SECURITY_HEADERS] }];
+    return securityHeaderRules();
   },
   images: {
     // Only the brand logo's own host, never a wildcard — see image-patterns.ts.

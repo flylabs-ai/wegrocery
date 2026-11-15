@@ -11,7 +11,15 @@
     },
     "firma": "1.0",
     "guida": "1.0",
-    "ics": "1.0"
+    "i18n": {
+      "version": "1.0",
+      "path": "lib/i18n"
+    },
+    "ics": "1.0",
+    "sicurezza": {
+      "version": "1.0",
+      "path": "lib/security"
+    }
   },
   "notAdopted": {
     "tema": "Tema e test di contrasto propri (lib/theme.ts, lib/brand/theme-contrast.test.ts), equivalenti al modulo."
