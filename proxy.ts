@@ -1,5 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hasSessionCookie } from "@/lib/auth/cookie";
+import { CSP_HEADER, buildCsp, generateNonce } from "@/lib/security/csp";
+
+// Every page response carries the Content Security Policy with a new nonce
+// (lib/security/csp.ts). The same header on the request lets Next.js read the
+// nonce and put it on its own scripts.
+function withCsp(request: NextRequest): NextResponse {
+  const csp = buildCsp(generateNonce(), { dev: process.env.NODE_ENV === "development" });
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(CSP_HEADER.toLowerCase(), csp);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set(CSP_HEADER, csp);
+  return response;
+}
 
 // Only whether the session cookie is there, no database: a request without it
 // goes to /login. Whether the session is valid, whose it is and whether it may
@@ -17,7 +30,7 @@ export function proxy(request: NextRequest) {
     pathname === "/gruppo" ||
     hasSessionCookie(request.cookies)
   ) {
-    return NextResponse.next();
+    return withCsp(request);
   }
   // The home without a session: /gruppo, which sends on to /login when the
   // group has no public page (the proxy never reads the database).
@@ -30,12 +43,14 @@ export function proxy(request: NextRequest) {
 // with INSTANCE_STATS_SECRET (404 otherwise), api/cron/open-cycles answers
 // only Vercel Cron's CRON_SECRET (404 otherwise), as does api/cron/draft-reminders.
 // api/unsubscribe acts only on a
-// token signed with AUTH_SECRET (one-click unsubscribe from a notification email). The uploaded logo
+// token signed with AUTH_SECRET (one-click unsubscribe from a notification email).
+// api/csp-report takes the browser's CSP reports (lib/security/csp.ts), which
+// come without a session. The uploaded logo
 // (/brand/logo-*.png|jpg|webp) passes by its extension. mail/ holds the email
 // logo (lib/email/layout.ts), which a mail client fetches with no session. The web app manifest is fetched by the browser without
 // cookies: behind the redirect the app could not be installed.
 export const config = {
   matcher: [
-    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/unsubscribe$|mail/|manifest.webmanifest$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/unsubscribe$|api/csp-report$|mail/|manifest.webmanifest$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
