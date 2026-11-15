@@ -1,15 +1,36 @@
 {
   "app": "wegrocery",
-  "kit": "0.13",
+  "profile": "white-label",
+  "kit": "0.14",
   "modules": {
     "changelog": "1.0",
     "console": "1.0",
-    "email": "1.2",
+    "email": {
+      "version": "1.2",
+      "path": "lib/email"
+    },
     "firma": "1.0",
     "guida": "1.0",
     "ics": "1.0"
   },
   "notAdopted": {
     "tema": "Tema e test di contrasto propri (lib/theme.ts, lib/brand/theme-contrast.test.ts), equivalenti al modulo."
+  },
+  "templates": {
+    "backup": ".github/workflows/backup.yml",
+    "dependabot": ".github/dependabot.yml",
+    "deploy-health": ".github/workflows/deploy-health.yml",
+    "release": ".github/workflows/release.yml",
+    "restore-test": ".github/workflows/restore-test.yml",
+    "vercel": "vercel.json"
+  },
+  "localChanges": {
+    "email/layout.ts": "White-label: logo, nome e colori del gruppo in testa e firma spegnibile dal gruppo (Playbook 7.7, 2.11); il kit ha la variante prodotto",
+    "templates/backup": "Origine del template: nomi dei file gas-backup-*, invarianti del denaro dopo il dump e controlli rclone propri",
+    "templates/dependabot": "Better Auth in ignore (aggiornato a mano, Playbook 1.5) e gruppi minor/patch e major separati",
+    "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo e Console esclusa (ha la sua versione)",
+    "templates/release": "Origine del template: note estratte dalla sezione di CHANGELOG.md con lo script di WeGrocery",
+    "templates/restore-test": "Origine del template: invarianti del denaro sul ramo ripristinato e lettura dei dump in chiaro ancora su Drive fino a febbraio 2027",
+    "templates/vercel": "Cron giornalieri (apertura dei cicli, promemoria delle bozze); il template non ha cron"
   }
 }

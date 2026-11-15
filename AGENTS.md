@@ -53,6 +53,10 @@ Found in the review of 2026-10-14 (each line, its reason and its timing are in
 - 8.1 No versioned legal documents in the app: each group owns its privacy notice and terms (`brand.privacyUrl`, `brand.termsUrl`) as data controller. An admin may ask whoever signs in to accept them (`app_settings.terms_required`, migration 0051, `lib/members/terms.ts`): AppShell shows `components/terms-prompt.tsx` instead of the page, and `saveOrder`, `startOrderPayment` and `startOnlineTopup` refuse with `terms_required` (`termsPending`, the person who signed in, never the family account) until they accept the current `terms_version`, recorded on `members.terms_accepted_*` with an audit row. This stays for groups; FlyLabs-hosted terms are decided with hosting model A.
 - 9.1 Feature specs live in the private project folder (Italian, with group details), not in `docs/`: from now on a dated English plan goes in `docs/` with no group or member data.
 
+Kit 0.14 (2026-11-15): profile `white-label` in `flylabs-kit.json`; the copied workflows and `vercel.json` are the origin of the kit's templates and are declared there in `localChanges` with what is specific to WeGrocery (money invariants, demo bypass, crons, Better Auth ignored by Dependabot).
+- 2.12-2.14 (primary as default button, radius as a token, status bar in the background colour) wait for the `tema` 2.0 module and its adoption with before and after screenshots; until then buttons, pill shape and `theme-color` stay as they are.
+- 10.5 Migrations of the white-label fleet from the Console are planned (kit phase C2): until then production and demo are migrated by the agent through the Neon connector with Federico's ok, and the example-brand installation migrates during its build (`MIGRATE_ON_BUILD`).
+
 Never read `.env*` files other than `.env.example` (Playbook 8.3).
 
 ## Codebase structure
