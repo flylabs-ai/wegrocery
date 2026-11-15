@@ -1196,6 +1196,8 @@ export const en: Strings = {
       importListing: "📥 Import listing",
       recapOrders: "See the orders →",
       unconfirmedDrafts: "Unconfirmed drafts",
+      unpaidDraftsLabel: "Unpaid drafts",
+      draftsValue: "Estimated draft value",
       draftsUnpaid: "Unpaid: they stay out of the order",
       draftsUnconfirmed: "Unconfirmed: they stay out of the order",
       draftNewOrder: "New order",
@@ -1203,7 +1205,7 @@ export const en: Strings = {
       draftEstimate: (amount: string) => `about ${amount}`,
       draftModified: (when: string) => `edited ${when}`,
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Unpaid drafts: ${drafts} (they stay out of the order). Payments in progress: ${pending} (refunded if they arrive after the close).`,
+        `Unpaid drafts: ${drafts} (excluded from the order). Open payment attempts: ${pending}. These may refer to the drafts already listed. Payments received after the deadline are refunded.`,
       cycleClosed: (n: number) => `Cycle closed. ${n} charges generated.`,
       editClosedBanner:
         "You are editing a closed cycle. Shipping cost changes will recalculate member charges and send adjustment notifications. Order closing date and access level cannot be changed after closure.",
@@ -1379,6 +1381,10 @@ export const en: Strings = {
       },
     },
     orders: {
+      confirmedTitle: "Confirmed orders",
+      filterAria: "Show orders and drafts",
+      filters: { confirmed: "Confirmed", drafts: "Drafts", all: "Both" },
+      noDrafts: "There are no unconfirmed drafts for this cycle.",
       distintaHint: "The order sheet in Excel: by member, by product and the totals.",
       splitAria: "Show the orders",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 cycle" : `${cycles} cycles`} · ${total} total`,

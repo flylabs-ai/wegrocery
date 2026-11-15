@@ -5,6 +5,28 @@ import { formatEur } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader } from "@/components/ui/card";
 
+export function CycleDraftsSummary({ drafts, cardPayment }: {
+  drafts: ReadonlyArray<CycleDraftSummary>;
+  cardPayment: boolean;
+}) {
+  if (drafts.length === 0) return null;
+  const c = t.admin.cycle;
+  const estimatedTotal = drafts.reduce((total, draft) => total + draft.estimatedTotal, 0);
+
+  return (
+    <div role="group" aria-label={c.unconfirmedDrafts} className="grid grid-cols-2 gap-3">
+      <div className="flex flex-col rounded-lg border border-dashed border-border bg-tint/[0.03] px-3 py-2">
+        <div className="text-label text-secondary-foreground">{cardPayment ? c.unpaidDraftsLabel : c.unconfirmedDrafts}</div>
+        <div className="mt-auto text-[20px] font-bold text-foreground">{drafts.length}</div>
+      </div>
+      <div className="flex flex-col rounded-lg border border-dashed border-border bg-tint/[0.03] px-3 py-2">
+        <div className="text-label text-secondary-foreground">{c.draftsValue}</div>
+        <div className="mt-auto break-words text-[20px] font-bold tabular-nums text-foreground">{formatEur(estimatedTotal)}</div>
+      </div>
+    </div>
+  );
+}
+
 export function CycleDraftsCard({ drafts, cardPayment }: {
   drafts: ReadonlyArray<CycleDraftSummary>;
   cardPayment: boolean;
@@ -13,7 +35,7 @@ export function CycleDraftsCard({ drafts, cardPayment }: {
   const c = t.admin.cycle;
 
   return (
-    <Card className="min-w-0">
+    <Card className="min-w-0 border-dashed bg-tint/[0.03]">
       <CardHeader>
         <h3 className="text-[14px] font-bold text-foreground">{c.unconfirmedDrafts} ({drafts.length})</h3>
         <p className="mt-1 text-[14px] text-secondary-foreground">{cardPayment ? c.draftsUnpaid : c.draftsUnconfirmed}</p>

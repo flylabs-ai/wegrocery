@@ -1196,6 +1196,8 @@ export const fr: Strings = {
       importListing: "📥 Importer une liste de prix",
       recapOrders: "Voir les commandes →",
       unconfirmedDrafts: "Brouillons non confirmés",
+      unpaidDraftsLabel: "Brouillons non payés",
+      draftsValue: "Valeur estimée des brouillons",
       draftsUnpaid: "Non payés : ils restent hors de la commande",
       draftsUnconfirmed: "Non confirmés : ils restent hors de la commande",
       draftNewOrder: "Nouvelle commande",
@@ -1203,7 +1205,7 @@ export const fr: Strings = {
       draftEstimate: (amount: string) => `environ ${amount}`,
       draftModified: (when: string) => `modifié le ${when}`,
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Brouillons non payés : ${drafts} (ils restent hors de la commande). Paiements en cours : ${pending} (remboursés s'ils arrivent après la clôture).`,
+        `Brouillons non payés : ${drafts} (exclus de la commande). Tentatives de paiement ouvertes : ${pending}. Elles peuvent concerner les brouillons déjà indiqués. Les paiements reçus après la clôture sont remboursés.`,
       cycleClosed: (n: number) => `Cycle clôturé. ${n} débits générés.`,
       editClosedBanner:
         "Vous modifiez un cycle clôturé. Les changements du coût de livraison recalculent les débits des membres et envoient des notifications d'ajustement. La date de clôture des commandes et le niveau d'accès ne peuvent plus être modifiés après la clôture.",
@@ -1379,6 +1381,10 @@ export const fr: Strings = {
       },
     },
     orders: {
+      confirmedTitle: "Commandes confirmées",
+      filterAria: "Afficher commandes et brouillons",
+      filters: { confirmed: "Confirmées", drafts: "Brouillons", all: "Les deux" },
+      noDrafts: "Il n'y a aucun brouillon non confirmé pour ce cycle.",
       distintaHint: "Le bon de commande en Excel : par membre, par produit et les totaux.",
       splitAria: "Afficher les commandes",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 cycle" : `${cycles} cycles`} · ${total} au total`,

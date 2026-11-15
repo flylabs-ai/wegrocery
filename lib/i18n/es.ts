@@ -1196,6 +1196,8 @@ export const es: Strings = {
       importListing: "📥 Importar lista de precios",
       recapOrders: "Ver los pedidos →",
       unconfirmedDrafts: "Borradores sin confirmar",
+      unpaidDraftsLabel: "Borradores sin pagar",
+      draftsValue: "Valor estimado de borradores",
       draftsUnpaid: "Sin pagar: quedan fuera del pedido",
       draftsUnconfirmed: "Sin confirmar: quedan fuera del pedido",
       draftNewOrder: "Nuevo pedido",
@@ -1203,7 +1205,7 @@ export const es: Strings = {
       draftEstimate: (amount: string) => `aprox. ${amount}`,
       draftModified: (when: string) => `modificado ${when}`,
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Borradores sin pagar: ${drafts} (quedan fuera del pedido). Pagos en curso: ${pending} (se reembolsan si llegan tras el cierre).`,
+        `Borradores sin pagar: ${drafts} (quedan fuera del pedido). Intentos de pago abiertos: ${pending}. Pueden corresponder a los borradores ya indicados. Los pagos recibidos después del cierre se reembolsan.`,
       cycleClosed: (n: number) => `Ciclo cerrado. ${n} cargos generados.`,
       editClosedBanner:
         "Estás editando un ciclo cerrado. Los cambios en el coste del envío recalculan los cargos de los socios y envían avisos de ajuste. La fecha de cierre de pedidos y el nivel de acceso no se pueden cambiar tras el cierre.",
@@ -1379,6 +1381,10 @@ export const es: Strings = {
       },
     },
     orders: {
+      confirmedTitle: "Pedidos confirmados",
+      filterAria: "Mostrar pedidos y borradores",
+      filters: { confirmed: "Confirmados", drafts: "Borradores", all: "Ambos" },
+      noDrafts: "No hay borradores sin confirmar para este ciclo.",
       distintaHint: "La hoja del pedido en Excel: por socio, por producto y los totales.",
       splitAria: "Mostrar los pedidos",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 ciclo" : `${cycles} ciclos`} · ${total} en total`,

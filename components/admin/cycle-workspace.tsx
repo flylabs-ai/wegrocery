@@ -44,7 +44,7 @@ import { CycleAccountsView } from "./cycle-accounts-view";
 import { SupplierSteps } from "./supplier-steps";
 import { CycleList, CyclePicker, type CycleListItem, type SettleState } from "./cycle-list";
 import { CycleOrdersView } from "./cycle-orders-view";
-import { CycleDraftsCard } from "./cycle-drafts-card";
+import { CycleDraftsSummary } from "./cycle-drafts-card";
 import { CyclePickupsView } from "./cycle-pickups-view";
 import { RichText } from "@/components/guide/rich-text";
 import { autoOpenEnabled } from "@/lib/cycles/cron-auth";
@@ -362,7 +362,7 @@ async function SelectedCycle({
             cycle={cycle}
             stats={stats}
             suppliers={suppliers}
-            draftsCard={rawStats && rawStats.drafts.length > 0 ? <CycleDraftsCard drafts={rawStats.drafts} cardPayment={perOrder} /> : null}
+            draftsSummary={rawStats && rawStats.drafts.length > 0 ? <CycleDraftsSummary drafts={rawStats.drafts} cardPayment={perOrder} /> : null}
           />
         ) : isPlanned ? (
           <Card>

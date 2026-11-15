@@ -2,7 +2,7 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-14 (draft visibility and reminders prepared for staging verification; migration 0055 applied to staging; release 1.46.0 unchanged).
+Last updated: 2026-11-15 (draft summaries and confirmed/draft filters in review; migration 0055 applied to staging; release 1.46.0 unchanged).
 
 ## Versions and migrations
 
@@ -15,7 +15,8 @@ Last updated: 2026-11-14 (draft visibility and reminders prepared for staging ve
 
 ## Waiting on `staging` for the next release
 
-- PR [#419](https://github.com/flylabs-ai/wegrocery/pull/419) to `staging` (depends on #418): reminders for unconfirmed drafts; migration `0055` was applied to staging on 2026-11-14, and is pending on production and demo. Example-brand installs apply it on build.
+- PR [#420](https://github.com/flylabs-ai/wegrocery/pull/420) to `staging`: draft count/value summaries in Overview, a separate draft section below confirmed orders with three filters, and clearer open-payment wording; no migration or money behavior change.
+- PR [#419](https://github.com/flylabs-ai/wegrocery/pull/419), merged into `staging` after #418: reminders for unconfirmed drafts; migration `0055` was applied to staging on 2026-11-14, and is pending on production and demo. Example-brand installs apply it on build.
 - PR [#418](https://github.com/flylabs-ai/wegrocery/pull/418), merged into `staging`: read-only unconfirmed draft lists in open-cycle Overview and Orders for admins and order referents, with the warning count following the same resume rules; no migration.
 
 Latest release: version 1.46.0 (planned cycles open by themselves, Home calendar icons, tidier cycle form; PR #408, no migration) was released through PR #414 (merge commit `50d2972`) after manual backup run `43062446242`; staging fast-forwarded to it and the example brand aligned (`f5bcb6a`). `CRON_SECRET` is set (Production) on porta-moneta, demo and example brand; `/api/cron/open-cycles` answers 404 without it. `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.46.0`; the GitHub release workflow published `v1.46.0`. First automatic run: 2026-11-12 at 05:00 UTC.
