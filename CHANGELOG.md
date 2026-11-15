@@ -24,8 +24,13 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.47.1] - 2026-11-15
+
+*Safer behind the scenes.*
+
 ### Security
 - 🔒 [tech] **Security headers on every response.** HSTS (two years, subdomains included), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` and a `Permissions-Policy` that turns off camera, microphone, location and browser payments. The list is in `lib/security/headers.ts`; the `X-Powered-By` header is gone. The Content Security Policy follows in a later release.
+- 🔐 [tech] **Encrypted backups.** The daily backup to Google Drive is encrypted with age (`gas-backup-YYYY-MM-DD.sql.gz.age`): nothing readable reaches Drive any more. It needs the secrets `BACKUP_AGE_RECIPIENT` (without it the backup fails instead of uploading a readable file), `BACKUP_AGE_RECIPIENT_RESTORE` and `AGE_RESTORE_IDENTITY` for the weekly restore test. The unencrypted backups already there expire on their own after 90 days.
 
 ## [1.47.0] - 2026-11-15
 
