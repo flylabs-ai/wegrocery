@@ -2,29 +2,24 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-15 (release 1.47.0 prepared from staging; production and demo remain on 1.46.0; migration 0055 applied to staging only).
+Last updated: 2026-11-15 (release 1.47.0 is in production, on the demo and on the example brand; migration 0055 applied everywhere).
 
 ## Versions and migrations
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.46.0 (2026-11-11) | up to `0054` |
-| Public demo (`main`) | 1.46.0 | up to `0054` |
-| Example brand installation | 1.46.0 | up to `0054` (migrates on build) |
-| Staging (`staging`) | 1.46.0 | up to `0055` (2026-11-14, Neon branch `staging`) |
+| Production (`main`) | 1.47.0 (2026-11-15) | up to `0055` |
+| Public demo (`main`) | 1.47.0 | up to `0055` |
+| Example brand installation | 1.47.0 | up to `0055` (migrates on build) |
+| Staging (`staging`) | 1.47.0 | up to `0055` (2026-11-14, Neon branch `staging`) |
 
 ## Waiting on `staging` for the next release
 
-Release 1.47.0 is prepared. Promotion requires a fresh green manual backup, migration `0055` on production and demo, explicit production-operation approval, and a merge-commit release PR. The release checklist also requires an explicit exception before a weekend release. No production migration or deployment has been performed during release preparation.
+- PR [#424](https://github.com/flylabs-ai/wegrocery/pull/424): security headers on every response (HSTS, nosniff, Referrer-Policy, X-Frame-Options, Permissions-Policy; `lib/security/headers.ts`). No migration. Planned for 1.47.1, with encrypted backups (age) once the maintainer has created the three secrets. A Content Security Policy follows, report-only first.
 
-- PR [#421](https://github.com/flylabs-ai/wegrocery/pull/421), merged into `staging`: expand each member's draft in Orders to see current products and quantities, with a compact two-line payment warning in Overview; read-only, no migration.
-- PR [#420](https://github.com/flylabs-ai/wegrocery/pull/420), merged into `staging`: draft count/value summaries in Overview, a separate draft section below confirmed orders with three filters, and clearer open-payment wording; no migration or money behavior change.
-- PR [#419](https://github.com/flylabs-ai/wegrocery/pull/419), merged into `staging` after #418: reminders for unconfirmed drafts; migration `0055` was applied to staging on 2026-11-14, and is pending on production and demo. Example-brand installs apply it on build.
-- PR [#418](https://github.com/flylabs-ai/wegrocery/pull/418), merged into `staging`: read-only unconfirmed draft lists in open-cycle Overview and Orders for admins and order referents, with the warning count following the same resume rules; no migration.
+Latest release: version 1.47.0 (draft visibility for admins, draft reminders, draft summaries and filters; PRs #418 to #421, migration `0055_draft_reminders.sql`) was released on Sunday 2026-11-15 through PR #423 (merge commit `6ed0274`), with the maintainer's explicit weekend exception. Manual backup run `43718997359` was green first (dump uploaded, invariants passed). Migration `0055` was then applied to production and the demo in one transaction with a 5 s lock timeout; on both, `_migrations` holds 56 rows, `draft_reminders` has its primary key and two foreign keys, and `app_rw` has SELECT, INSERT, UPDATE and DELETE on it and still cannot write `_migrations`. Staging was fast-forwarded to `main` and the example brand aligned (`7946d26`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.0`; Deploy Health passed on the release commit; the GitHub release workflow published `v1.47.0`; no runtime errors in the first minutes. The smoke test ran on the demo (login, Home, Order, Admin, Profile, changelog); production was checked without a session only (login page 200, cron endpoints 404 without the secret), so a signed-in look by the maintainer is still due. Draft reminders now run at 05:00 and 17:00 UTC where `CRON_SECRET` is set.
 
-Latest release: version 1.46.0 (planned cycles open by themselves, Home calendar icons, tidier cycle form; PR #408, no migration) was released through PR #414 (merge commit `50d2972`) after manual backup run `43062446242`; staging fast-forwarded to it and the example brand aligned (`f5bcb6a`). `CRON_SECRET` is set (Production) on porta-moneta, demo and example brand; `/api/cron/open-cycles` answers 404 without it. `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.46.0`; the GitHub release workflow published `v1.46.0`. First automatic run: 2026-11-12 at 05:00 UTC.
-
-WP0 is done (2026-11-11): the repositories are under `flylabs-ai`, and all four Vercel projects (porta-moneta, demo, example brand, Console) are in the Flylabs team. PR #407 was closed without merging. The production Deploy Hook and the Deploy Health bypass followed the project and work (Deploy Health run `43061887968` green on the new deploy).
+WP0 is done (2026-11-11): the repositories are under `flylabs-ai`, and all four Vercel projects (porta-moneta, demo, example brand, Console) are in the Flylabs team.
 
 ## Released in 1.45.0, off by default
 
@@ -40,7 +35,8 @@ Still to do before a group turns on limited quantities with card payments: a Str
 ## Known open items
 
 - Deploy Health on release commit `3015523`: runs `42621910904` (Console) and `42621987253` (demo) received HTTP 302 from deployment URLs. Production/staging checks passed and the demo public health endpoint reports healthy 1.45.1. Investigate deployment URL redirects and the Console-specific health contract separately; do not treat these failed runs as green.
-- Autonomous manual backup dispatch: requested by the maintainer, not yet enabled. The current GitHub CLI credential cannot dispatch workflows (403); do not broaden credentials or change production backup behavior without a scoped access plan.
+- Manual backup dispatch: an agent with the GitHub connector can start `backup.yml` (done for 1.47.0, run `43718997359`); the GitHub CLI credential on the maintainer's computer still gets 403 on dispatch.
+- The backup's rclone remote uses rclone's shared Google Drive client id, which rclone says stops working during 2026: the maintainer should create his own client id (https://rclone.org/drive/#making-your-own-client-id) and update `RCLONE_CONFIG`.
 
 - Issue #383: Dependabot advisories that do not affect the app (tracking).
 - Issue #111: ESLint 10, blocked upstream by `eslint-config-next`.
