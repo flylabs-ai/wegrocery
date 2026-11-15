@@ -27,7 +27,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 ### Added
 - 🔔 **A reminder to confirm your order.** If you still have a draft before a cycle closes, a notification and email tell you how to confirm it in time. Choose the channels in Profile → Notifications.
 - 🗄️ [tech] **Draft reminder setup.** Migration `0055_draft_reminders.sql` records one reminder per member and cycle; the existing `CRON_SECRET` enables two daily reminder runs, at 05:00 and 17:00 UTC.
-- 📝 **Keep drafts separate from confirmed orders.** Overview shows the draft count and estimated value; Orders lists drafts below confirmed orders, with Confirmed/Drafts/Both filters. Payment warnings explain that an open payment attempt may concern an already listed draft.
+- 📝 **Keep drafts separate from confirmed orders.** Overview shows draft count and estimated value with a compact payment warning. In Orders, filter confirmed orders and drafts, then expand each draft to see its products and quantities.
 
 ### Changed
 - 🪵 [tech] **Automatic opening leaves a trace.** Each daily run of `/api/cron/open-cycles` writes one line to the runtime logs with the number of cycles opened and their ids.

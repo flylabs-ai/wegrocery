@@ -19,6 +19,7 @@ describe("summarizeCycleDrafts", () => {
       kind: "new",
       estimatedTotal: 5,
       lineCount: 1,
+      lines: draft.lines,
       updatedAt,
     }]);
   });
@@ -42,7 +43,7 @@ describe("summarizeCycleDrafts", () => {
       ...draft,
       lines: [...draft.lines, { productId: "prd_removed", quantity: 50 }],
     }], products, confirmed);
-    expect(summary).toMatchObject({ kind: "changes", estimatedTotal: 5, lineCount: 1 });
+    expect(summary).toMatchObject({ kind: "changes", estimatedTotal: 5, lineCount: 1, lines: draft.lines });
   });
 
   it("excludes a draft that matches after removed products are dropped", () => {
@@ -64,6 +65,7 @@ describe("summarizeCycleDrafts", () => {
       kind: "changes",
       estimatedTotal: 0,
       lineCount: 0,
+      lines: [],
       updatedAt,
     }]);
     expect(summarizeCycleDrafts([{ ...draft, lines: null }], products, confirmed)).toEqual([]);

@@ -1204,8 +1204,9 @@ export const es: Strings = {
       draftChanges: "Cambios",
       draftEstimate: (amount: string) => `aprox. ${amount}`,
       draftModified: (when: string) => `modificado ${when}`,
+      draftNoProducts: "No hay productos en este borrador.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Borradores sin pagar: ${drafts} (quedan fuera del pedido). Intentos de pago abiertos: ${pending}. Pueden corresponder a los borradores ya indicados. Los pagos recibidos después del cierre se reembolsan.`,
+        `Borradores sin pagar: ${drafts}\nIntentos de pago abiertos: ${pending}. (Pueden corresponder a los borradores ya indicados)`,
       cycleClosed: (n: number) => `Ciclo cerrado. ${n} cargos generados.`,
       editClosedBanner:
         "Estás editando un ciclo cerrado. Los cambios en el coste del envío recalculan los cargos de los socios y envían avisos de ajuste. La fecha de cierre de pedidos y el nivel de acceso no se pueden cambiar tras el cierre.",

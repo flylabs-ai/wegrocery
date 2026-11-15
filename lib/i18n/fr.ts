@@ -1204,8 +1204,9 @@ export const fr: Strings = {
       draftChanges: "Modifications",
       draftEstimate: (amount: string) => `environ ${amount}`,
       draftModified: (when: string) => `modifié le ${when}`,
+      draftNoProducts: "Aucun produit dans ce brouillon.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Brouillons non payés : ${drafts} (exclus de la commande). Tentatives de paiement ouvertes : ${pending}. Elles peuvent concerner les brouillons déjà indiqués. Les paiements reçus après la clôture sont remboursés.`,
+        `Brouillons non payés : ${drafts}\nTentatives de paiement ouvertes : ${pending}. (Elles peuvent concerner les brouillons déjà indiqués)`,
       cycleClosed: (n: number) => `Cycle clôturé. ${n} débits générés.`,
       editClosedBanner:
         "Vous modifiez un cycle clôturé. Les changements du coût de livraison recalculent les débits des membres et envoient des notifications d'ajustement. La date de clôture des commandes et le niveau d'accès ne peuvent plus être modifiés après la clôture.",

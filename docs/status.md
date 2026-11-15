@@ -15,6 +15,7 @@ Last updated: 2026-11-15 (draft summaries and confirmed/draft filters in review;
 
 ## Waiting on `staging` for the next release
 
+- Draft detail follow-up: expand each member's draft in Orders to see current products and quantities, with a compact two-line payment warning in Overview; read-only, no migration.
 - PR [#420](https://github.com/flylabs-ai/wegrocery/pull/420) to `staging`: draft count/value summaries in Overview, a separate draft section below confirmed orders with three filters, and clearer open-payment wording; no migration or money behavior change.
 - PR [#419](https://github.com/flylabs-ai/wegrocery/pull/419), merged into `staging` after #418: reminders for unconfirmed drafts; migration `0055` was applied to staging on 2026-11-14, and is pending on production and demo. Example-brand installs apply it on build.
 - PR [#418](https://github.com/flylabs-ai/wegrocery/pull/418), merged into `staging`: read-only unconfirmed draft lists in open-cycle Overview and Orders for admins and order referents, with the warning count following the same resume rules; no migration.

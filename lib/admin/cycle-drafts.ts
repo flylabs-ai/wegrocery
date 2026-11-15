@@ -14,7 +14,18 @@ export type CycleDraftSummary = {
   kind: "new" | "changes";
   estimatedTotal: number;
   lineCount: number;
+  lines: ReadonlyArray<DraftLine>;
   updatedAt: Date;
+};
+
+export type CycleDraftDetails = Omit<CycleDraftSummary, "lines"> & {
+  lines: ReadonlyArray<DraftLine & {
+    productName: string;
+    variant: string | null;
+    format: string | null;
+    unit: string | null;
+    unitPrice: number;
+  }>;
 };
 
 // Match what /ordine can resume. Estimates cover the current products only,
@@ -39,6 +50,7 @@ export function summarizeCycleDrafts(
       kind: confirmed.length > 0 ? "changes" : "new",
       estimatedTotal: resumed.lines.reduce((total, line) => total + prices.get(line.productId)! * line.quantity, 0),
       lineCount: resumed.lines.length,
+      lines: resumed.lines,
       updatedAt: draft.updatedAt,
     });
   }
