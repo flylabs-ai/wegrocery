@@ -150,6 +150,8 @@ npm run test:int     # Integration tests on a test database (see below)
 
 **Deploy health**: `.github/workflows/deploy-health.yml` runs on every successful Vercel deployment status (staging, production, demo): it calls `/api/health` with the `x-vercel-protection-bypass` header (secret `VERCEL_AUTOMATION_BYPASS_SECRET`, a "Protection Bypass for Automation" of the porta-moneta project; `VERCEL_AUTOMATION_BYPASS_SECRET_DEMO`, the same for wegrocery-demo, whose deployment URLs answer 302 to the Vercel login without it; the Console is not checked) and fails unless it answers ok, with the database, at the `package.json` version of the deployed commit. Agents read its run to know a deploy is healthy, also behind Deployment Protection.
 
+**Security headers**: `lib/security/headers.ts` lists the headers `next.config.ts` sends on every path (HSTS, nosniff, Referrer-Policy, X-Frame-Options, Permissions-Policy); `lib/security/headers.test.ts` checks them. A feature that needs the camera, the location or an iframe changes that list in the same PR. The Content Security Policy is not there yet.
+
 **Health and errors**: `/api/health` (public, `lib/health.ts` from the FlyLabs Kit module `console`) returns `{ ok, version, db }`, 503 when the database does not answer within 3 seconds. Unexpected errors go through `reportError` (`lib/observability.ts`): always the server log, Sentry too when `SENTRY_DSN` is set, or `NEXT_PUBLIC_SENTRY_DSN` as Vercel's Sentry integration sets it (server only, errors only; data collection is off, console breadcrumbs are dropped and `beforeSend` cuts the query parameters a driver error quotes; initialized in `instrumentation.ts`, which hands the client to `reportError` through `globalThis`, since each route is a separate server bundle with its own copy of the module). Use it instead of a bare `console.error` for errors someone should look at.
 
 **Stripe on staging**: `scripts/stripe-staging-check.mjs` runs real sandbox refunds against the staging deploy; it refuses live keys and any database other than `STAGING_DB_HOST`. `scripts/stripe-deposit-check.mts` (run with tsx) does the same for the weighing deposit: two fake members pay a fake card cycle through real sandbox Checkouts, then the close, weighed actuals and `settleCycle` (a card refund for one, an amount due for the other); `cleanup` removes every fake row. The events the webhook endpoint must subscribe to are `REQUIRED_STRIPE_EVENTS` (`lib/payments/config.ts`).
@@ -671,7 +673,7 @@ All four emit `order_adjusted` or `order_corrected` notifications and `audit_log
 
 Neon free tier only retains 6 hours of point-in-time history (the Launch plan goes up to 7 days; see neon.com/pricing), so we ship a daily off-site backup to Google Drive.
 
-**Workflow**: [`.github/workflows/backup.yml`](.github/workflows/backup.yml) runs every day at 03:00 UTC (also via `workflow_dispatch`). It `pg_dump`s the Neon production DB, gzips the result, and `rclone copy`s it to `gdrive:PortaMoneta/GAS-Backups/`. After a successful upload it prunes that folder's own `gas-backup-*.sql.gz` files older than **90 days** (`rclone delete --min-age 90d`, top level only, other files untouched; Drive keeps them in the trash).
+**Workflow**: [`.github/workflows/backup.yml`](.github/workflows/backup.yml) runs every day at 03:00 UTC (also via `workflow_dispatch`). It `pg_dump`s the Neon production DB, gzips the result, **encrypts it with [age](https://age-encryption.org)** and `rclone copy`s it to `gdrive:PortaMoneta/GAS-Backups/` as `gas-backup-YYYY-MM-DD.sql.gz.age`. Nothing readable is written to disk or reaches Drive; without `BACKUP_AGE_RECIPIENT` the job fails instead of uploading a readable dump. After a successful upload it prunes that folder's own `gas-backup-*.sql.gz.age` files (and the unencrypted `gas-backup-*.sql.gz` of before 2026-11) older than **90 days** (`rclone delete --min-age 90d`, top level only, other files untouched; Drive keeps them in the trash).
 
 **Required GitHub Secrets** (Settings → Secrets and variables → Actions):
 
@@ -680,15 +682,22 @@ Neon free tier only retains 6 hours of point-in-time history (the Launch plan go
 | `DATABASE_URL` | Neon production connection string (same as Vercel) |
 | `RCLONE_CONFIG` | Full contents of local `~/.config/rclone/rclone.conf` after running `rclone config` (remote named `gdrive`) |
 | `GDRIVE_BACKUP_PATH` | `gdrive:PortaMoneta/GAS-Backups` |
+| `BACKUP_AGE_RECIPIENT` | age public key (`age1...`) of the group's backup key. The private key stays with whoever runs the group (password manager), never in GitHub: it opens a backup for a real restore |
+| `BACKUP_AGE_RECIPIENT_RESTORE` | Public key of a second key made only for the weekly restore test |
+| `AGE_RESTORE_IDENTITY` | Private key (`AGE-SECRET-KEY-1...`) of that second key, read only by `restore-test.yml` |
+
+Two keys, so GitHub never holds the group's own: `age-keygen -o backup-age-key.txt` (keep it safe: without it the backups cannot be opened) and `age-keygen -o restore-ci-key.txt`; `age-keygen -y <file>` prints a key's public half.
 
 **Weekly proof.** `restore-test.yml` (Sundays 04:30 UTC) does steps 2 to 4 below on its own and opens an issue if the restore, the counts or the invariants fail.
 
 **Restore procedure.** **Never restore directly into production** — always do it on a throwaway Neon branch first, verify, then promote or selectively copy rows back.
 
 ```bash
-# 1. Download gas-backup-YYYY-MM-DD.sql.gz from
+# 1. Download gas-backup-YYYY-MM-DD.sql.gz.age from
 #    Google Drive → IT & Processi → Porta Moneta App GAS → Backup_DB
-gunzip gas-backup-YYYY-MM-DD.sql.gz   # produces gas-backup-YYYY-MM-DD.sql
+#    and decrypt it with the group's backup key:
+age -d -i backup-age-key.txt gas-backup-YYYY-MM-DD.sql.gz.age | gunzip > gas-backup-YYYY-MM-DD.sql
+#    (a dump of before 2026-11 is a plain .sql.gz: gunzip it)
 
 # 2. In the Neon console (console.neon.tech):
 #    Branches → "Create branch" → from production → name e.g. "restore-test"

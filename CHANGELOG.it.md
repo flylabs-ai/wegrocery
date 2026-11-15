@@ -25,6 +25,14 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.47.1] - 15 novembre 2026
+
+*Più sicura dietro le quinte.*
+
+### Sicurezza
+- 🔒 [tecnico] **Header di sicurezza su ogni risposta.** HSTS (due anni, sottodomini inclusi), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` e una `Permissions-Policy` che spegne fotocamera, microfono, posizione e pagamenti del browser. L'elenco è in `lib/security/headers.ts`; tolto l'header `X-Powered-By`. La Content Security Policy arriva in un rilascio successivo.
+- 🔐 [tecnico] **Backup cifrati.** Il backup giornaliero su Google Drive è cifrato con age (`gas-backup-AAAA-MM-GG.sql.gz.age`): su Drive non arriva più nulla di leggibile. Servono i segreti `BACKUP_AGE_RECIPIENT` (senza, il backup fallisce invece di caricare un file in chiaro), `BACKUP_AGE_RECIPIENT_RESTORE` e `AGE_RESTORE_IDENTITY` per il test di ripristino settimanale. I backup in chiaro già presenti scadono da soli dopo 90 giorni.
+
 ## [1.47.0] - 15 novembre 2026
 
 *Bozze più chiare e un promemoria per confermare in tempo.*

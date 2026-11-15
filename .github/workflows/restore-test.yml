@@ -8,6 +8,13 @@ name: Weekly Backup Restore Test
 # comments on) a GitHub issue, like the nightly backup.
 #
 # Needs, besides the backup's own secrets (RCLONE_CONFIG, GDRIVE_BACKUP_PATH):
+#   - secret   AGE_RESTORE_IDENTITY           the private age key made only for
+#                                             this job ("AGE-SECRET-KEY-1...");
+#                                             its public key goes in
+#                                             BACKUP_AGE_RECIPIENT_RESTORE, so
+#                                             backup.yml encrypts for it as well
+#                                             as for the group's own key, which
+#                                             stays the one for real restores
 #   - secret   RESTORE_TEST_NEON_API_KEY      a Neon API key scoped to the project
 #                                             below (not CI's NEON_API_KEY, which is
 #                                             scoped to the CI project)
@@ -84,7 +91,7 @@ jobs:
             https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
             | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
           retry sudo timeout -k 10 90 apt-get $APT_OPTS update
-          retry sudo timeout -k 10 120 apt-get $APT_OPTS install -y --no-install-recommends postgresql-client-17
+          retry sudo timeout -k 10 120 apt-get $APT_OPTS install -y --no-install-recommends postgresql-client-17 age
           echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
 
       - name: Install rclone
@@ -97,13 +104,16 @@ jobs:
         env:
           RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
           DEST: ${{ secrets.GDRIVE_BACKUP_PATH }}
+          AGE_IDENTITY: ${{ secrets.AGE_RESTORE_IDENTITY }}
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.config/rclone"
           printf '%s' "$RCLONE_CONFIG_CONTENT" > "$HOME/.config/rclone/rclone.conf"
           chmod 600 "$HOME/.config/rclone/rclone.conf"
           case "$DEST" in *:*) ;; *) echo "GDRIVE_BACKUP_PATH is not a remote path" >&2; exit 1 ;; esac
-          LATEST=$(rclone lsf "$DEST" --files-only --include "gas-backup-*.sql.gz" | sort | tail -n 1)
+          # Encrypted dumps, and the unencrypted ones of before the change:
+          # on the same day the .age file sorts last and wins.
+          LATEST=$(rclone lsf "$DEST" --files-only --max-depth 1 --include "gas-backup-*.sql.gz.age" --include "gas-backup-*.sql.gz" | sort | tail -n 1)
           [ -n "$LATEST" ] || { echo "no dump found in the backup folder" >&2; exit 1; }
           echo "Latest dump: $LATEST"
           rclone copy "$DEST/$LATEST" . --stats=0
@@ -112,6 +122,17 @@ jobs:
           AGE_DAYS=$(( ( $(date -u +%s) - $(date -u -d "$DAY" +%s) ) / 86400 ))
           echo "Dump age: ${AGE_DAYS} day(s)"
           [ "$AGE_DAYS" -le 2 ] || { echo "the latest dump is ${AGE_DAYS} days old" >&2; exit 1; }
+          case "$LATEST" in
+            *.age)
+              test -n "$AGE_IDENTITY" || { echo "the latest dump is encrypted and AGE_RESTORE_IDENTITY is missing" >&2; exit 1; }
+              umask 077
+              printf '%s\n' "$AGE_IDENTITY" > "$RUNNER_TEMP/restore-key.txt"
+              age -d -i "$RUNNER_TEMP/restore-key.txt" -o "${LATEST%.age}" "$LATEST"
+              rm -f "$RUNNER_TEMP/restore-key.txt" "$LATEST"
+              LATEST="${LATEST%.age}"
+              ;;
+            *) echo "::warning::The latest dump is not encrypted: set BACKUP_AGE_RECIPIENT for backup.yml." ;;
+          esac
           echo "DUMP_FILE=$LATEST" >> "$GITHUB_ENV"
 
       - name: Create a throwaway database branch
@@ -160,7 +181,7 @@ jobs:
           NEON_PROJECT_ID: ${{ vars.RESTORE_TEST_NEON_PROJECT_ID || 'late-frost-62618439' }}
           BRANCH: ${{ steps.branch.outputs.name }}
         run: |
-          rm -f gas-backup-*.sql.gz "$HOME/.config/rclone/rclone.conf"
+          rm -f gas-backup-*.sql.gz gas-backup-*.sql.gz.age "$RUNNER_TEMP/restore-key.txt" "$HOME/.config/rclone/rclone.conf"
           if [ -n "$BRANCH" ]; then
             npx -y neonctl@7.0.1 branches delete "$BRANCH" --project-id "$NEON_PROJECT_ID" || true
           fi
