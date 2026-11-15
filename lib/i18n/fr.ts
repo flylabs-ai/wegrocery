@@ -549,6 +549,10 @@ export const fr: Strings = {
           label: "Date de retrait",
           hint: "Quand l'admin fixe ou change la date ou l'heure de retrait d'un cycle où vous avez commandé.",
         },
+        draft_reminder: {
+          label: "Commande à confirmer",
+          hint: "La veille de la clôture, si vous avez une commande ou des modifications non confirmées.",
+        },
         picked_up: {
           label: "Commande retirée",
           hint: "Quand votre commande est marquée comme retirée. Vous la retrouvez de toute façon dans l'Historique.",
@@ -1191,8 +1195,18 @@ export const fr: Strings = {
       closeProducts: "Fermer les produits",
       importListing: "📥 Importer une liste de prix",
       recapOrders: "Voir les commandes →",
+      unconfirmedDrafts: "Brouillons non confirmés",
+      unpaidDraftsLabel: "Brouillons non payés",
+      draftsValue: "Valeur estimée des brouillons",
+      draftsUnpaid: "Non payés : ils restent hors de la commande",
+      draftsUnconfirmed: "Non confirmés : ils restent hors de la commande",
+      draftNewOrder: "Nouvelle commande",
+      draftChanges: "Modifications",
+      draftEstimate: (amount: string) => `environ ${amount}`,
+      draftModified: (when: string) => `modifié le ${when}`,
+      draftNoProducts: "Aucun produit dans ce brouillon.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Brouillons non payés : ${drafts} (ils restent hors de la commande). Paiements en cours : ${pending} (remboursés s'ils arrivent après la clôture).`,
+        `Brouillons non payés : ${drafts}\nTentatives de paiement ouvertes : ${pending}. (Elles peuvent concerner les brouillons déjà indiqués)`,
       cycleClosed: (n: number) => `Cycle clôturé. ${n} débits générés.`,
       editClosedBanner:
         "Vous modifiez un cycle clôturé. Les changements du coût de livraison recalculent les débits des membres et envoient des notifications d'ajustement. La date de clôture des commandes et le niveau d'accès ne peuvent plus être modifiés après la clôture.",
@@ -1368,6 +1382,10 @@ export const fr: Strings = {
       },
     },
     orders: {
+      confirmedTitle: "Commandes confirmées",
+      filterAria: "Afficher commandes et brouillons",
+      filters: { confirmed: "Confirmées", drafts: "Brouillons", all: "Les deux" },
+      noDrafts: "Il n'y a aucun brouillon non confirmé pour ce cycle.",
       distintaHint: "Le bon de commande en Excel : par membre, par produit et les totaux.",
       splitAria: "Afficher les commandes",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 cycle" : `${cycles} cycles`} · ${total} au total`,
@@ -2439,6 +2457,15 @@ export const fr: Strings = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Commande à confirmer : ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `Vous avez une commande non confirmée pour "${title}". Choisissez "${action}" avant ${deadline}. Sans confirmation, la commande ne sera pas envoyée.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `Vous avez une commande non payée pour "${title}". Choisissez "${action}" et terminez le paiement par carte avant ${deadline}. Sans paiement terminé, la commande ne sera pas envoyée.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `Vous avez des modifications non confirmées pour "${title}". Choisissez "${action}" avant ${deadline}. Sans confirmation, la commande déjà confirmée reste valable.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `Vous avez des modifications non confirmées pour "${title}". Choisissez "${action}" et terminez le paiement par carte avant ${deadline}. Sans paiement terminé, la commande déjà confirmée reste valable.`,
     openAlertTitle: (title: string) => `Les commandes sont ouvertes : ${title}`,
     openAlertBody: (title: string, deadline: string) => `Vous avez demandé à être prévenu : vous pouvez commander « ${title} » jusqu'au ${deadline}.`,
     orderClosedTitle: "Commande clôturée",

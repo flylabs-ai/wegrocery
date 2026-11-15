@@ -549,6 +549,10 @@ export const es: Strings = {
           label: "Fecha de recogida",
           hint: "Cuando el admin fija o cambia la fecha o la hora de recogida de un ciclo en el que has pedido.",
         },
+        draft_reminder: {
+          label: "Pedido por confirmar",
+          hint: "El día antes del cierre, si tienes un pedido o cambios sin confirmar.",
+        },
         picked_up: {
           label: "Pedido recogido",
           hint: "Cuando se marca que has recogido tu pedido. Lo encuentras igualmente en el Historial.",
@@ -1191,8 +1195,18 @@ export const es: Strings = {
       closeProducts: "Cerrar productos",
       importListing: "📥 Importar lista de precios",
       recapOrders: "Ver los pedidos →",
+      unconfirmedDrafts: "Borradores sin confirmar",
+      unpaidDraftsLabel: "Borradores sin pagar",
+      draftsValue: "Valor estimado de borradores",
+      draftsUnpaid: "Sin pagar: quedan fuera del pedido",
+      draftsUnconfirmed: "Sin confirmar: quedan fuera del pedido",
+      draftNewOrder: "Nuevo pedido",
+      draftChanges: "Cambios",
+      draftEstimate: (amount: string) => `aprox. ${amount}`,
+      draftModified: (when: string) => `modificado ${when}`,
+      draftNoProducts: "No hay productos en este borrador.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Borradores sin pagar: ${drafts} (quedan fuera del pedido). Pagos en curso: ${pending} (se reembolsan si llegan tras el cierre).`,
+        `Borradores sin pagar: ${drafts}\nIntentos de pago abiertos: ${pending}. (Pueden corresponder a los borradores ya indicados)`,
       cycleClosed: (n: number) => `Ciclo cerrado. ${n} cargos generados.`,
       editClosedBanner:
         "Estás editando un ciclo cerrado. Los cambios en el coste del envío recalculan los cargos de los socios y envían avisos de ajuste. La fecha de cierre de pedidos y el nivel de acceso no se pueden cambiar tras el cierre.",
@@ -1368,6 +1382,10 @@ export const es: Strings = {
       },
     },
     orders: {
+      confirmedTitle: "Pedidos confirmados",
+      filterAria: "Mostrar pedidos y borradores",
+      filters: { confirmed: "Confirmados", drafts: "Borradores", all: "Ambos" },
+      noDrafts: "No hay borradores sin confirmar para este ciclo.",
       distintaHint: "La hoja del pedido en Excel: por socio, por producto y los totales.",
       splitAria: "Mostrar los pedidos",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 ciclo" : `${cycles} ciclos`} · ${total} en total`,
@@ -2439,6 +2457,15 @@ export const es: Strings = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Pedido por confirmar: ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `Tienes un pedido sin confirmar para "${title}". Pulsa "${action}" antes de ${deadline}. Si no lo confirmas, el pedido no se enviará.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `Tienes un pedido sin pagar para "${title}". Pulsa "${action}" y completa el pago con tarjeta antes de ${deadline}. Si no completas el pago, el pedido no se enviará.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `Tienes cambios sin confirmar para "${title}". Pulsa "${action}" antes de ${deadline}. Si no los confirmas, el pedido ya confirmado sigue siendo válido.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `Tienes cambios sin confirmar para "${title}". Pulsa "${action}" y completa el pago con tarjeta antes de ${deadline}. Si no completas el pago, el pedido ya confirmado sigue siendo válido.`,
     openAlertTitle: (title: string) => `Ya se puede pedir: ${title}`,
     openAlertBody: (title: string, deadline: string) => `Pediste que te avisáramos: puedes pedir "${title}" hasta el ${deadline}.`,
     orderClosedTitle: "Pedido cerrado",

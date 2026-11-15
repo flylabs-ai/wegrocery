@@ -1,7 +1,7 @@
 "use client";
 
 import { confirm } from "@/components/ui/confirm-dialog";
-import { useState, useTransition, useEffect, useCallback } from "react";
+import { useState, useTransition, useEffect, useCallback, type ReactNode } from "react";
 import { toast } from "@/components/ui/toast";
 import { Sheet } from "@/components/ui/sheet";
 import { formatDeadline, formatLongDay, formatPickupSlot } from "@/lib/i18n/deadline";
@@ -256,10 +256,12 @@ export function OpenCycleOverview({
   cycle,
   stats,
   suppliers,
+  draftsSummary,
 }: {
   cycle: SerializedCycle;
   stats: CycleStats;
   suppliers: Supplier[];
+  draftsSummary: ReactNode;
 }) {
   const { perOrderWarning } = closeWarnings(cycle, stats);
   return (
@@ -275,8 +277,9 @@ export function OpenCycleOverview({
             <div className="text-[20px] font-bold tabular-nums text-foreground">{formatEur(stats.grandTotal)}</div>
           </div>
         </div>
+        {draftsSummary && <div className="mt-3">{draftsSummary}</div>}
         {perOrderWarning && (
-          <div className="mt-3 rounded-lg border border-primary-mid bg-primary-bg p-3 text-[13px] text-foreground">
+          <div className="mt-3 whitespace-pre-line rounded-lg border border-primary-mid bg-primary-bg p-3 text-[13px] text-foreground">
             {perOrderWarning}
           </div>
         )}

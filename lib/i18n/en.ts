@@ -549,6 +549,10 @@ export const en: Strings = {
           label: "Pickup date",
           hint: "When the admin sets or changes the pickup date or time of a cycle you ordered in.",
         },
+        draft_reminder: {
+          label: "Order to confirm",
+          hint: "The day before the deadline, if you have an unconfirmed order or changes.",
+        },
         picked_up: {
           label: "Order collected",
           hint: "When your order is marked as collected. You find it in History either way.",
@@ -1191,8 +1195,18 @@ export const en: Strings = {
       closeProducts: "Close Products",
       importListing: "📥 Import listing",
       recapOrders: "See the orders →",
+      unconfirmedDrafts: "Unconfirmed drafts",
+      unpaidDraftsLabel: "Unpaid drafts",
+      draftsValue: "Estimated draft value",
+      draftsUnpaid: "Unpaid: they stay out of the order",
+      draftsUnconfirmed: "Unconfirmed: they stay out of the order",
+      draftNewOrder: "New order",
+      draftChanges: "Changes",
+      draftEstimate: (amount: string) => `about ${amount}`,
+      draftModified: (when: string) => `edited ${when}`,
+      draftNoProducts: "No products in this draft.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Unpaid drafts: ${drafts} (they stay out of the order). Payments in progress: ${pending} (refunded if they arrive after the close).`,
+        `Unpaid drafts: ${drafts}\nOpen payment attempts: ${pending}. (These may refer to the drafts already listed)`,
       cycleClosed: (n: number) => `Cycle closed. ${n} charges generated.`,
       editClosedBanner:
         "You are editing a closed cycle. Shipping cost changes will recalculate member charges and send adjustment notifications. Order closing date and access level cannot be changed after closure.",
@@ -1368,6 +1382,10 @@ export const en: Strings = {
       },
     },
     orders: {
+      confirmedTitle: "Confirmed orders",
+      filterAria: "Show orders and drafts",
+      filters: { confirmed: "Confirmed", drafts: "Drafts", all: "Both" },
+      noDrafts: "There are no unconfirmed drafts for this cycle.",
       distintaHint: "The order sheet in Excel: by member, by product and the totals.",
       splitAria: "Show the orders",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 cycle" : `${cycles} cycles`} · ${total} total`,
@@ -2439,6 +2457,15 @@ export const en: Strings = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Confirm your order: ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `You have an unconfirmed order for "${title}". Select "${action}" by ${deadline}. If you do not confirm it, the order will not be sent.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `You have an unpaid order for "${title}". Select "${action}" and complete the card payment by ${deadline}. If you do not complete the payment, the order will not be sent.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `You have unconfirmed changes for "${title}". Select "${action}" by ${deadline}. If you do not confirm them, your confirmed order remains valid.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `You have unconfirmed changes for "${title}". Select "${action}" and complete the card payment by ${deadline}. If you do not complete the payment, your confirmed order remains valid.`,
     openAlertTitle: (title: string) => `Orders are open: ${title}`,
     openAlertBody: (title: string, deadline: string) => `You asked to be told: you can order "${title}" until ${deadline}.`,
     orderClosedTitle: "Order closed",

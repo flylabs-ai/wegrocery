@@ -21,9 +21,9 @@ describe("CATEGORY_DEFAULTS", () => {
     }
   });
 
-  it("sends no email by default: members turn email on themselves", () => {
+  it("sends no email by default except for draft_reminder", () => {
     for (const category of NOTIFICATION_CATEGORIES) {
-      expect(CATEGORY_DEFAULTS[category].email).toBe(false);
+      expect(CATEGORY_DEFAULTS[category].email).toBe(category === "draft_reminder");
     }
   });
 });
@@ -62,6 +62,11 @@ describe("categoryForType", () => {
   it("files the pickup receipt under its own category, off by default", () => {
     expect(categoryForType("order_picked_up")).toBe("picked_up");
     expect(channelsForType("order_picked_up", resolvePreferences([]))).toEqual({ app: false, email: false });
+  });
+
+  it("files a draft reminder under its own category with both channels on", () => {
+    expect(categoryForType("order_draft_reminder")).toBe("draft_reminder");
+    expect(channelsForType("order_draft_reminder", resolvePreferences([]))).toEqual({ app: true, email: true });
   });
 
   it("returns null for unknown types", () => {
@@ -146,6 +151,7 @@ describe("full type to category map", () => {
   it("pins every known type", () => {
     const expected: Record<string, string> = {
       cycle_opened: "cycle_opened",
+      order_draft_reminder: "draft_reminder",
       order_closed: "order_charge",
       settlement_due: "order_charge",
       manual_charge_recorded: "order_charge",

@@ -24,6 +24,18 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.47.0] - 2026-11-15
+
+*See drafts clearly and confirm in time.*
+
+### Added
+- 🔔 **A reminder to confirm your order.** If you still have a draft before a cycle closes, a notification and email tell you how to confirm it in time. Choose the channels in Profile → Notifications.
+- 🗄️ [tech] **Draft reminder setup.** Migration `0055_draft_reminders.sql` records one reminder per member and cycle; the existing `CRON_SECRET` enables two daily reminder runs, at 05:00 and 17:00 UTC.
+- 📝 **Keep drafts separate from confirmed orders.** Overview shows draft count and estimated value with a compact payment warning. In Orders, filter confirmed orders and drafts, then expand each draft to see its products and quantities.
+
+### Changed
+- 🪵 [tech] **Automatic opening leaves a trace.** Each daily run of `/api/cron/open-cycles` writes one line to the runtime logs with the number of cycles opened and their ids.
+
 ## [1.46.0] - 2026-11-11
 
 *Planned cycles open by themselves.*
@@ -890,6 +902,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0
 [1.46.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.46.0
 [1.45.2]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.45.2
 [1.45.1]: https://github.com/federicodecillia/wegrocery/releases/tag/v1.45.1

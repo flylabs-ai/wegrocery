@@ -312,6 +312,21 @@ export const orderDrafts = pgTable(
   ],
 );
 
+// One reminder reservation per member and cycle, even with the app channel off.
+export const draftReminders = pgTable(
+  "draft_reminders",
+  {
+    cycleId: text("cycle_id")
+      .notNull()
+      .references(() => orderCycles.cycleId, { onDelete: "cascade" }),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => members.memberId, { onDelete: "cascade" }),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.cycleId, table.memberId] })],
+);
+
 // Online top-ups (Stripe Checkout), drizzle/0016_stripe_payments.sql.
 // status: pending -> succeeded | failed | expired, guarded UPDATEs in
 // lib/payments/webhook.ts; succeeded <-> partially_refunded | refunded,

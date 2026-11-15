@@ -549,6 +549,10 @@ export const it = {
           label: "Data di ritiro",
           hint: "Quando l'admin fissa o cambia la data o l'orario di ritiro di un ciclo in cui hai ordinato.",
         },
+        draft_reminder: {
+          label: "Ordine da confermare",
+          hint: "Il giorno prima della chiusura, se hai un ordine o delle modifiche non confermate.",
+        },
         picked_up: {
           label: "Ordine ritirato",
           hint: "Quando viene segnato che hai ritirato il tuo ordine. Lo trovi comunque nello Storico.",
@@ -1193,8 +1197,18 @@ export const it = {
       closeProducts: "Chiudi Prodotti",
       importListing: "📥 Importa listino",
       recapOrders: "Vedi gli ordini →",
+      unconfirmedDrafts: "Bozze non confermate",
+      unpaidDraftsLabel: "Bozze non pagate",
+      draftsValue: "Valore indicativo bozze",
+      draftsUnpaid: "Non pagate: restano fuori dall'ordine",
+      draftsUnconfirmed: "Non confermate: restano fuori dall'ordine",
+      draftNewOrder: "Nuovo ordine",
+      draftChanges: "Modifiche",
+      draftEstimate: (amount: string) => `circa ${amount}`,
+      draftModified: (when: string) => `modificata ${when}`,
+      draftNoProducts: "Nessun prodotto in questa bozza.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Bozze non pagate: ${drafts} (restano fuori dall'ordine). Pagamenti in corso: ${pending} (se arrivano dopo la chiusura vengono rimborsati).`,
+        `Bozze non pagate: ${drafts}\nTentativi di pagamento aperti: ${pending}. (Possono riferirsi alle bozze già elencate)`,
       cycleClosed: (n: number) => `Ciclo chiuso. ${n} addebiti generati.`,
       editClosedBanner:
         "Stai modificando un ciclo gia' chiuso. Le modifiche alle spese di spedizione ricalcoleranno gli addebiti dei soci e invieranno una notifica di rettifica. Chiusura ordini e livello di accesso non sono modificabili a ciclo chiuso.",
@@ -1371,6 +1385,10 @@ export const it = {
       },
     },
     orders: {
+      confirmedTitle: "Ordini confermati",
+      filterAria: "Mostra ordini e bozze",
+      filters: { confirmed: "Confermati", drafts: "Bozze", all: "Entrambi" },
+      noDrafts: "Non ci sono bozze non confermate per questo ciclo.",
       distintaHint: "La distinta in Excel: per socio, per prodotto e i totali.",
       splitAria: "Mostra gli ordini",
       memberSummary: (cycles: number, total: string) => `${cycles === 1 ? "1 ciclo" : `${cycles} cicli`} · ${total} totale`,
@@ -2447,6 +2465,15 @@ export const it = {
     },
   },
   notificationsServer: {
+    draftReminderTitle: (title: string) => `Ordine da confermare: ${title}`,
+    draftReminderNewWallet: (title: string, deadline: string, action: string) =>
+      `Hai un ordine non confermato per "${title}". Premi "${action}" entro ${deadline}. Se non lo confermi, l'ordine non verrà inviato.`,
+    draftReminderNewCard: (title: string, deadline: string, action: string) =>
+      `Hai un ordine non pagato per "${title}". Premi "${action}" e completa il pagamento con carta entro ${deadline}. Se non completi il pagamento, l'ordine non verrà inviato.`,
+    draftReminderChangesWallet: (title: string, deadline: string, action: string) =>
+      `Hai modifiche non confermate per "${title}". Premi "${action}" entro ${deadline}. Se non le confermi, resta valido l'ordine già confermato.`,
+    draftReminderChangesCard: (title: string, deadline: string, action: string) =>
+      `Hai modifiche non confermate per "${title}". Premi "${action}" e completa il pagamento con carta entro ${deadline}. Se non completi il pagamento, resta valido l'ordine già confermato.`,
     openAlertTitle: (title: string) => `Sono aperti gli ordini: ${title}`,
     openAlertBody: (title: string, deadline: string) => `Avevi chiesto di essere avvisato: puoi ordinare "${title}" fino a ${deadline}.`,
     orderClosedTitle: "Ordine chiuso",

@@ -25,6 +25,18 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.47.0] - 15 novembre 2026
+
+*Bozze più chiare e un promemoria per confermare in tempo.*
+
+### Aggiunte
+- 🔔 **Un promemoria per confermare l'ordine.** Se hai ancora una bozza prima della chiusura del ciclo, una notifica e un'email ti ricordano come confermarla in tempo. Scegli i canali in Profilo → Notifiche.
+- 🗄️ [tecnico] **Configurazione dei promemoria.** La migrazione `0055_draft_reminders.sql` registra un promemoria per socio e ciclo; il `CRON_SECRET` già esistente abilita due giri giornalieri, alle 05:00 e alle 17:00 UTC.
+- 📝 **Distingui le bozze dagli ordini confermati.** In Panoramica vedi numero e valore indicativo delle bozze con un avviso sui pagamenti più compatto. In Ordini, filtra confermati e bozze ed espandi ogni bozza per vederne prodotti e quantità.
+
+### Modificato
+- 🪵 [tecnico] **L'apertura automatica lascia traccia.** Ogni giro giornaliero di `/api/cron/open-cycles` scrive una riga nei log runtime con il numero di cicli aperti e i loro id.
+
 ## [1.46.0] - 11 novembre 2026
 
 *I cicli in programma si aprono da soli.*
@@ -892,6 +904,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0
 [1.46.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.46.0
 [1.45.2]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.45.2
 [1.45.1]: https://github.com/federicodecillia/wegrocery/releases/tag/v1.45.1
