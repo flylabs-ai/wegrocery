@@ -1204,8 +1204,9 @@ export const en: Strings = {
       draftChanges: "Changes",
       draftEstimate: (amount: string) => `about ${amount}`,
       draftModified: (when: string) => `edited ${when}`,
+      draftNoProducts: "No products in this draft.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Unpaid drafts: ${drafts} (excluded from the order). Open payment attempts: ${pending}. These may refer to the drafts already listed. Payments received after the deadline are refunded.`,
+        `Unpaid drafts: ${drafts}\nOpen payment attempts: ${pending}. (These may refer to the drafts already listed)`,
       cycleClosed: (n: number) => `Cycle closed. ${n} charges generated.`,
       editClosedBanner:
         "You are editing a closed cycle. Shipping cost changes will recalculate member charges and send adjustment notifications. Order closing date and access level cannot be changed after closure.",

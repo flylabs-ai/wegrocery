@@ -1206,8 +1206,9 @@ export const it = {
       draftChanges: "Modifiche",
       draftEstimate: (amount: string) => `circa ${amount}`,
       draftModified: (when: string) => `modificata ${when}`,
+      draftNoProducts: "Nessun prodotto in questa bozza.",
       perOrderCloseWarning: (drafts: number, pending: number) =>
-        `Bozze non pagate: ${drafts} (restano fuori dall'ordine). Tentativi di pagamento aperti: ${pending}. Possono riferirsi alle bozze già elencate. I pagamenti ricevuti dopo la chiusura vengono rimborsati.`,
+        `Bozze non pagate: ${drafts}\nTentativi di pagamento aperti: ${pending}. (Possono riferirsi alle bozze già elencate)`,
       cycleClosed: (n: number) => `Ciclo chiuso. ${n} addebiti generati.`,
       editClosedBanner:
         "Stai modificando un ciclo gia' chiuso. Le modifiche alle spese di spedizione ricalcoleranno gli addebiti dei soci e invieranno una notifica di rettifica. Chiusura ordini e livello di accesso non sono modificabili a ciclo chiuso.",

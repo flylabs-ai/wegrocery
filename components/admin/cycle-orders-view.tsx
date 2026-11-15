@@ -1,5 +1,5 @@
 import { getAdminCycleSummary } from "@/lib/db/queries";
-import type { CycleDraftSummary } from "@/lib/admin/cycle-drafts";
+import type { CycleDraftDetails } from "@/lib/admin/cycle-drafts";
 import { formatEur, getProductEmoji } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { t } from "@/lib/i18n";
@@ -24,7 +24,7 @@ export async function CycleOrdersView({
   cycleId: string;
   cycleTitle: string;
   cycleStatus: string;
-  drafts: ReadonlyArray<CycleDraftSummary>;
+  drafts: ReadonlyArray<CycleDraftDetails>;
   cardPayment: boolean;
 }) {
   const summary = await getAdminCycleSummary(cycleId);

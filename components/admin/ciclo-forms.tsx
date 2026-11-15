@@ -279,7 +279,7 @@ export function OpenCycleOverview({
         </div>
         {draftsSummary && <div className="mt-3">{draftsSummary}</div>}
         {perOrderWarning && (
-          <div className="mt-3 rounded-lg border border-primary-mid bg-primary-bg p-3 text-[13px] text-foreground">
+          <div className="mt-3 whitespace-pre-line rounded-lg border border-primary-mid bg-primary-bg p-3 text-[13px] text-foreground">
             {perOrderWarning}
           </div>
         )}

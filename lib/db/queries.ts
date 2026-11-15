@@ -22,7 +22,7 @@ import {
   type DraftLine,
 } from "./schema";
 import type { CycleLedgerRow } from "@/lib/admin/cycle-money";
-import { summarizeCycleDrafts } from "@/lib/admin/cycle-drafts";
+import { summarizeCycleDrafts, type CycleDraftDetails } from "@/lib/admin/cycle-drafts";
 import { buildCycleHistory, type CycleHistoryEntry } from "@/lib/cycle-history";
 import { MISS_RETENTION_DAYS } from "@/lib/guide/search-misses";
 import { normalizeEmail } from "@/lib/member-email";
@@ -595,7 +595,7 @@ export async function getAllCycles(limit = 30) {
 
 // Read only: names, current products and the draft owners' confirmed lines.
 // Normalize like getOrderDraft so the admin sees the same resumable drafts.
-export async function getCycleDrafts(cycleId: string) {
+export async function getCycleDrafts(cycleId: string): Promise<CycleDraftDetails[]> {
   const db = getDb();
   const [drafts, cycleProducts] = await Promise.all([
     db
@@ -604,7 +604,14 @@ export async function getCycleDrafts(cycleId: string) {
       .innerJoin(members, eq(orderDrafts.memberId, members.memberId))
       .where(eq(orderDrafts.cycleId, cycleId)),
     db
-      .select({ productId: products.productId, unitPrice: products.unitPrice })
+      .select({
+        productId: products.productId,
+        productName: products.name,
+        variant: products.variant,
+        format: products.format,
+        unit: products.unit,
+        unitPrice: products.unitPrice,
+      })
       .from(products)
       .where(and(eq(products.cycleId, cycleId), eq(products.active, true))),
   ]);
@@ -621,11 +628,19 @@ export async function getCycleDrafts(cycleId: string) {
     confirmedLinesByMember.set(line.memberId, lines);
   }
 
+  const productsById = new Map(cycleProducts.map((product) => [product.productId, product]));
   return summarizeCycleDrafts(
     drafts.map((draft) => ({ ...draft, lines: normalizeDraftLines(draft.lines) })),
     cycleProducts,
     confirmedLinesByMember,
-  );
+  ).map((draft) => ({
+    ...draft,
+    lines: draft.lines.map((line) => {
+      // Summaries contain only products still available in this cycle.
+      const product = productsById.get(line.productId)!;
+      return { ...product, quantity: line.quantity, unitPrice: Number(product.unitPrice) };
+    }),
+  }));
 }
 
 export async function getOpenCycleStats(cycleId: string) {
