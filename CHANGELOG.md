@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Security
+- 🛡️ [tech] **Content Security Policy, observing.** Every page now carries a policy with a per-request nonce in `Content-Security-Policy-Report-Only`: nothing is blocked yet, browsers report what would be to `/api/csp-report` and the runtime logs keep one line per distinct violation. It is enforced after a week without real violations.
+
 ## [1.47.1] - 2026-11-15
 
 *Safer behind the scenes.*
