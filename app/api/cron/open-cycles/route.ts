@@ -1,6 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db/client";
-import { cronAuthorized } from "@/lib/cycles/cron-auth";
+import { cronAuthorized } from "@/lib/security/cron-auth";
 import { openDuePlannedCycles } from "@/lib/cycles/open-planned";
 
 // Once a day, early in the morning (vercel.json, Vercel Cron, Hobby too):
@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request): Promise<Response> {
-  if (!cronAuthorized(request.headers.get("authorization"), process.env.CRON_SECRET)) {
+  if (!cronAuthorized(request.headers, process.env.CRON_SECRET)) {
     return new Response("Not found", { status: 404 });
   }
   try {

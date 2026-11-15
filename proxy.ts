@@ -1,12 +1,32 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hasSessionCookie } from "@/lib/auth/cookie";
-import { CSP_HEADER, buildCsp, generateNonce } from "@/lib/security/csp";
+import { buildCsp, cspHeaderName, CSP_REPORT_PATH, generateNonce } from "@/lib/security/csp";
 
 // Every page response carries the Content Security Policy with a new nonce
-// (lib/security/csp.ts). The same header on the request lets Next.js read the
-// nonce and put it on its own scripts.
+// (lib/security/csp.ts, FlyLabs Kit module sicurezza). The same header on the
+// request lets Next.js read the nonce and put it on its own scripts.
+// Report-Only for now: a week of reports before it is enforced (Playbook 11.2).
+const CSP_HEADER = cspHeaderName("report-only");
+
+// What WeGrocery adds to the kit's base policy:
+// - img-src https: the group's logo may live on its own host;
+// - font-src data: and worker-src blob: for inlined fonts and the PWA;
+// - form-action: card payments leave through Stripe Checkout, Google sign-in
+//   through Google's page.
+const CSP_EXTRA = {
+  "img-src": ["https:"],
+  "font-src": ["data:"],
+  "worker-src": ["blob:"],
+  "form-action": ["https://checkout.stripe.com", "https://accounts.google.com"],
+} as const;
+
 function withCsp(request: NextRequest): NextResponse {
-  const csp = buildCsp(generateNonce(), { dev: process.env.NODE_ENV === "development" });
+  const csp = buildCsp({
+    nonce: generateNonce(),
+    dev: process.env.NODE_ENV === "development",
+    reportUri: CSP_REPORT_PATH,
+    extra: CSP_EXTRA,
+  });
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(CSP_HEADER.toLowerCase(), csp);
   const response = NextResponse.next({ request: { headers: requestHeaders } });

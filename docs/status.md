@@ -15,7 +15,7 @@ Last updated: 2026-11-15 (release 1.47.2 is in production, on the demo and on th
 
 ## Waiting on `staging` for the next release
 
-Nothing. Next planned: enforce the Content Security Policy (`Content-Security-Policy` instead of `-Report-Only`) after a week of `csp-report` lines without real violations, around 2026-11-22. On staging the only report so far is `frame-src https://vercel.live` (Vercel's preview toolbar, not on production).
+FlyLabs Kit modules `sicurezza` 1.0 and `i18n` 1.0 adopted (security headers, report-only CSP, CSP report endpoint and cron check from the kit, same policy as 1.47.2; parity test of the four language packs against Italian, with the bank reference template placeholders listed as translated on purpose). Next planned: enforce the Content Security Policy (`Content-Security-Policy` instead of `-Report-Only`) after a week of `csp-report` lines without real violations, around 2026-11-22. On staging the only report so far is `frame-src https://vercel.live` (Vercel's preview toolbar, not on production).
 
 Latest release: version 1.47.2 (report-only Content Security Policy with a per-request nonce and the `/api/csp-report` endpoint, PR #428) was released on Sunday 2026-11-15 through PR #430 (merge commit `89c07e2`) at the maintainer's explicit request, after the maintainer tried Google sign-in and a card payment on staging with the policy on. No migration and no data change. Staging was fast-forwarded to `main` and the example brand aligned (`c3738df`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.2`; production `/login` sends the policy with a nonce; the GitHub release workflow published `v1.47.2`.
 

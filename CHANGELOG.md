@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+- 🛡️ **Security code from the FlyLabs Kit** [tech]: security headers, the Content Security Policy (still Report-Only), the CSP report endpoint and the cron check now come from the kit module `sicurezza` 1.0. Same policy as 1.47.2.
+- 🌍 **Language checks from the FlyLabs Kit** [tech]: the four language packs are now checked against the Italian one (keys, placeholders, functions), and the language comes from the kit module `i18n` 1.0.
+
 ## [1.47.2] - 2026-11-15
 
 *Keeping watch over what each page loads.*
