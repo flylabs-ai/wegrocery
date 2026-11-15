@@ -15,13 +15,13 @@ export function CycleDraftsSummary({ drafts, cardPayment }: {
 
   return (
     <div role="group" aria-label={c.unconfirmedDrafts} className="grid grid-cols-2 gap-3">
-      <div className="rounded-lg border border-dashed border-border bg-tint/[0.03] px-3 py-2">
+      <div className="flex flex-col rounded-lg border border-dashed border-border bg-tint/[0.03] px-3 py-2">
         <div className="text-label text-secondary-foreground">{cardPayment ? c.unpaidDraftsLabel : c.unconfirmedDrafts}</div>
-        <div className="text-[20px] font-bold text-foreground">{drafts.length}</div>
+        <div className="mt-auto text-[20px] font-bold text-foreground">{drafts.length}</div>
       </div>
-      <div className="rounded-lg border border-dashed border-border bg-tint/[0.03] px-3 py-2">
+      <div className="flex flex-col rounded-lg border border-dashed border-border bg-tint/[0.03] px-3 py-2">
         <div className="text-label text-secondary-foreground">{c.draftsValue}</div>
-        <div className="text-[20px] font-bold tabular-nums text-foreground">{c.draftEstimate(formatEur(estimatedTotal))}</div>
+        <div className="mt-auto break-words text-[20px] font-bold tabular-nums text-foreground">{formatEur(estimatedTotal)}</div>
       </div>
     </div>
   );

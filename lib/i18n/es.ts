@@ -1197,7 +1197,7 @@ export const es: Strings = {
       recapOrders: "Ver los pedidos →",
       unconfirmedDrafts: "Borradores sin confirmar",
       unpaidDraftsLabel: "Borradores sin pagar",
-      draftsValue: "Valor estimado de los borradores",
+      draftsValue: "Valor estimado de borradores",
       draftsUnpaid: "Sin pagar: quedan fuera del pedido",
       draftsUnconfirmed: "Sin confirmar: quedan fuera del pedido",
       draftNewOrder: "Nuevo pedido",

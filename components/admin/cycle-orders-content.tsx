@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 type Filter = "confirmed" | "drafts" | "all";
 
-// Filter server-rendered sections without changing their totals or exports.
+// Keep sections mounted so filters preserve expanded rows and loaded details.
 export function CycleOrdersContent({ confirmed, drafts, isOpen, draftCount }: {
   confirmed: ReactNode;
   drafts: ReactNode;
@@ -37,14 +37,12 @@ export function CycleOrdersContent({ confirmed, drafts, isOpen, draftCount }: {
           ))}
         </div>
       )}
-      {showConfirmed && (
-        <section aria-label={o.confirmedTitle} className="space-y-3">
-          {isOpen && <h3 className="text-[14px] font-bold text-foreground">{o.confirmedTitle}</h3>}
-          {confirmed}
-        </section>
-      )}
-      {showDrafts && (
-        <section aria-label={t.admin.cycle.unconfirmedDrafts} className={showConfirmed ? "border-t border-border pt-4" : undefined}>
+      <section aria-label={o.confirmedTitle} hidden={!showConfirmed} className="space-y-3">
+        {isOpen && <h3 className="text-[14px] font-bold text-foreground">{o.confirmedTitle}</h3>}
+        {confirmed}
+      </section>
+      {isOpen && (draftCount > 0 || filter === "drafts") && (
+        <section aria-label={t.admin.cycle.unconfirmedDrafts} hidden={!showDrafts} className={showConfirmed ? "border-t border-border pt-4" : undefined}>
           {draftCount > 0 ? drafts : (
             <Card className="border-dashed bg-tint/[0.03]">
               <CardContent className="text-[13px] text-secondary-foreground">{o.noDrafts}</CardContent>
