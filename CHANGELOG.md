@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Security
+- 🔒 [tech] **Security headers on every response.** HSTS (two years, subdomains included), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` and a `Permissions-Policy` that turns off camera, microphone, location and browser payments. The list is in `lib/security/headers.ts`; the `X-Powered-By` header is gone. The Content Security Policy follows in a later release.
+
 ## [1.47.0] - 2026-11-15
 
 *See drafts clearly and confirm in time.*

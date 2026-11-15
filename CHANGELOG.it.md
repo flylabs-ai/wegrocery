@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Sicurezza
+- 🔒 [tecnico] **Header di sicurezza su ogni risposta.** HSTS (due anni, sottodomini inclusi), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` e una `Permissions-Policy` che spegne fotocamera, microfono, posizione e pagamenti del browser. L'elenco è in `lib/security/headers.ts`; tolto l'header `X-Powered-By`. La Content Security Policy arriva in un rilascio successivo.
+
 ## [1.47.0] - 15 novembre 2026
 
 *Bozze più chiare e un promemoria per confermare in tempo.*
