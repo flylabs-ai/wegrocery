@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
-import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
+import { AppToaster } from "@/components/app-ui/toaster";
+import { ConfirmDialogProvider } from "@/components/app-ui/confirm";
 import { cookies } from "next/headers";
 import { brand, roleVarsCss } from "@/lib/brand";
 import { brandToTokens, statusBarColors } from "@/lib/brand/tokens";
@@ -87,9 +87,10 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href={iconPath(APPLE_TOUCH_ICON)} />
       </head>
       <body className="text-foreground flex min-h-full flex-col">
-        {children}
-        <Toaster />
-        <ConfirmDialogProvider />
+        <AppToaster>
+          {children}
+          <ConfirmDialogProvider />
+        </AppToaster>
       </body>
     </html>
   );

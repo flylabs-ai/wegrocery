@@ -1,62 +1,34 @@
 "use client";
-
-import { forwardRef } from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { cn, focusClass } from "./cn";
 
-/**
- * shadcn's Button on Base UI (Playbook 2.7). Variants are named for their
- * role, not their colour, so a brand palette never makes a name lie:
- * `default` is the primary action on the brand's fill (shadcn's standard,
- * decision 3a of the kit plan: the tema engine guarantees its contrast),
- * `brand` the same fill under its older name, `inverse` the dark button,
- * `accent` the accent fill, `destructive` the destructive one.
- */
+const primary = "bg-primary text-primary-foreground";
 export const buttonVariants = cva(
-  "pressable inline-flex items-center justify-center rounded-full font-sans font-bold tracking-tight select-none transition-[opacity,transform] duration-150 disabled:opacity-40 disabled:cursor-not-allowed",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground",
-        brand: "bg-primary text-primary-foreground",
-        inverse: "bg-inverse text-inverse-foreground",
-        accent: "bg-accent text-accent-foreground",
-        destructive: "bg-danger text-danger-foreground",
-        outline: "bg-transparent border border-border text-foreground",
-        ghost: "bg-transparent text-foreground hover:bg-tint/[0.04]",
-      },
-      size: {
-        default: "min-h-12 px-5.5 py-3.5 text-sm",
-        sm: "min-h-(--control-h) px-3 py-1.5 text-xs",
-      },
-      block: {
-        true: "w-full",
-      },
+  cn("inline-flex shrink-0 items-center justify-center gap-2 rounded-(--control-radius) border border-transparent text-sm font-medium whitespace-nowrap select-none transition-colors disabled:cursor-not-allowed disabled:opacity-50 min-h-(--control-h) pointer-coarse:min-h-11", focusClass),
+  { variants: {
+    variant: {
+      default: primary,
+      /** @deprecated Use default. Kept for WeGrocery's existing role name. */
+      brand: primary,
+      inverse: "bg-inverse text-inverse-foreground",
+      secondary: "border-input bg-secondary text-secondary-foreground",
+      outline: "border-input bg-transparent text-foreground hover:bg-secondary",
+      ghost: "bg-transparent text-foreground hover:bg-secondary",
+      destructive: "bg-destructive text-destructive-foreground hover:bg-[oklch(from_var(--destructive)_calc(l*0.9)_c_h)]",
+      "destructive-soft": "bg-danger-bg text-destructive",
+      accent: "bg-accent text-accent-foreground",
     },
-    defaultVariants: { variant: "default", size: "default" },
-  },
+    size: { default: "px-4 py-1.5", sm: "px-3 py-1", icon: "min-w-(--control-h) px-2 pointer-coarse:min-w-11" },
+    block: { true: "w-full" },
+  }, defaultVariants: { variant: "default", size: "default" } },
 );
-
-export type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>["variant"]>;
-
-export interface ButtonProps
-  extends Omit<ButtonPrimitive.Props, "className">,
-    VariantProps<typeof buttonVariants> {
-  className?: string;
+type Variants = VariantProps<typeof buttonVariants>;
+export type ButtonProps = Omit<ButtonPrimitive.Props, "className"> & Omit<Variants, "size"> & { className?: string } & (
+  | { size: "icon"; "aria-label": string }
+  | { size?: Exclude<Variants["size"], "icon"> }
+);
+export function Button({ className, variant, size, block, type = "button", ...props }: ButtonProps) {
+  if (size === "icon" && !props["aria-label"]?.trim()) throw new Error("An icon button requires an aria-label");
+  return <ButtonPrimitive {...props} type={type} data-slot="button" className={cn(buttonVariants({ variant, size, block }), className)} />;
 }
-
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { className, variant, size, block, type = "button", ...props },
-  ref,
-) {
-  return (
-    <ButtonPrimitive
-      ref={ref}
-      type={type}
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, block }), className)}
-      {...props}
-    />
-  );
-});

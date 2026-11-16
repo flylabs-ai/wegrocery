@@ -11,10 +11,10 @@ import {
 } from "@/lib/actions/admin";
 import type { DistintaImportPreview } from "@/lib/csv/distinta-parser";
 import { DISTINTA_ACCEPT, DistintaPreviewPanel, readFileAsBase64 } from "@/components/admin/distinta-preview";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/app-ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 // Admin → Ciclo → Fornitore: every supplier action on a closed cycle (steps 1

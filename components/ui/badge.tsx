@@ -1,34 +1,19 @@
-import type { HTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
-
-// shadcn's Badge (Playbook 2.7). A status, not a control: never clickable
-// (a filter or a link is a Chip or a button).
-export const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 tabular-nums text-label font-semibold",
-  {
-    variants: {
-      variant: {
-        default: "border-border bg-tint/[0.04] text-secondary-foreground",
-        brand: "border-primary-mid bg-primary-bg text-primary-text",
-        accent: "border-accent/20 bg-accent-bg text-accent-text",
-        destructive: "border-destructive/20 bg-danger-bg text-destructive",
-      },
-    },
-    defaultVariants: { variant: "default" },
-  },
-);
-
-export interface BadgeProps extends HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {
-  /** A small dot before the label, for live states ("Aperto"). */
-  dot?: boolean;
-}
-
-export function Badge({ variant, dot, children, className, ...props }: BadgeProps) {
-  return (
-    <span data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props}>
-      {dot && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current opacity-75" />}
-      {children}
-    </span>
-  );
+import { cn } from "./cn";
+export const badgeVariants = cva("inline-flex items-center gap-1 whitespace-nowrap rounded-(--control-radius) border px-2.5 py-0.5 text-xs font-medium", {
+  variants: { variant: {
+    default: "border-border bg-secondary text-secondary-foreground",
+    primary: "border-border bg-primary-bg text-primary-text",
+    brand: "border-border bg-primary-bg text-primary-text",
+    accent: "border-border bg-accent-bg text-accent-text",
+    destructive: "border-border bg-danger-bg text-destructive",
+    success: "border-border bg-success-bg text-success",
+    warning: "border-border bg-warning-bg text-warning",
+    info: "border-border bg-card text-foreground",
+  } }, defaultVariants: { variant: "default" },
+});
+const toneVariant = { neutral: "default", success: "success", info: "info", warning: "warning", danger: "destructive" } as const;
+export function Badge({ className, variant, tone, dot, children, ...props }: ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { tone?: keyof typeof toneVariant; dot?: boolean }) {
+  return <span {...props} data-slot="badge" className={cn(badgeVariants({ variant: variant ?? (tone ? toneVariant[tone] : undefined) }), className)}>{dot ? <span aria-hidden="true" className="size-1.5 rounded-full bg-current" /> : null}{children}</span>;
 }

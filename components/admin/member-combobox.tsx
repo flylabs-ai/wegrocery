@@ -5,7 +5,7 @@ import { t } from "@/lib/i18n";
 import { formatMoney } from "@/lib/i18n/format";
 import { filterMembers } from "./member-search";
 import { Input } from "@/components/ui/input";
-import { Label, labelClass } from "@/components/ui/label";
+import { Label, labelClass } from "@/components/app-ui/label";
 
 export type PickerMember = {
   memberId: string;

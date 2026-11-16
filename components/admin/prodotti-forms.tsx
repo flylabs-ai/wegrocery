@@ -1,9 +1,9 @@
 "use client";
 
 import { X } from "lucide-react";
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirm } from "@/components/app-ui/confirm";
 import { useMemo, useState, useTransition } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { FieldHelp } from "@/components/ui/field-help";
 import { CategorySelect } from "@/components/ui/category-select";
@@ -17,7 +17,8 @@ import type { CatalogProductItem } from "@/lib/db/queries";
 import { ImportListingWizard } from "./import-listing-wizard";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/app-ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Help copy shared by every product form (catalog + cycle edit). Centralising
 // it keeps the wording consistent across the admin UI.
@@ -404,12 +405,7 @@ export function CatalogLoadForm({
             key={p.catalogProductId}
             className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 hover:bg-background/50"
           >
-            <input
-              type="checkbox"
-              checked={selected.has(p.catalogProductId)}
-              onChange={() => toggle(p.catalogProductId)}
-              className="rounded border-border text-accent-text"
-            />
+            <Checkbox checked={selected.has(p.catalogProductId)} onCheckedChange={() => toggle(p.catalogProductId)} />
             <div className="flex-1 text-[13px] text-foreground">
               {p.name}
               {p.variant && <span className="ml-1 text-[12px] text-secondary-foreground">{p.variant}</span>}

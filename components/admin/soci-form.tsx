@@ -3,8 +3,8 @@
 import { Ellipsis, X } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { toast } from "@/components/ui/toast";
-import { confirm } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/app-ui/toast";
+import { confirm } from "@/components/app-ui/confirm";
 import { adminDeleteMember, adminInviteMember, adminUpsertMember, type UpsertMemberInput } from "@/lib/actions/admin";
 import { adminUnlinkFamilyMember } from "@/lib/actions/family";
 import { formatDate } from "@/lib/utils";
@@ -15,10 +15,11 @@ import { adminHref } from "@/lib/admin/nav";
 import type { DuplicatePair } from "@/lib/members/duplicates";
 import { DuplicateMembers } from "./duplicate-members";
 import { MergeMembersDialog } from "./merge-members-dialog";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/app-ui/sheet";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { nameNeedsCompleting } from "@/lib/members/name";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Member = {
   memberId: string;
@@ -217,12 +218,7 @@ export function SociForm({
         </div>
         {offlineOption && (
           <label className="flex items-start gap-2 text-[13px] text-foreground">
-            <input
-              name="paysOffline"
-              type="checkbox"
-              defaultChecked={member?.paysOffline ?? false}
-              className="mt-0.5 accent-primary"
-            />
+            <Checkbox name="paysOffline" defaultChecked={member?.paysOffline ?? false} />
             <span>
               <span className="font-semibold">{t.admin.members.paysOfflineLabel}</span>
               <span className="block text-label text-muted-foreground">{t.admin.members.paysOfflineHint}</span>

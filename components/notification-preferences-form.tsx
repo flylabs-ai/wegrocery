@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { t } from "@/lib/i18n";
 import { updateNotificationPreference } from "@/lib/actions/notifications";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   NOTIFICATION_CATEGORIES,
   type ChannelPrefs,
@@ -94,13 +95,7 @@ function ChannelToggle({
       <span className="font-mono text-label font-bold uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
-      <input
-        type="checkbox"
-        checked={checked}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-5 w-5 accent-primary disabled:opacity-50"
-      />
+      <Checkbox checked={checked} disabled={disabled} onCheckedChange={(checked) => onChange(checked)} />
     </label>
   );
 }

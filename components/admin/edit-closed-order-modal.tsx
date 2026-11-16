@@ -8,14 +8,14 @@ import {
   type EditClosedOrderBootstrap,
 } from "@/lib/actions/admin-cycles";
 import { adminEditClosedOrder, adminSaveOpenOrder } from "@/lib/actions/admin";
-import { toast } from "@/components/ui/toast";
-import { Sheet, SheetActions } from "@/components/ui/sheet";
+import { toast } from "@/components/app-ui/toast";
+import { Sheet, SheetActions } from "@/components/app-ui/sheet";
 import { Button } from "@/components/ui/button";
-import { confirmDiscard } from "@/components/ui/confirm-dialog";
+import { confirmDiscard } from "@/components/app-ui/confirm";
 import { formatEur, getProductEmoji } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/app-ui/label";
 import { OrderMemberPicker } from "@/components/admin/order-member-picker";
 
 type Mode =

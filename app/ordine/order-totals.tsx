@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/app-ui/sheet";
 import { Button } from "@/components/ui/button";
 import { t } from "@/lib/i18n";
 import { formatSignedMoney } from "@/lib/i18n/format";
@@ -125,8 +125,10 @@ export function OrderTotals({ orderTotal, payAmount, afterBalance, walletFeeCent
   }
 
   return (
-    <div className="sticky z-10 -mx-5 mt-4 -mb-[calc(var(--spacing-nav-h)+1rem)] bottom-[calc(var(--spacing-nav-h)+env(safe-area-inset-bottom))] md:-mx-8 md:-mb-6 md:bottom-0 lg:hidden [transform:translateZ(0)]">
-      <div className="border-t border-border bg-background px-5 py-2.5 md:px-8">
+    // Just above the kit shell's bottom bar: --app-bottom is its height
+    // (with the safe area) on phones and 0 from md (components/shell).
+    <div className="sticky z-10 -mx-4 mt-4 -mb-[calc(var(--app-bottom)+1rem)] bottom-(--app-bottom) md:-mx-6 md:-mb-6 md:bottom-0 lg:hidden [transform:translateZ(0)]">
+      <div className="border-t border-border bg-background px-4 py-2.5 md:px-6">
         {error && (
           <p className="mb-2 text-[13px] leading-[1.4] text-destructive">{error}</p>
         )}

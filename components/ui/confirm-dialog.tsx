@@ -1,120 +1,16 @@
 "use client";
-
-import { useEffect, useRef, useState } from "react";
-import { Dialog } from "@base-ui/react/dialog";
-import { Button } from "@/components/ui/button";
-import { t } from "@/lib/i18n";
-import { useSwipeDown } from "@/lib/ui/use-swipe";
-
-export interface ConfirmOptions {
-  title: string;
-  message?: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  danger?: boolean;
-}
-
-type Request = ConfirmOptions & {
-  resolve: (value: boolean) => void;
+import { useRef, type ReactNode, type Ref } from "react";
+import { Button } from "./button";
+import { Sheet, SheetActions } from "./sheet";
+export type ConfirmActionsProps = {
+  confirmLabel: string; cancelLabel: string; onConfirm: () => void; onCancel: () => void;
+  danger?: boolean; pending?: boolean; cancelRef?: Ref<HTMLButtonElement>; confirmRef?: Ref<HTMLButtonElement>;
 };
-
-let listener: ((req: Request) => void) | null = null;
-
-// The confirm's backdrop and window carry this attribute: a Sheet under it
-// ignores the Esc and the taps that belong to the confirm.
-const CONFIRM_ATTR = "data-confirm-dialog";
-
-/** Whether `node` is part of the open confirm (its window or its backdrop). */
-export function isInConfirmDialog(node: unknown): boolean {
-  return node instanceof Element && node.closest(`[${CONFIRM_ATTR}]`) !== null;
+export function ConfirmActions({ confirmLabel, cancelLabel, onConfirm, onCancel, danger = false, pending = false, cancelRef, confirmRef }: ConfirmActionsProps) {
+  return <SheetActions><Button ref={cancelRef} variant="outline" block onClick={onCancel}>{cancelLabel}</Button><Button ref={confirmRef} variant={danger ? "destructive" : "default"} block disabled={pending} onClick={onConfirm}>{confirmLabel}</Button></SheetActions>;
 }
-
-export function confirm(options: ConfirmOptions): Promise<boolean> {
-  return new Promise<boolean>((resolve) => {
-    if (!listener) {
-      // Provider not mounted (e.g. during SSR or before hydration).
-      // Resolve to false so the call site treats it as "cancelled".
-      resolve(false);
-      return;
-    }
-    listener({ ...options, resolve });
-  });
-}
-
-/** Asked before a sheet holding unsaved work closes: true means close anyway. */
-export function confirmDiscard(): Promise<boolean> {
-  return confirm({
-    title: t.common.discardTitle,
-    message: t.common.discardMessage,
-    confirmLabel: t.common.discardConfirm,
-    cancelLabel: t.common.keepEditing,
-    danger: true,
-  });
-}
-
-export function ConfirmDialogProvider() {
-  const [request, setRequest] = useState<Request | null>(null);
-  // Dragging the sheet down is always "Annulla", destructive or not.
-  const { target: swipeTarget, handlers: swipeHandlers } = useSwipeDown<HTMLDivElement>(() => close(false));
-
-  useEffect(() => {
-    listener = (req) => setRequest(req);
-    return () => {
-      listener = null;
-    };
-  }, []);
-
-  function close(result: boolean) {
-    if (request) {
-      request.resolve(result);
-      setRequest(null);
-    }
-  }
-
-  const open = request !== null;
-  // A destructive request starts on Cancel (Enter must not delete), any other
-  // on Confirm.
-  const cancelRef = useRef<HTMLButtonElement>(null);
-  const confirmRef = useRef<HTMLButtonElement>(null);
-  const attr = { [CONFIRM_ATTR]: "" };
-
-  return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) close(false);
-      }}
-    >
-      <Dialog.Portal>
-        <Dialog.Backdrop {...attr} className="fixed inset-0 z-[150] bg-black/30 backdrop-blur-[4px]" />
-        {/* A sheet from the bottom on phones (buttons stacked near the thumb,
-            drag down = Annulla), a small centred window from sm. */}
-        <Dialog.Popup
-          {...attr}
-          ref={swipeTarget}
-          initialFocus={request?.danger === true ? cancelRef : confirmRef}
-          {...swipeHandlers}
-          className="fixed inset-x-0 bottom-0 z-[151] touch-none rounded-t-3xl border border-border bg-card px-6 pt-2 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-center shadow-[0_8px_32px_rgba(45,43,41,0.15)] sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[90%] sm:max-w-[340px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:touch-auto sm:rounded-3xl sm:p-8"
-        >
-          <div aria-hidden className="mx-auto mb-4 h-1 w-10 rounded-full bg-tint/15 sm:hidden" />
-          <Dialog.Title className="mb-3 text-lg font-bold text-foreground">
-            {request?.title}
-          </Dialog.Title>
-          {request?.message && (
-            <Dialog.Description className="mb-5 text-[15px] text-secondary-foreground">
-              {request.message}
-            </Dialog.Description>
-          )}
-          <div className="flex flex-col-reverse gap-3 sm:flex-row">
-            <Button ref={cancelRef} variant="outline" block onClick={() => close(false)}>
-              {request?.cancelLabel ?? t.common.cancel}
-            </Button>
-            <Button ref={confirmRef} variant={request?.danger ? "destructive" : "default"} block onClick={() => close(true)}>
-              {request?.confirmLabel ?? t.common.confirm}
-            </Button>
-          </div>
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
+/** Controlled state belongs to the app; no global listener, product messages or window dialog. */
+export function ConfirmDialog({ open, title, message, closeLabel, confirmLabel, cancelLabel, onConfirm, onCancel, danger = false, pending = false, desktopFrom = "md" }: Omit<ConfirmActionsProps, "cancelRef" | "confirmRef"> & { open: boolean; title: ReactNode; message?: ReactNode; closeLabel: string; desktopFrom?: "sm" | "md" }) {
+  const cancel = useRef<HTMLButtonElement>(null); const confirm = useRef<HTMLButtonElement>(null);
+  return <Sheet open={open} title={title} subtitle={message} closeLabel={closeLabel} onRequestClose={onCancel} desktopFrom={desktopFrom} size="sm" initialFocus={danger || pending ? cancel : confirm} footer={<ConfirmActions confirmLabel={confirmLabel} cancelLabel={cancelLabel} onConfirm={onConfirm} onCancel={onCancel} danger={danger} pending={pending} cancelRef={cancel} confirmRef={confirm} />}>{null}</Sheet>;
 }

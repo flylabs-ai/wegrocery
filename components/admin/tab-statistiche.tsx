@@ -57,7 +57,7 @@ export async function TabStatistiche({ cycleIds, supplierIds, memberIds }: Props
       <div className="space-y-4">
         <StatsFilters {...filterOptions} />
         <UsageCard usage={usage} />
-        <Card>
+        <Card className="mb-3.5 mb-3.5">
           <CardContent>
             <div className="py-12 text-center">
               <div className="mb-2 text-4xl">📊</div>
@@ -165,7 +165,7 @@ function ProductRankingsCard({
   const maxQty = Math.max(1, ...rankings.map((r) => r.totalQty));
 
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <h3 className="text-[13px] font-bold text-foreground">
           {t.admin.stats.topProductsTitle}
@@ -264,7 +264,7 @@ function RevenueTrendCard({
       : null;
 
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -360,7 +360,7 @@ function RevenueTrendCard({
 
 function UsageCard({ usage }: { usage: Awaited<ReturnType<typeof getUsageTotals>> }) {
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <h2 className="text-[13px] font-bold text-foreground">{t.admin.stats.usageTitle}</h2>
       </CardHeader>
@@ -395,7 +395,7 @@ function SupplierStatsCard({
   const maxRevenue = Math.max(1, ...withActivity.map((s) => s.totalRevenue));
 
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <h3 className="text-[13px] font-bold text-foreground">{t.admin.stats.supplierStatsTitle}</h3>
         <p className="mt-0.5 text-label text-secondary-foreground">{t.admin.stats.supplierStatsSubtitle}</p>
@@ -448,7 +448,7 @@ function MemberParticipationCard({
   const dormant = members.filter((m) => m.cyclesOrdered === 0);
 
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <h3 className="text-[13px] font-bold text-foreground">{t.admin.stats.memberParticipationTitle}</h3>
         <p className="mt-0.5 text-label text-secondary-foreground">

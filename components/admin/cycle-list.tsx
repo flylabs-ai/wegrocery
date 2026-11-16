@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/app-ui/sheet";
 import { t } from "@/lib/i18n";
 import { formatDate } from "@/lib/i18n/format";
 import { adminHref } from "@/lib/admin/nav";

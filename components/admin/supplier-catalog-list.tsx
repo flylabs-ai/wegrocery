@@ -1,15 +1,15 @@
 "use client";
 
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirm } from "@/components/app-ui/confirm";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { adminArchiveCatalogProduct } from "@/lib/actions/admin";
 import type { CatalogProductItem } from "@/lib/db/queries";
 import { formatEur, getProductEmoji } from "@/lib/utils";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { CatalogCsvActions, CatalogProductForm, GuidedImportButton } from "./prodotti-forms";
 import { t } from "@/lib/i18n";
 import { NativeSelect } from "@/components/ui/native-select";
-import { labelClass } from "@/components/ui/label";
+import { labelClass } from "@/components/app-ui/label";
 import { Input } from "@/components/ui/input";
 import { filterCatalogProducts } from "@/lib/catalog-filter";
 

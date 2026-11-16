@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminUpdateGroupInfo } from "@/lib/actions/admin-settings";
 import { GROUP_INFO_MAX, GROUP_INFO_SLUG, normalizeGroupInfo } from "@/lib/guide/group-info";
 import { t } from "@/lib/i18n";

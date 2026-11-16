@@ -22,6 +22,16 @@ export const DEFAULT_PALETTE: Palette = DEFAULT_TOKEN_CONFIG.palette;
 /** The dark theme's neutrals, the same for every group. */
 export const DARK = DEFAULT_TOKEN_CONFIG.dark;
 
+/**
+ * The kit's config plus the text on the filled destructive button (FlyLabs Kit
+ * ui 1.1), a role the app sets: the dark fill is a light red, so its text is
+ * the dark card colour. The light value is in app/globals.css.
+ */
+const CONFIG = {
+  ...DEFAULT_TOKEN_CONFIG,
+  darkExtra: { ...DEFAULT_TOKEN_CONFIG.darkExtra, "--destructive-foreground": DARK.card },
+};
+
 export function resolvePalette(theme: BrandTheme): Palette {
   return resolveTokenPalette(theme);
 }
@@ -33,12 +43,12 @@ export function deriveRoleVars(theme: BrandTheme): Record<string, string> {
 
 /** The same variables for the dark theme, plus the neutrals globals.css holds for the light one. */
 export function deriveDarkRoleVars(theme: BrandTheme): Record<string, string> {
-  return darkTokens(theme);
+  return darkTokens(theme, CONFIG);
 }
 
 /** The stylesheet that carries the brand's colours, light and dark. */
 export function roleVarsCss(theme: BrandTheme): string {
-  return tokensCss(brandToTokens(theme));
+  return tokensCss(brandToTokens(theme, CONFIG));
 }
 
 /** Human-readable problems with the brand palette; empty when it is fine. */

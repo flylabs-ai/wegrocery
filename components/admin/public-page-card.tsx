@@ -2,11 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { Textarea } from "@/components/ui/textarea";
 import { adminSetPublicPage } from "@/lib/actions/admin-settings";
 import { GROUP_INFO_MAX, normalizeGroupInfo } from "@/lib/guide/group-info";
 import { t } from "@/lib/i18n";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Value = { enabled: boolean; productsPreview: boolean; indexable: boolean; intro: string };
 
@@ -44,13 +45,7 @@ export function PublicPageCard({
   const option = "flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-border px-3 py-2.5";
   const toggle = (key: "enabled" | "productsPreview" | "indexable", label: string, hint: string) => (
     <label className={option}>
-      <input
-        type="checkbox"
-        checked={value[key]}
-        disabled={isPending || (key !== "enabled" && !value.enabled)}
-        onChange={(e) => setValue({ ...value, [key]: e.target.checked })}
-        className="mt-0.5 size-4 shrink-0 accent-primary"
-      />
+      <Checkbox checked={value[key]} disabled={isPending || (key !== "enabled" && !value.enabled)} onCheckedChange={(checked) => setValue({ ...value, [key]: checked })} />
       <span>
         <span className="block text-[13px] font-semibold text-foreground">{label}</span>
         <span className="block text-[12px] text-secondary-foreground">{hint}</span>

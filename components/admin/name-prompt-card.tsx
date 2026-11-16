@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminSetMemberNamePrompt } from "@/lib/actions/admin-settings";
 import { NAME_PROMPT_MODES, type NamePromptMode } from "@/lib/members/name";
 import { t } from "@/lib/i18n";

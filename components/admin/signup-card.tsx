@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminSetSignup } from "@/lib/actions/admin-settings";
 import { SIGNUP_MODES, SIGNUP_ROLES, type SignupMode, type SignupRole } from "@/lib/membership/signup";
 import { t } from "@/lib/i18n";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Impostazioni -> Soci: who may join without being added by an admin
 // (lib/membership/signup.ts), the role newcomers get and whether they pay
@@ -82,13 +83,7 @@ export function SignupCard({ mode: savedMode, role: savedRole, prepaid: savedPre
             </div>
           </div>
           <label className={option}>
-            <input
-              type="checkbox"
-              checked={value.prepaid}
-              disabled={isPending}
-              onChange={(e) => save({ ...value, prepaid: e.target.checked })}
-              className="mt-0.5 size-4 shrink-0 accent-primary"
-            />
+            <Checkbox checked={value.prepaid} disabled={isPending} onCheckedChange={(checked) => save({ ...value, prepaid: checked })} />
             <span>
               <span className="block text-[13px] font-semibold text-foreground">{s.prepaid}</span>
               <span className="block text-[12px] text-secondary-foreground">{s.prepaidHint}</span>

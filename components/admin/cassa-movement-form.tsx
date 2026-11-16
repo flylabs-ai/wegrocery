@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useTransition } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminRecordOutgoingMovement, adminRecordTopup, type CassaMovementResult } from "@/lib/actions/admin";
 import { t } from "@/lib/i18n";
 import { formatDecimalInput, formatMoney, formatSignedMoney } from "@/lib/i18n/format";
@@ -17,7 +17,7 @@ import {
 import { formatDate } from "@/lib/utils";
 import { MemberCombobox, type PickerMember } from "./member-combobox";
 import { Input } from "@/components/ui/input";
-import { Label, labelClass } from "@/components/ui/label";
+import { Label, labelClass } from "@/components/app-ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 
 function todayInput(): string {

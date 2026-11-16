@@ -31,7 +31,7 @@ export async function CycleOrdersView({
   const o = t.admin.orders;
 
   const byMember = (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <h3 className="text-[13px] font-bold text-foreground">{o.perMemberTitle}</h3>
       </CardHeader>
@@ -40,7 +40,7 @@ export async function CycleOrdersView({
   );
 
   const byProduct = (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <h3 className="text-[13px] font-bold text-foreground">{o.perProductTitle}</h3>
         <p className="mt-0.5 text-label text-secondary-foreground">{o.perProductSubtitle}</p>

@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Sheet, SheetActions } from "@/components/ui/sheet";
+import { Sheet, SheetActions } from "@/components/app-ui/sheet";
 import { Button } from "@/components/ui/button";
 import { adminMergeMembers, previewMemberMerge, type MergePreview } from "@/lib/actions/admin-members";
 import { formatMoney } from "@/lib/i18n/format";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { t } from "@/lib/i18n";
 import { MemberCombobox, type PickerMember } from "./member-combobox";
-import { labelClass } from "@/components/ui/label";
+import { labelClass } from "@/components/app-ui/label";
 
 // Admin -> Members -> Merge: one person, two accounts. The admin picks the
 // account that stays; the server shows what will happen (previewMemberMerge)

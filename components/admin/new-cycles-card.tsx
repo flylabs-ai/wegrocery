@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { Input } from "@/components/ui/input";
-import { labelClass } from "@/components/ui/label";
+import { labelClass } from "@/components/app-ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { adminSetNewCycleDefaults, adminSetNewCyclePayment } from "@/lib/actions/admin-settings";
 import { t } from "@/lib/i18n";
