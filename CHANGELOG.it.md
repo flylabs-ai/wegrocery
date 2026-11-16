@@ -25,7 +25,15 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
-- 🧺 **"Ordine per un socio" mostra chi ha già ordinato e chi no**: prima i soci che hanno ordinato, con Modifica (i loro prodotti sono già caricati, così l'admin aggiunge invece di sostituire), poi gli altri con Aggiungi. Se nel frattempo l'ordine è cambiato, non viene salvato nulla.
+## [1.49.0] - 2026-11-16
+
+*Ordini inseriti dall'admin: si aggiunge a quello che il socio ha ordinato, senza sostituirlo.*
+
+### Aggiunte
+- 🧺 **"Ordine per un socio" mostra chi ha già ordinato e chi no**: prima i soci che hanno ordinato, con Modifica e il loro ordine già caricato, poi gli altri con Aggiungi. Ricerca per nome, etichette "Pagato con carta" e "Bozza non confermata".
+
+### Risolto
+- 🛒 **Aggiungere prodotti all'ordine di un socio non lo sostituisce più**: scegliendo un socio che aveva già ordinato si caricava un ordine vuoto, e salvando restavano solo i prodotti nuovi. Ora i suoi prodotti vengono caricati, e se nel frattempo il suo ordine è cambiato non si salva nulla.
 
 ## [1.48.0] - 2026-11-16
 
@@ -943,6 +951,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0
 [1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0
 [1.46.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.46.0
 [1.45.2]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.45.2

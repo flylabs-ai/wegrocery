@@ -24,7 +24,15 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
-- 🧺 **"Order for a member" lists who already ordered and who has not**: members who ordered come first with Edit (their products are loaded, so the admin adds instead of replacing them), then the others with Add. If the order changed in the meantime, nothing is saved.
+## [1.49.0] - 2026-11-16
+
+*Orders entered by an admin: add to what a member ordered, never replace it.*
+
+### Added
+- 🧺 **"Order for a member" lists who already ordered and who has not**: members who ordered come first with Edit and their order already loaded, then the others with Add. Name search, "Paid by card" and "Unconfirmed draft" badges.
+
+### Fixed
+- 🛒 **Adding products to a member's order no longer replaces it**: choosing a member who already ordered loaded an empty order, so saving kept only the new products. Now their products are loaded, and if their order changed in the meantime nothing is saved.
 
 ## [1.48.0] - 2026-11-16
 
@@ -941,6 +949,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0
 [1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0
 [1.46.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.46.0
 [1.45.2]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.45.2
