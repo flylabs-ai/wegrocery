@@ -25,6 +25,8 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+- 🧺 **"Aggiungi ordine per un socio" tiene l'ordine che aveva già**: scegliendo un socio che ha già ordinato si caricano i suoi prodotti, così l'admin aggiunge invece di sostituire. Se nel frattempo l'ordine è cambiato, non viene salvato nulla.
+
 ## [1.48.0] - 2026-11-16
 
 *Bottoni nel colore del gruppo e altri mattoni comuni del FlyLabs Kit.*

@@ -2,7 +2,7 @@
 
 import { editedOrderPreview } from "@/lib/closed-order-preview";
 import { groupCycleProducts, OTHER_CATEGORY } from "@/lib/products/cycle-order";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   adminGetEditClosedOrderBootstrap,
   type EditClosedOrderBootstrap,
@@ -47,6 +47,9 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
   const [note, setNote] = useState("");
   const [memberId, setMemberId] = useState<string>(mode.kind === "edit" ? mode.memberId : "");
   const [isPending, startTransition] = useTransition();
+  // "Add an order": the chosen member's existing lines are loading.
+  const [memberLoading, setMemberLoading] = useState(false);
+  const memberRequest = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +73,45 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cycleId, mode.kind, mode.kind === "edit" ? mode.memberId : null]);
+
+  // "Add an order" for a member who already ordered: start from their order,
+  // never from an empty one, or saving would replace their lines (the form
+  // sends the whole order). What the admin already picked is kept on top.
+  function selectMember(nextId: string) {
+    if (!bootstrap) return;
+    const request = ++memberRequest.current;
+    const before = bootstrap.memberLines;
+    const picked = { ...quantities };
+    for (const l of before) picked[l.productId] = (picked[l.productId] ?? 0) - l.quantity;
+    const apply = (lines: EditClosedOrderBootstrap["memberLines"]) => {
+      const next: Record<string, number> = {};
+      for (const l of lines) next[l.productId] = l.quantity;
+      for (const [productId, extra] of Object.entries(picked)) {
+        const qty = Math.max(0, (next[productId] ?? 0) + extra);
+        if (qty > 0) next[productId] = qty;
+        else delete next[productId];
+      }
+      setBootstrap((b) => (b ? { ...b, memberLines: lines } : b));
+      setQuantities(next);
+    };
+    setMemberId(nextId);
+    if (!nextId) {
+      apply([]);
+      return;
+    }
+    setMemberLoading(true);
+    adminGetEditClosedOrderBootstrap(cycleId, nextId).then((res) => {
+      if (request !== memberRequest.current) return;
+      setMemberLoading(false);
+      if (res.error || !res.data) {
+        toast.error(res.error ?? t.admin.editClosedOrder.errorLoading);
+        setMemberId("");
+        apply([]);
+        return;
+      }
+      apply(res.data.memberLines);
+    });
+  }
 
   function bump(productId: string, by: number) {
     setQuantities((prev) => {
@@ -101,6 +143,7 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
   );
 
   function handleSave() {
+    if (!bootstrap || memberLoading) return;
     if (mode.kind === "create" && !memberId) {
       toast.error(t.admin.editClosedOrder.selectMemberError);
       return;
@@ -108,10 +151,11 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
     const lines = Object.entries(quantities)
       .filter(([, qty]) => qty > 0)
       .map(([productId, quantity]) => ({ productId, quantity }));
+    const baseline = bootstrap.memberLines.map(({ productId, quantity }) => ({ productId, quantity }));
     startTransition(async () => {
       try {
         if (cycleOpen) {
-          const saved = await adminSaveOpenOrder({ cycleId, memberId, lines, note: note.trim() || undefined });
+          const saved = await adminSaveOpenOrder({ cycleId, memberId, lines, baseline, note: note.trim() || undefined });
           if ("error" in saved) {
             toast.error(saved.error);
             return;
@@ -127,6 +171,7 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
           cycleId,
           memberId,
           lines,
+          baseline,
           note: note.trim() || undefined,
         });
         if ("error" in result) {
@@ -165,7 +210,7 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
       open
       onRequestClose={() => void requestClose()}
       title={mode.kind === "edit" ? memberName : t.admin.editClosedOrder.addOrderTitle}
-      subtitle={`${cycleTitle} · ${mode.kind === "create" ? t.admin.editClosedOrder.newOrder : t.admin.editClosedOrder.editOrder}`}
+      subtitle={`${cycleTitle} · ${mode.kind === "create" && !bootstrap?.memberLines.length ? t.admin.editClosedOrder.newOrder : t.admin.editClosedOrder.editOrder}`}
       footer={
         <>
           <div className="mb-3 grid grid-cols-3 gap-2 text-center">
@@ -212,7 +257,7 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
               variant="brand"
               className="flex-1"
               onClick={handleSave}
-              disabled={isPending || (mode.kind === "create" && !memberId)}
+              disabled={isPending || memberLoading || (mode.kind === "create" && !memberId)}
             >
               {isPending ? t.admin.common.saving : t.admin.common.saveChanges}
             </Button>
@@ -242,7 +287,8 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
               <NativeSelect
                 id="edit-order-member"
                 value={memberId}
-                onChange={(e) => setMemberId(e.target.value)}
+                onChange={(e) => selectMember(e.target.value)}
+                disabled={memberLoading}
               >
                 <option value="">{t.admin.editClosedOrder.selectMember}</option>
                 {bootstrap.members.map((m) => (
@@ -251,6 +297,15 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
                   </option>
                 ))}
               </NativeSelect>
+              {memberLoading ? (
+                <p className="mt-2 text-label text-secondary-foreground" aria-live="polite">
+                  {t.admin.editClosedOrder.loadingMemberOrder}
+                </p>
+              ) : memberId && bootstrap.memberLines.length > 0 ? (
+                <p className="mt-2 rounded-lg bg-accent/10 px-2.5 py-1.5 text-label leading-snug text-accent-text" aria-live="polite">
+                  {t.admin.editClosedOrder.existingOrderLoaded(memberName)}
+                </p>
+              ) : null}
             </div>
           )}
 

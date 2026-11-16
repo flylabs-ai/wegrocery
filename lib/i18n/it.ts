@@ -1926,6 +1926,8 @@ export const it = {
       orderUpdatedCharge: (amount: string) => `Ordine aggiornato: addebito di ${amount}`,
       orderUpdatedRefund: (amount: string) => `Ordine aggiornato: rimborso di ${amount}`,
       selectMemberError: "Seleziona un socio",
+      existingOrderLoaded: (name: string) => `${name} ha già un ordine in questo ciclo: le sue righe sono caricate qui sotto, aggiungi o cambia solo quello che serve.`,
+      loadingMemberOrder: "Carico l'ordine del socio…",
       errorLoading: "Errore nel caricamento",
       reduceAria: (name: string) => `Togli uno: ${name}`,
       increaseAria: (name: string) => `Aggiungi uno: ${name}`,
@@ -2755,6 +2757,8 @@ export const it = {
     orderEditOnlyAfterClose: "L'ordine si può modificare in questo modo solo dopo la chiusura del ciclo",
     openOrderCycleNotOpen: "Il ciclo non è più aperto: ricarica la pagina.",
     openOrderChanged: "L'ordine è cambiato nel frattempo (o il ciclo è stato chiuso): ricarica e riprova.",
+    orderBaselineChanged:
+      "Questo socio ha già un ordine: è cambiato o non era ancora caricato. Chiudi, riapri e riprova, non è stato salvato nulla.",
     productNotValidForCycle: "Prodotto non valido per questo ciclo",
     amountMustBePositive: "L'importo deve essere positivo",
     amountInvalid: "Importo non valido",

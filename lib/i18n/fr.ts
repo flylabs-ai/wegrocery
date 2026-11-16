@@ -1922,6 +1922,8 @@ export const fr: Strings = {
       orderUpdatedCharge: (amount: string) => `Commande mise à jour : prélèvement de ${amount}`,
       orderUpdatedRefund: (amount: string) => `Commande mise à jour : remboursement de ${amount}`,
       selectMemberError: "Sélectionnez un membre",
+      existingOrderLoaded: (name: string) => `${name} a déjà une commande dans ce cycle : ses lignes sont chargées ci-dessous, ajoutez ou modifiez seulement ce qu'il faut.`,
+      loadingMemberOrder: "Chargement de la commande du membre…",
       errorLoading: "Erreur de chargement",
       reduceAria: (name: string) => `En retirer un : ${name}`,
       increaseAria: (name: string) => `En ajouter un : ${name}`,
@@ -2746,6 +2748,8 @@ export const fr: Strings = {
     orderEditOnlyAfterClose: "Les commandes ne peuvent être modifiées ainsi qu'après la clôture du cycle",
     openOrderCycleNotOpen: "Le cycle n'est plus ouvert : rechargez la page.",
     openOrderChanged: "La commande a changé entre-temps (ou le cycle a été clôturé) : rechargez et réessayez.",
+    orderBaselineChanged:
+      "Ce membre a déjà une commande : elle a changé ou n'était pas encore chargée. Fermez, rouvrez et réessayez, rien n'a été enregistré.",
     productNotValidForCycle: "Produit non valide pour ce cycle",
     amountMustBePositive: "Le montant doit être positif",
     amountInvalid: "Montant non valide",

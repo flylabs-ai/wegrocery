@@ -117,3 +117,21 @@ export function orderLinesSnapshot(lines: ReadonlyArray<ExistingOrderLine>): str
     ),
   );
 }
+
+// True when `baseline` (the lines the admin's form started from) is still the
+// member's order: same products, same quantities. The admin form sends the
+// final state of the order, so a form that started from the wrong lines (the
+// "add an order" picker before it loaded the member's existing order, or a
+// member who saved in the meantime) would silently drop products; the actions
+// refuse instead.
+export function sameOrderLines(
+  current: ReadonlyArray<{ productId: string; quantity: number }>,
+  baseline: ReadonlyArray<{ productId: string; quantity: number }>,
+): boolean {
+  const key = (ls: ReadonlyArray<{ productId: string; quantity: number }>) => {
+    const sums = new Map<string, number>();
+    for (const l of ls) if (l.quantity > 0) sums.set(l.productId, (sums.get(l.productId) ?? 0) + l.quantity);
+    return [...sums].map(([p, q]) => `${p}:${q}`).sort().join(",");
+  };
+  return key(current) === key(baseline);
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { orderLinesSnapshot, planClosedOrderEdit, type ExistingOrderLine } from "./closed-order-edit";
+import { orderLinesSnapshot, planClosedOrderEdit, sameOrderLines, type ExistingOrderLine } from "./closed-order-edit";
 
 function line(partial: Partial<ExistingOrderLine> & { productId: string }): ExistingOrderLine {
   return {
@@ -154,5 +154,39 @@ describe("orderLinesSnapshot", () => {
 
   it("is an empty object for a member with no lines", () => {
     expect(orderLinesSnapshot([])).toBe("{}");
+  });
+});
+
+describe("sameOrderLines", () => {
+  const paid = [
+    { productId: "leek", quantity: 1 },
+    { productId: "pumpkin", quantity: 1 },
+  ];
+
+  it("accepts the same lines in any order", () => {
+    expect(sameOrderLines(paid, [...paid].reverse())).toBe(true);
+  });
+
+  it("refuses an empty baseline when the member already ordered (the add-order picker bug)", () => {
+    expect(sameOrderLines(paid, [])).toBe(false);
+  });
+
+  it("refuses a changed quantity", () => {
+    expect(sameOrderLines(paid, [{ productId: "leek", quantity: 2 }, { productId: "pumpkin", quantity: 1 }])).toBe(false);
+  });
+
+  it("ignores zero quantities and sums duplicates", () => {
+    expect(
+      sameOrderLines(paid, [
+        { productId: "leek", quantity: 1 },
+        { productId: "pumpkin", quantity: 0 },
+        { productId: "pumpkin", quantity: 1 },
+        { productId: "apple", quantity: 0 },
+      ]),
+    ).toBe(true);
+  });
+
+  it("accepts two empty orders", () => {
+    expect(sameOrderLines([], [])).toBe(true);
   });
 });

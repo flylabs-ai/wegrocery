@@ -1922,6 +1922,8 @@ export const es: Strings = {
       orderUpdatedCharge: (amount: string) => `Pedido actualizado: cargo de ${amount}`,
       orderUpdatedRefund: (amount: string) => `Pedido actualizado: reembolso de ${amount}`,
       selectMemberError: "Selecciona un socio",
+      existingOrderLoaded: (name: string) => `${name} ya tiene un pedido en este ciclo: sus líneas están cargadas abajo, añade o cambia solo lo que haga falta.`,
+      loadingMemberOrder: "Cargando el pedido del socio…",
       errorLoading: "Error de carga",
       reduceAria: (name: string) => `Quitar uno: ${name}`,
       increaseAria: (name: string) => `Añadir uno: ${name}`,
@@ -2745,6 +2747,8 @@ export const es: Strings = {
     orderEditOnlyAfterClose: "Los pedidos solo se pueden modificar así después de cerrar el ciclo",
     openOrderCycleNotOpen: "El ciclo ya no está abierto: recarga la página.",
     openOrderChanged: "El pedido ha cambiado mientras tanto (o el ciclo se ha cerrado): recarga y vuelve a intentarlo.",
+    orderBaselineChanged:
+      "Este socio ya tiene un pedido: ha cambiado o aún no se había cargado. Cierra, vuelve a abrir e inténtalo de nuevo, no se ha guardado nada.",
     productNotValidForCycle: "Producto no válido para este ciclo",
     amountMustBePositive: "El importe debe ser positivo",
     amountInvalid: "Importe no válido",

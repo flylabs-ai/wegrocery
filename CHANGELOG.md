@@ -24,6 +24,8 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+- 🧺 **"Add an order for a member" keeps the order they already placed**: choosing a member who already ordered loads their products, so the admin adds to them instead of replacing them. If the order changed in the meantime, nothing is saved.
+
 ## [1.48.0] - 2026-11-16
 
 *Buttons in the group's colour, and more shared FlyLabs Kit building blocks.*
