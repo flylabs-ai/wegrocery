@@ -158,7 +158,7 @@ export async function CycleWorkspace({ cycleId: asked, view: askedView, creating
         </div>
         <Link
           href={adminHref("ciclo", null, { new: "1" })}
-          className="flex min-h-11 shrink-0 items-center rounded-xl bg-inverse px-4 text-[13px] font-bold text-inverse-foreground"
+          className="flex min-h-11 shrink-0 items-center rounded-xl bg-primary px-4 text-[13px] font-bold text-primary-foreground"
         >
           {t.admin.workspace.newCycle}
         </Link>

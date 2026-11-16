@@ -8,16 +8,19 @@ import { cn } from "@/lib/utils";
 /**
  * shadcn's Button on Base UI (Playbook 2.7). Variants are named for their
  * role, not their colour, so a brand palette never makes a name lie:
- * `default` is the dark button, `brand` and `accent` take the brand's fills,
- * `destructive` the destructive one.
+ * `default` is the primary action on the brand's fill (shadcn's standard,
+ * decision 3a of the kit plan: the tema engine guarantees its contrast),
+ * `brand` the same fill under its older name, `inverse` the dark button,
+ * `accent` the accent fill, `destructive` the destructive one.
  */
 export const buttonVariants = cva(
   "pressable inline-flex items-center justify-center rounded-full font-sans font-bold tracking-tight select-none transition-[opacity,transform] duration-150 disabled:opacity-40 disabled:cursor-not-allowed",
   {
     variants: {
       variant: {
-        default: "bg-inverse text-inverse-foreground",
+        default: "bg-primary text-primary-foreground",
         brand: "bg-primary text-primary-foreground",
+        inverse: "bg-inverse text-inverse-foreground",
         accent: "bg-accent text-accent-foreground",
         destructive: "bg-danger text-danger-foreground",
         outline: "bg-transparent border border-border text-foreground",
