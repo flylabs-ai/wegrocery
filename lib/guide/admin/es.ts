@@ -198,7 +198,7 @@ export const adminGuideEs: GuideContent = {
       steps: [
         "**Resumen**: cuántos socios han pedido, el total y el tiempo que queda hasta la fecha límite.",
         "**Pedidos**: el pedido de cada socio y los totales por producto. Desde aquí también puedes descargar la hoja del pedido en Excel.",
-        "Para registrar el pedido de un socio usa **+ Añadir pedido para un socio**, para cambiarlo **✎ Editar**. Funciona también después de la fecha límite, hasta que cierres el ciclo.",
+        "Para registrar o cambiar el pedido de un socio usa **+ Pedido para un socio**: arriba quien ya ha pedido (Editar), debajo quien aún no ha pedido (Añadir). También sirve **✎ Editar** en la fila del socio. Funciona también después de la fecha límite, hasta que cierres el ciclo.",
       ],
       notes: ["Un pedido que registras o cambias se cobra al cierre, como los demás, y el socio recibe un aviso. Los pesos y precios reales se registran después del cierre."],
       keywords: ["ver pedidos", "quién ha pedido", "total", "resumen", "añadir pedido", "pedido para un socio", "pedido tardío"],
@@ -257,7 +257,7 @@ export const adminGuideEs: GuideContent = {
       title: "La fecha límite ha pasado pero el ciclo sigue abierto",
       intro: "Es normal: tras la fecha límite los socios ya no pueden pedir, pero el ciclo no se cierra solo. Así tienes tiempo de ordenar los pedidos, enviar el pedido al proveedor y esperar la hoja con los costes reales.",
       steps: [
-        "En **Pedidos** revisa los pedidos y añade a quien llegó tarde con **+ Añadir pedido para un socio**.",
+        "En **Pedidos** revisa los pedidos y añade a quien llegó tarde con **+ Pedido para un socio**.",
         "En **Proveedor** descarga la hoja del pedido y envíala al proveedor.",
         "Cuando tengas los pesos y precios reales (o si no los necesitas), cierra el ciclo con **Cerrar ciclo…**: es el último paso, el que cobra a los socios.",
       ],
@@ -361,7 +361,7 @@ export const adminGuideEs: GuideContent = {
         "Abre el ciclo cerrado y ve a **Pedidos**.",
         "Toca el producto que corregir y escribe la cantidad recibida o el total real.",
         "Para cambiar varias líneas o añadir un producto olvidado, toca **✎ Editar** en el socio.",
-        "Si un socio no había pedido pero se llevó algo, usa **+ Añadir pedido para un socio**.",
+        "Si un socio no había pedido pero se llevó algo, usa **+ Pedido para un socio**.",
       ],
       notes: ["Cada corrección crea un movimiento aparte y un aviso para el socio. El cargo original no se toca."],
       keywords: ["ajuste", "peso", "cantidad", "error", "falta", "olvidado"],

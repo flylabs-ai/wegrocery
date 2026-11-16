@@ -7,6 +7,7 @@ import { normalizeProductOrder, type ProductOrderMode } from "@/lib/products/cyc
 import { requireCycleManager } from "@/lib/auth/manager";
 import { t } from "@/lib/i18n";
 import { getDb } from "@/lib/db/client";
+import type { OrderMemberSummary } from "@/lib/admin/order-member-picker";
 import {
   ledgerEntries,
   members,
@@ -122,6 +123,8 @@ export type EditClosedOrderBootstrap = {
     lineTotal: string;
   }>;
   members: Array<{ memberId: string; fullName: string }>;
+  /** Who already has something on this cycle, for the "order for a member" picker. */
+  memberSummaries: OrderMemberSummary[];
   /** How the members see the products: the editor groups them the same way. */
   productOrder: ProductOrderMode;
 };
@@ -134,7 +137,7 @@ export async function adminGetEditClosedOrderBootstrap(
     await requireCycleManager(cycleId);
     const db = getDb();
 
-    const [productRows, lineRows, memberRows, cycleRows] = await Promise.all([
+    const [productRows, lineRows, memberRows, cycleRows, summaryRows] = await Promise.all([
       db
         .select({
           productId: products.productId,
@@ -177,6 +180,25 @@ export async function adminGetEditClosedOrderBootstrap(
         .from(orderCycles)
         .where(eq(orderCycles.cycleId, cycleId))
         .limit(1),
+      // Per member on this cycle: order lines and their effective total, what
+      // a card order payment still holds, and an unconfirmed draft.
+      db.execute<{ member_id: string; line_count: number; total: string; paid_cents: number; has_draft: boolean }>(sql`
+        WITH o AS (
+          SELECT member_id, count(*)::int AS line_count,
+                 sum(coalesce(actual_line_total, line_total))::text AS total
+          FROM orders WHERE cycle_id = ${cycleId} GROUP BY member_id
+        ), p AS (
+          SELECT member_id, sum(amount_cents - refunded_cents)::int AS paid_cents
+          FROM payments WHERE cycle_id = ${cycleId} AND kind = 'order' AND status = 'succeeded'
+          GROUP BY member_id
+        ), d AS (
+          SELECT member_id FROM order_drafts WHERE cycle_id = ${cycleId}
+        )
+        SELECT m.member_id, coalesce(o.line_count, 0) AS line_count, coalesce(o.total, '0.00') AS total,
+               coalesce(p.paid_cents, 0) AS paid_cents, (d.member_id IS NOT NULL) AS has_draft
+        FROM (SELECT member_id FROM o UNION SELECT member_id FROM p UNION SELECT member_id FROM d) m
+        LEFT JOIN o USING (member_id) LEFT JOIN p USING (member_id) LEFT JOIN d USING (member_id)
+      `),
     ]);
 
     return {
@@ -184,6 +206,13 @@ export async function adminGetEditClosedOrderBootstrap(
         products: productRows,
         memberLines: lineRows,
         members: memberRows,
+        memberSummaries: summaryRows.rows.map((r) => ({
+          memberId: r.member_id,
+          lineCount: Number(r.line_count),
+          total: Number(r.total),
+          paidCents: Number(r.paid_cents),
+          hasDraft: Boolean(r.has_draft),
+        })),
         productOrder: normalizeProductOrder(cycleRows[0]?.productOrder),
       },
     };
