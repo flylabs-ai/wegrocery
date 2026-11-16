@@ -28,6 +28,8 @@ dettagli tecnici", la release su GitHub la tiene.
 ### Modificato
 - 🎨 **Bottoni principali nel colore del gruppo**: l'azione principale di una schermata (per esempio "+ Nuovo ciclo" o "Salva") ora usa il colore del gruppo invece del nero, con il testo sempre leggibile qualunque sia il colore.
 - 📱 **Barra di stato del telefono come la pagina**: la barra in alto del telefono prende lo sfondo della pagina, chiaro o scuro, invece del colore del gruppo, così ora e batteria restano leggibili con qualunque colore.
+- 📡 **Salute e statistiche di flotta dal FlyLabs Kit** [tecnico]: `/api/health` e `/api/instance-stats` usano il modulo `console` 1.1 del kit; le statistiche vengono controllate (conteggi, id, nessun indirizzo) prima di uscire. Stesse risposte di prima.
+- 🔐 **Impostazioni di accesso dal FlyLabs Kit** [tecnico]: link e codici con hash, 6 cifre e 3 tentativi, sessioni, limiti di frequenza, cookie, indirizzi fidati ed endpoint pubblici di accesso ora vengono dal modulo `auth` 1.0.1 del kit. Per i soci non cambia nulla: stessa email, link, codice, Google e demo.
 
 ## [1.47.3] - 2026-11-16
 
