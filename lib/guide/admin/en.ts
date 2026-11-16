@@ -198,7 +198,7 @@ export const adminGuideEn: GuideContent = {
       steps: [
         "**Overview**: how many members ordered, the total and the time left before the deadline.",
         "**Orders**: each member's order and the totals per product. You can also download the order sheet in Excel from here.",
-        "To enter a member's order use **+ Add order for a member**, to change it **✎ Edit**. It works after the deadline too, until you close the cycle.",
+        "To enter or change a member's order use **+ Order for a member**: first who already ordered (Edit), then who has not ordered yet (Add). **✎ Edit** on the member's row works too. It works after the deadline too, until you close the cycle.",
       ],
       notes: ["An order you enter or change is charged at the close, like the others, and the member gets a notice. Real weights and prices are recorded after the close."],
       keywords: ["see orders", "who ordered", "total", "summary", "add order", "order for a member", "late order"],
@@ -257,7 +257,7 @@ export const adminGuideEn: GuideContent = {
       title: "The order deadline has passed but the cycle is still open",
       intro: "That is normal: after the deadline members can no longer order, but the cycle does not close by itself. This gives you time to sort out the orders, send the order to the supplier and wait for the sheet with the real costs.",
       steps: [
-        "In **Orders** check the orders and add anyone who came in late with **+ Add order for a member**.",
+        "In **Orders** check the orders and add anyone who came in late with **+ Order for a member**.",
         "In **Supplier** download the order sheet and send it to the supplier.",
         "When you have real weights and prices (or if you do not need them), close the cycle with **Close cycle…**: it is the last step, the one that charges members.",
       ],
@@ -361,7 +361,7 @@ export const adminGuideEn: GuideContent = {
         "Open the closed cycle and go to **Orders**.",
         "Tap the product to correct and write the quantity received or the real total.",
         "To change several lines or add a forgotten product, tap **✎ Edit** on the member.",
-        "If a member had not ordered but picked something up, use **+ Add order for a member**.",
+        "If a member had not ordered but picked something up, use **+ Order for a member**.",
       ],
       notes: ["Every correction creates a separate movement and a notification for the member. The original charge is not touched."],
       keywords: ["adjustment", "weight", "quantity", "wrong", "missing", "forgotten"],
