@@ -46,7 +46,7 @@ export function ConfigStatusCard({ items, bare = false }: { items: ConfigItem[];
     );
   }
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardHeader>
         <h3 className="text-[13px] font-bold text-foreground">{s.title}</h3>
         <p className="mt-1 text-[12px] text-secondary-foreground">{s.intro}</p>

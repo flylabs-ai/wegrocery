@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { Sheet, SheetActions } from "@/components/ui/sheet";
+import { Sheet, SheetActions } from "@/components/app-ui/sheet";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
-import { confirm } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/app-ui/toast";
+import { confirm } from "@/components/app-ui/confirm";
 import { formatEur, getProductEmoji } from "@/lib/utils";
 import {
   adminCloseCycle,

@@ -7,7 +7,7 @@ import { adminGetCycleOrderDetails } from "@/lib/actions/admin-cycles";
 import { adminUpdateOrderLineActuals } from "@/lib/actions/admin";
 import { formatEur, getProductEmoji } from "@/lib/utils";
 import { formatDecimalInput, formatNumber } from "@/lib/i18n/format";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { Button } from "@/components/ui/button";
 import { EditClosedOrderModal } from "./edit-closed-order-modal";
 import { t } from "@/lib/i18n";

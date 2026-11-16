@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { Bell, BellOff, CalendarPlus, ChevronDown, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { DAY_ICONS, KIND_ICON } from "@/components/calendar/kind-icon";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { setCycleOpenAlert } from "@/lib/actions/cycle-alerts";
 import { Badge } from "@/components/ui/badge";
 import { DateTile, type DateTileTone } from "@/components/home/date-tile";

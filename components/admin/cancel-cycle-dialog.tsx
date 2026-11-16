@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Sheet, SheetActions } from "@/components/ui/sheet";
+import { Sheet, SheetActions } from "@/components/app-ui/sheet";
 import { Button } from "@/components/ui/button";
-import { confirmDiscard } from "@/components/ui/confirm-dialog";
+import { confirmDiscard } from "@/components/app-ui/confirm";
 import { adminCancelClosedCycle } from "@/lib/actions/admin";
 import { formatMoney } from "@/lib/i18n/format";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { t } from "@/lib/i18n";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Entry point for cancelling an already-closed cycle (e.g. the supplier
 // failed to deliver). Only shown for closed cycles — see tab-ciclo.tsx.
@@ -111,12 +112,7 @@ function CancelCycleDialog({
         </div>
 
         <label className="flex min-h-11 items-center gap-3 text-[13px] font-semibold text-foreground">
-          <input
-            type="checkbox"
-            checked={refundShipping}
-            onChange={(e) => setRefundShipping(e.target.checked)}
-            className="h-5 w-5 shrink-0 rounded border-border"
-          />
+          <Checkbox checked={refundShipping} onCheckedChange={(checked) => setRefundShipping(checked)} />
           {t.admin.cycleCancel.refundShippingLabel}
         </label>
       </div>

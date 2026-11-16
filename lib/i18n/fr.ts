@@ -5,6 +5,7 @@ export const fr: Strings = {
     save: "Enregistrer",
     cancel: "Annuler",
     close: "Fermer",
+    notices: "Notifications",
     confirm: "Confirmer",
     discardTitle: "Fermer sans enregistrer ?",
     discardMessage: "Ce que vous avez saisi ici sera perdu.",

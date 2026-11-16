@@ -5,6 +5,7 @@ export const it = {
     save: "Salva",
     cancel: "Annulla",
     close: "Chiudi",
+    notices: "Avvisi",
     confirm: "Conferma",
     discardTitle: "Chiudere senza salvare?",
     discardMessage: "Quello che hai inserito qui va perso.",

@@ -21,6 +21,8 @@
   --danger: #c53030;
   --danger-foreground: #ffffff;
   --destructive: #c53030;
+  /* Text on the filled destructive button (FlyLabs Kit ui 1.1); dark in lib/brand/roles.ts. */
+  --destructive-foreground: #ffffff;
   --danger-bg: #feecec;
   --warning: #b45309; /* warning fills with white text, and warning text (AA, checked in the tests) */
   --warning-foreground: #ffffff;
@@ -39,9 +41,11 @@
      group's, so no brand changes them. The dark pair is in lib/brand/roles.ts. */
   --flylabs-ai: #343bec;
   --flylabs-spark: #d99a00;
-  --nav-h: 82px;
   /* Height of a compact control: 40 px with a mouse, 44 px on touch. */
   --control-h: 40px;
+  /* WeGrocery's shape for the kit primitives: 18 px cards and sheets, pill controls. */
+  --radius: 18px;
+  --control-radius: 9999px;
 }
 
 @media (pointer: coarse) {
@@ -73,6 +77,7 @@
   --color-accent-bg: var(--accent-bg);
   --color-neutral: var(--neutral);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
   --color-danger-bg: var(--danger-bg);
@@ -87,7 +92,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --spacing-nav-h: var(--nav-h);
   /* Smallest text in the app: labels, badges, captions. Nothing goes under it. */
   --text-label: 0.75rem;
   /* Page titles (h1). */
@@ -102,6 +106,7 @@
      labels (FlyLabs Playbook 2.1). Amounts are Inter with tabular-nums. */
   --font-sans: var(--font-inter);
   --font-display: var(--font-geist-sans);
+  --font-heading: var(--font-geist-sans);
   --font-mono: var(--font-jetbrains-mono);
 }
 

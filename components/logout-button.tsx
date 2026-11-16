@@ -1,7 +1,7 @@
 "use client";
 
 import { t } from "@/lib/i18n";
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirm } from "@/components/app-ui/confirm";
 
 type Props = {
   action: () => Promise<void>;

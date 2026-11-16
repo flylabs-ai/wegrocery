@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { t } from "@/lib/i18n";
 import { formatEur } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/app-ui/sheet";
 import { formatDeadline } from "@/lib/i18n/deadline";
 
 type Props = {

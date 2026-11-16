@@ -2,12 +2,12 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import { Check } from "lucide-react";
-import { Sheet, SheetActions } from "@/components/ui/sheet";
+import { Sheet, SheetActions } from "@/components/app-ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { labelClass } from "@/components/ui/label";
-import { toast } from "@/components/ui/toast";
+import { labelClass } from "@/components/app-ui/label";
+import { toast } from "@/components/app-ui/toast";
 import { adminClearPickup, adminMarkPickup } from "@/lib/actions/admin-pickups";
 import type { CyclePickupRow } from "@/lib/db/pickups";
 import { t } from "@/lib/i18n";

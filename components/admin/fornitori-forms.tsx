@@ -1,9 +1,9 @@
 "use client";
 
 import { X } from "lucide-react";
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirm } from "@/components/app-ui/confirm";
 import { useState, useTransition } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import Link from "next/link";
 import {
   adminArchiveSupplier,
@@ -15,7 +15,7 @@ import { adminHref } from "@/lib/admin/nav";
 import { t } from "@/lib/i18n";
 import { useCloseCreate } from "./create-toggle";
 import { Input } from "@/components/ui/input";
-import { labelClass } from "@/components/ui/label";
+import { labelClass } from "@/components/app-ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 type Supplier = {

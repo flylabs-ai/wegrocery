@@ -1,9 +1,9 @@
 "use client";
 
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirm } from "@/components/app-ui/confirm";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminChangePaymentMode } from "@/lib/actions/admin-settings";
 import { t } from "@/lib/i18n";
 import { formatMoney } from "@/lib/i18n/format";

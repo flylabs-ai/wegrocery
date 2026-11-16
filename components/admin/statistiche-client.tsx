@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type FilterCycle = { cycleId: string; title: string };
 type FilterSupplier = { supplierId: string; name: string };
@@ -193,12 +194,7 @@ function MultiSelect({
                       checked ? "bg-primary-bg/40" : ""
                     }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggle(o.id)}
-                      className="h-3.5 w-3.5 accent-primary"
-                    />
+                    <Checkbox checked={checked} onCheckedChange={() => toggle(o.id)} />
                     <span className="truncate text-foreground">{o.label}</span>
                   </label>
                 );

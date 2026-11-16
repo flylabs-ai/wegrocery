@@ -36,7 +36,7 @@ export function CycleDraftsCard({ drafts, cardPayment }: {
   const c = t.admin.cycle;
 
   return (
-    <Card className="min-w-0 border-dashed bg-tint/[0.03]">
+    <Card className="mb-3.5 min-w-0 border-dashed bg-tint/[0.03]">
       <CardHeader>
         <h3 className="text-[14px] font-bold text-foreground">{c.unconfirmedDrafts} ({drafts.length})</h3>
         <p className="mt-1 text-[14px] text-secondary-foreground">{cardPayment ? c.draftsUnpaid : c.draftsUnconfirmed}</p>

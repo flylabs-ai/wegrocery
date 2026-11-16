@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminClearGuideSearchMisses } from "@/lib/actions/admin-settings";
 import { MISS_RETENTION_DAYS } from "@/lib/guide/search-misses";
 import { t } from "@/lib/i18n";

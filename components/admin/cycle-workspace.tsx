@@ -365,7 +365,7 @@ async function SelectedCycle({
             draftsSummary={rawStats && rawStats.drafts.length > 0 ? <CycleDraftsSummary drafts={rawStats.drafts} cardPayment={perOrder} /> : null}
           />
         ) : isPlanned ? (
-          <Card>
+          <Card className="mb-3.5 mb-3.5">
             <CardContent>
               <p className="mb-3 max-w-prose text-[13px] text-secondary-foreground">
                 <RichText text={w.plannedIntro(!autoOpenEnabled() ? "manual" : cycle.datesTentative ? "tentative" : "auto")} />
@@ -374,7 +374,7 @@ async function SelectedCycle({
             </CardContent>
           </Card>
         ) : (
-          <Card>
+          <Card className="mb-3.5 mb-3.5">
             <CardContent>
               <CycleFacts cycle={cycle} suppliers={suppliers} />
               <div className="mt-3">
@@ -403,7 +403,7 @@ async function SelectedCycle({
             <SupplierSteps cycleId={c.cycleId} cycleOpen={isOpen} />
           </div>
         ) : (
-          <Card>
+          <Card className="mb-3.5 mb-3.5">
             <CardContent>
               <p className="max-w-prose text-[13px] text-secondary-foreground">{w.noSupplier}</p>
             </CardContent>
@@ -412,7 +412,7 @@ async function SelectedCycle({
 
       {view === "ritiri" &&
         (isOpen ? (
-          <Card>
+          <Card className="mb-3.5 mb-3.5">
             <CardContent>
               <h3 className="text-[14px] font-bold text-foreground">{t.admin.pickups.openTitle}</h3>
               <p className="mt-1 mb-3 max-w-prose text-[13px] text-secondary-foreground">

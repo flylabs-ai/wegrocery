@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { updateMyName } from "@/lib/actions/profile";
 import { t } from "@/lib/i18n";
 import { NAME_MAX_LENGTH } from "@/lib/profile/summary";

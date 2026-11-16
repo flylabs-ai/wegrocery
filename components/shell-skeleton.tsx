@@ -1,36 +1,31 @@
-import { SHELL_WIDTH } from "@/components/shell-width";
-
-// Mirror AppShell's wrapper (same max-widths, frame padding, card chrome and
-// header height) so the streamed page doesn't shift when it replaces this.
+// Mirror the kit shell's frame (components/shell/app-shell.tsx, as used by
+// components/app-nav.tsx) so the streamed page doesn't shift when it
+// replaces this: rail or sidebar from md, header and bottom bar on phones.
 export function ShellSkeleton() {
   return (
-    <div className="min-h-screen bg-frame sm:p-6 md:flex md:bg-background md:p-0">
+    <div className="min-h-dvh bg-background md:flex">
       {/* The rail (tablet) or sidebar (PC), without items. */}
-      <div className="hidden h-screen w-[88px] shrink-0 border-r border-border md:block lg:w-[248px]" />
-      <div
-        className={`mx-auto flex min-h-screen w-full flex-col bg-background sm:min-h-[calc(100vh-3rem)] sm:overflow-clip sm:rounded-xl sm:border sm:border-border sm:shadow-sm md:min-h-screen md:min-w-0 md:flex-1 md:rounded-none md:border-0 md:shadow-none ${SHELL_WIDTH}`}
-      >
-        <div className="border-b border-border px-5 py-4 md:hidden">
-          <div className="flex items-center justify-between gap-3 lg:gap-6">
-            <div className="h-[26px] w-28 animate-pulse rounded-md bg-tint/[0.05]" />
-            {/* The bell and the avatar. */}
-            <div className="flex gap-3">
-              <div className="h-8 w-8 animate-pulse rounded-full bg-tint/[0.04]" />
-              <div className="h-8 w-8 animate-pulse rounded-full bg-tint/[0.05]" />
-            </div>
+      <div className="sticky top-0 hidden h-dvh w-20 shrink-0 border-r border-border bg-card md:block lg:w-56" />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden">
+          <div className="h-[26px] w-28 animate-pulse rounded-md bg-tint/[0.05]" />
+          {/* The bell and the avatar. */}
+          <div className="flex gap-2">
+            <div className="size-(--control-h) animate-pulse rounded-full bg-tint/[0.04]" />
+            <div className="size-(--control-h) animate-pulse rounded-full bg-tint/[0.05]" />
           </div>
         </div>
-        <div className="flex-1 px-5 py-4 pb-[calc(var(--spacing-nav-h)+1rem)] md:px-8 md:py-6">
+        <div className="flex-1 px-4 py-4 pb-[calc(4rem+env(safe-area-inset-bottom)+1rem)] md:px-6 md:py-6">
           <div className="space-y-3.5">
             <div className="h-[140px] animate-pulse rounded-card bg-tint/[0.05]" />
             <div className="h-[100px] animate-pulse rounded-card bg-tint/[0.04]" />
             <div className="h-[80px] animate-pulse rounded-card bg-tint/[0.03]" />
           </div>
         </div>
-        {/* The bottom bar's strip, without items: with no session yet the
-            skeleton cannot know whether there are four or five. */}
-        <div className="sticky bottom-0 h-[calc(var(--spacing-nav-h)+env(safe-area-inset-bottom))] border-t border-border bg-background md:hidden" />
       </div>
+      {/* The bottom bar's strip, without items: with no session yet the
+          skeleton cannot know whether there are four or five. */}
+      <div className="fixed inset-x-0 bottom-0 h-[calc(4rem+1px+env(safe-area-inset-bottom))] border-t border-border bg-card md:hidden" />
     </div>
   );
 }
