@@ -71,6 +71,7 @@ the role end to end, and the whole integration suite passes with it.
 
 | Version | Migration | Environment | Stripe webhook events |
 |---|---|---|---|
+| 1.48.0 | `0056_stripe_events.sql` (additive: `stripe_events`, the register of Stripe webhook deliveries from FlyLabs Kit `pagamenti` 1.0). Apply to staging before merging, then production and demo before deployment: without the table the webhook answers 500 and Stripe retries; example-brand installs migrate on build. Rollback: deploy code without the register, then run `0056_stripe_events_down.sql` | none | none |
 | 1.47.3 | none. The new runner (`scripts/db-migrate.mjs`, kit `migrazioni` 1.0, now run with `--dir drizzle`) adds a nullable `checksum` column to `_migrations` on its first run and fills it from the local files without running them; example-brand installs do it on build | none | none |
 | 1.47.2 | none | none. Pages send `Content-Security-Policy-Report-Only` (nothing blocked); the public `POST /api/csp-report` logs what the policy would block. A new outside origin (script, frame, form target, fetch) must be added to `lib/security/csp.ts` before the policy is enforced | none |
 | 1.47.1 | none | No app variable. The backup workflows need GitHub secrets `BACKUP_AGE_RECIPIENT` (required, or the daily backup fails instead of uploading a readable dump), `BACKUP_AGE_RECIPIENT_RESTORE` and `AGE_RESTORE_IDENTITY` (for the weekly restore test); see AGENTS.md "Backup & Restore" | none |

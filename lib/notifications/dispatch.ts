@@ -14,7 +14,7 @@ import { notificationEmail } from "@/lib/email/templates";
 import { getAppBaseUrl } from "@/lib/email/base-url";
 import { emailIdempotencyKey } from "@/lib/email/idempotency";
 import { sendMail, sendMailBatch } from "@/lib/email/resend";
-import { unsubscribeHeaders } from "@/lib/email/unsubscribe";
+import { memberUnsubscribeHeaders } from "@/lib/email/unsubscribe-config";
 import {
   categoryForType,
   channelsForType,
@@ -126,7 +126,7 @@ export async function dispatchNotification(
       { title: input.title, body: input.body, href: input.href },
       await getBrand(),
     );
-    const headers = unsubscribeHeaders(
+    const headers = memberUnsubscribeHeaders(
       { memberId: input.memberId, category: categoryForType(input.type) },
       getAppBaseUrl(),
       process.env.AUTH_SECRET,
@@ -183,7 +183,7 @@ export async function dispatchWithBodies(
     .filter((i) => i.email && channelsForType(type, prefsByMember.get(i.memberId)!).email)
     .map((i) => {
       const { subject, text, heading } = notificationEmail({ title: i.title, body: i.body, href: i.href }, identity);
-      const headers = unsubscribeHeaders(
+      const headers = memberUnsubscribeHeaders(
         { memberId: i.memberId, category: categoryForType(type) },
         getAppBaseUrl(),
         process.env.AUTH_SECRET,

@@ -876,3 +876,13 @@ export const familyInvites = pgTable("family_invites", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   respondedAt: timestamp("responded_at", { withTimezone: true }),
 });
+
+// Stripe webhook deliveries (drizzle/0056_stripe_events.sql), written only by
+// the FlyLabs Kit register (lib/payments/shared/events.ts) through raw SQL.
+export const stripeEvents = pgTable("stripe_events", {
+  id: text("id").primaryKey(),
+  type: text("type").notNull(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+  processedAt: timestamp("processed_at", { withTimezone: true }),
+  error: text("error"),
+});

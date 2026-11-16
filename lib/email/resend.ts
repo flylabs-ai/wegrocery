@@ -3,9 +3,11 @@ import { brand } from "@/lib/brand";
 import { getBrand } from "@/lib/brand/get-brand";
 import { t } from "@/lib/i18n";
 import { getAppBaseUrl } from "./base-url";
+import { emailColors, emailConfig, outboundEnvFromProcess } from "./email.config";
 import { emailIdempotencyKey, minuteBucket } from "./idempotency";
-import { emailColors, emailHtml, emailLogoUrl, type EmailIdentity } from "./layout";
-import { outboundEnvFromProcess, resolveOutbound, resolveOutboundBatch } from "./outbound-policy";
+import { emailHtml, emailLogoUrl, type EmailIdentity } from "./layout";
+import { resolveOutbound, resolveOutboundBatch } from "./outbound-policy";
+import { sendEmail } from "./send";
 
 type Attachment = {
   filename: string;
@@ -39,14 +41,15 @@ type SendMailOpts = {
   idempotencyKey?: string;
 };
 
-// The branded HTML part every email carries next to its text (Playbook 7.7):
-// the group's logo, name and colours, the text on a card, the WeGrocery logo
-// and "by flylabs.ai" unless the group switched it off (brand.flylabsSignature,
+// The branded HTML part every email carries next to its text (Playbook 7.7,
+// FlyLabs Kit `email` 2.0, settings in email.config.ts): the group's logo,
+// name and colours, the text on a card, the WeGrocery logo and "by
+// flylabs.ai" unless the group switched it off (brand.flylabsSignature,
 // Playbook 2.11). Without a base URL the logos become names in text.
 type Look = { identity: EmailIdentity; signature: boolean; baseUrl: string };
 
 function brandedHtml(text: string, subject: string, look: Look, heading?: string | null): string {
-  return emailHtml(text, { subject, baseUrl: look.baseUrl, signature: look.signature, identity: look.identity, heading });
+  return emailHtml(text, emailConfig(look.identity), { subject, baseUrl: look.baseUrl, signature: look.signature, heading });
 }
 
 // The group as the app shows it (getBrand: Impostazioni over the brand JSON).
@@ -86,43 +89,43 @@ export async function sendMail(
     return { error: t.errors.demoEmailDisabled };
   }
   const ccIn = opts.cc == null ? [] : Array.isArray(opts.cc) ? opts.cc : [opts.cc];
-  const target = resolveOutbound(
-    { to: opts.to, cc: ccIn, subject: opts.subject },
-    outboundEnvFromProcess(),
-    t.errors.emailDisabledOutsideProduction,
-  );
+  // Refused outside production without a redirect before touching Resend
+  // (sendEmail applies the same policy to the message it sends).
+  const env = outboundEnvFromProcess();
+  const target = resolveOutbound({ to: opts.to, cc: ccIn, subject: opts.subject }, env, t.errors.emailDisabledOutsideProduction);
   if (target.action === "block") return { error: target.error };
   const apiKey = process.env.RESEND_API_KEY;
-  const from = opts.from?.trim() || process.env.MAIL_FROM;
   if (!apiKey) return { error: "RESEND_API_KEY non configurata" };
+  const from = opts.from?.trim() || process.env.MAIL_FROM;
   if (!from) return { error: "MAIL_FROM non configurata" };
   const look = await emailLook();
-
-  try {
-    const resend = new Resend(apiKey);
-    const { data, error } = await resend.emails.send(
-      {
+  // The kit decides the recipient (resolveOutbound), builds the HTML, the
+  // idempotency key and the timeout; its errors carry no address or text.
+  const result = await sendEmail(
+    {
+      to: opts.to,
+      cc: ccIn,
       from,
-      to: [target.to],
-      ...(target.cc.length > 0 ? { cc: target.cc } : {}),
-      ...(opts.replyTo ? { replyTo: opts.replyTo } : {}),
-      subject: target.subject,
+      replyTo: opts.replyTo,
+      subject: opts.subject,
       text: opts.text,
-      html: brandedHtml(opts.text, target.subject, look, opts.heading),
-      ...(opts.attachments ? { attachments: opts.attachments } : {}),
-      ...(opts.headers ? { headers: opts.headers } : {}),
-      },
-      {
-        idempotencyKey:
-          opts.idempotencyKey ??
-          emailIdempotencyKey(target.to, target.subject, opts.text, opts.attachments?.map((a) => a.filename).join(",") ?? "", minuteBucket()),
-      },
-    );
-    if (error) return { error: error.message || t.errors.emailSendFailed };
-    return { ok: true, id: data?.id };
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : t.errors.emailSendFailed };
-  }
+      heading: opts.heading,
+      signature: look.signature,
+      attachments: opts.attachments,
+      headers: opts.headers,
+      idempotencyKey: opts.idempotencyKey,
+    },
+    {
+      client: new Resend(apiKey),
+      config: emailConfig(look.identity),
+      from,
+      baseUrl: look.baseUrl,
+      env,
+      blockedError: t.errors.emailDisabledOutsideProduction,
+    },
+  );
+  if (result.ok) return { ok: true, id: result.id };
+  return { error: result.error === t.errors.emailDisabledOutsideProduction ? result.error : t.errors.emailSendFailed };
 }
 
 // Sends many independent one-off emails in a single call via Resend's batch

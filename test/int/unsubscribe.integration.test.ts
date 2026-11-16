@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { GET, POST } from "@/app/api/unsubscribe/route";
-import { signUnsubscribeToken } from "@/lib/email/unsubscribe";
+import { signMemberUnsubscribeToken as signUnsubscribeToken } from "@/lib/email/unsubscribe-config";
 import { describeDb, makeScope } from "./fixtures";
 
 // The one-click unsubscribe endpoint: public, acts only on a signed token, and

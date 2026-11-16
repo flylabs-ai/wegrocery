@@ -24,9 +24,15 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.48.0] - 2026-11-16
+
+*Buttons in the group's colour, and more shared FlyLabs Kit building blocks.*
+
 ### Changed
 - 🎨 **Main buttons in the group's colour**: the main action of a screen (for example "+ New cycle" or "Save") now uses the group's colour instead of black, with readable text guaranteed for any colour.
 - 📱 **Phone status bar matches the page**: the bar at the top of the phone takes the page's background, light or dark, instead of the group's colour, so the clock and battery stay readable with any colour.
+- ✉️ **Emails from the FlyLabs Kit** [tech]: layout, sending, the outside-production redirect and unsubscribe links come from the kit module `email` 2.0. Same emails as before; a send now gives up after 10 seconds, and new unsubscribe links use the kit's format (the ones already sent keep working).
+- 💳 **Stripe webhook from the FlyLabs Kit** [tech]: the signature, the live/test check and a register of received events (`stripe_events`, migration 0056) come from the kit module `pagamenti` 1.0. An event already processed is not applied again; the answers to Stripe stay the same. Apply migration 0056 before deploying.
 - 📡 **Health and fleet stats from the FlyLabs Kit** [tech]: `/api/health` and `/api/instance-stats` use the kit module `console` 1.1; the stats are checked (counts, ids, no addresses) before they leave. Same answers as before.
 - 🔐 **Sign-in settings from the FlyLabs Kit** [tech]: hashed links and codes, 6 digits and 3 tries, sessions, rate limits, cookies, trusted addresses and the public sign-in endpoints now come from the kit module `auth` 1.0.1. Nothing changes for members: same email, link, code, Google and demo.
 
