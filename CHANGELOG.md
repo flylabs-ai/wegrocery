@@ -24,6 +24,10 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.48.0] - 2026-11-16
+
+*Buttons in the group's colour, and more shared FlyLabs Kit building blocks.*
+
 ### Changed
 - 🎨 **Main buttons in the group's colour**: the main action of a screen (for example "+ New cycle" or "Save") now uses the group's colour instead of black, with readable text guaranteed for any colour.
 - 📱 **Phone status bar matches the page**: the bar at the top of the phone takes the page's background, light or dark, instead of the group's colour, so the clock and battery stay readable with any colour.

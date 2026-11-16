@@ -25,6 +25,10 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.48.0] - 2026-11-16
+
+*Bottoni nel colore del gruppo e altri mattoni comuni del FlyLabs Kit.*
+
 ### Modificato
 - 🎨 **Bottoni principali nel colore del gruppo**: l'azione principale di una schermata (per esempio "+ Nuovo ciclo" o "Salva") ora usa il colore del gruppo invece del nero, con il testo sempre leggibile qualunque sia il colore.
 - 📱 **Barra di stato del telefono come la pagina**: la barra in alto del telefono prende lo sfondo della pagina, chiaro o scuro, invece del colore del gruppo, così ora e batteria restano leggibili con qualunque colore.
