@@ -8,9 +8,9 @@ Last updated: 2026-11-15 (release 1.47.2 is in production, on the demo and on th
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.49.0 (2026-11-16) | up to `0056` |
-| Public demo (`main`) | 1.49.0 | up to `0056` |
-| Example brand installation | 1.49.0 | up to `0056` (migrates on build) |
+| Production (`main`) | 1.50.0 (2026-11-16) | up to `0056` |
+| Public demo (`main`) | 1.50.0 | up to `0056` |
+| Example brand installation | 1.50.0 | up to `0056` (migrates on build) |
 | Staging (`staging`) | 1.49.0 | up to `0056` (Neon branch `staging`) |
 
 ## Waiting on `staging` for the next release

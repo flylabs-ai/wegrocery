@@ -25,6 +25,15 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.50.0] - 2026-11-16
+
+*Nuovo aspetto per bottoni, campi e menu, comune alle altre app FlyLabs.*
+
+### Modificato
+- 🎨 **Bottoni, campi, caselle e finestre dal FlyLabs Kit**: bottoni più leggeri, caselle di spunta tonde e grandi, finestre con l'azione principale in alto sul telefono. Elimina resta rosso pieno. Gli avvisi compaiono in alto.
+- 🧭 **Nuovo menu di navigazione**: sul telefono la barra in basso evidenzia dove sei, sul computer le sezioni di Admin compaiono sotto Admin nel menu laterale, con Notifiche e Profilo in fondo. Toccare di nuovo la voce attuale torna in cima con i dati aggiornati.
+- 🧩 **FlyLabs Kit ui 1.1 e shell 1.1** [tecnico]: `components/ui` e `components/shell` sono i moduli del kit (kit 0.23), con piccoli adattatori in `components/app-ui`; Sonner tolto. Nessuna migrazione.
+
 ## [1.49.0] - 2026-11-16
 
 *Ordini inseriti dall'admin: si aggiunge a quello che il socio ha ordinato, senza sostituirlo.*
@@ -951,6 +960,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0
 [1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0
 [1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0
 [1.46.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.46.0
