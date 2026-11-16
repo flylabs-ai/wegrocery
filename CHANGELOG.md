@@ -24,6 +24,15 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.50.0] - 2026-11-16
+
+*New look for buttons, fields and navigation, shared with the other FlyLabs apps.*
+
+### Changed
+- 🎨 **Buttons, fields, checkboxes and windows from the FlyLabs Kit**: lighter buttons, round large checkboxes, windows with the main action on top on phones. Delete stays solid red. Notices appear at the top of the screen.
+- 🧭 **New navigation menu**: on the phone the bottom bar highlights where you are, on the computer Admin's sections appear under Admin in the side menu, with Notifications and Profile at the bottom. Tapping the current item again goes back to the top with fresh data.
+- 🧩 **FlyLabs Kit ui 1.1 and shell 1.1** [tech]: `components/ui` and `components/shell` are the kit modules (kit 0.23), with small adapters in `components/app-ui`; Sonner removed. No migration.
+
 ## [1.49.0] - 2026-11-16
 
 *Orders entered by an admin: add to what a member ordered, never replace it.*
@@ -949,6 +958,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0
 [1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0
 [1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0
 [1.46.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.46.0
