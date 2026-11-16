@@ -1,175 +1,169 @@
-// Pure helpers of scripts/db-migrate.mjs, kept apart so they can be tested
-// without a database.
+import { createHash } from "node:crypto";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
-/** True for the files the runner applies: numbered SQL, never a `_down.sql`. */
-export function isMigrationFile(name) {
-  return name.endsWith(".sql") && !name.endsWith("_down.sql");
-}
-
-/**
- * The statements of a migration file. Statements are separated by drizzle's
- * `--> statement-breakpoint` marker when present, otherwise by semicolons after
- * stripping `--` comment lines (some file headers contain example SQL with
- * semicolons inside comments). A file's own BEGIN / COMMIT are dropped: the
- * runner wraps the whole file in one transaction.
- */
-export function splitStatements(raw) {
-  const withoutComments = (s) =>
-    s
-      .split("\n")
-      .filter((line) => !line.trimStart().startsWith("--"))
-      .join("\n");
-  const parts = raw.includes("--> statement-breakpoint")
-    ? raw.split("--> statement-breakpoint").map(withoutComments)
-    : withoutComments(raw).split(";");
-  return parts
-    .map((s) => s.trim().replace(/;$/, ""))
-    .filter(Boolean)
-    .filter((s) => !/^(BEGIN|COMMIT)$/i.test(s));
-}
-
-/**
- * Playbook 6.4: a script that writes to the database refuses production
- * without an explicit flag. Production is the host named by
- * PRODUCTION_DB_HOST; without that variable nothing is known to be
- * production (a self-hosted install, CI, the demo) and nothing is refused.
- */
-export function refusesProduction(url, env, argv) {
-  const productionHost = env.PRODUCTION_DB_HOST?.trim();
-  if (!productionHost) return false;
-  let host;
-  try {
-    host = new URL(url).host;
-  } catch {
-    return false;
-  }
-  return host === productionHost && !argv.includes("--allow-prod");
-}
-
-/**
- * The app's address for a role: the owner's address with the role's name and
- * password (URL-encoded by the URL class). Used by create-app-role.mjs to save
- * the address without ever printing it.
- */
-export function roleUrl(ownerUrl, role, password) {
-  const u = new URL(ownerUrl);
-  u.username = role;
-  u.password = password;
-  return u.toString();
-}
-
-/**
- * How long a migration may wait for a lock before it gives up (Playbook 6.2):
- * the file then rolls back whole and can be run again, instead of queueing
- * the app's queries behind it.
- */
 export const LOCK_TIMEOUT = "5s";
+// Two fixed int32 keys, shared by every version of this runner in a database.
+export const ADVISORY_LOCK = [1179402562, 1296648018];
 
-/**
- * The first statement of a migration that cannot run inside a transaction,
- * or null. The runner wraps each file in one transaction (one HTTP request
- * of the Neon driver), where Postgres refuses CREATE INDEX, DROP INDEX,
- * REINDEX and DETACH PARTITION with CONCURRENTLY, VACUUM, ALTER SYSTEM,
- * REINDEX of a whole database, and creating or dropping a database, a
- * tablespace or a subscription. Every CONCURRENTLY is refused, as the
- * Playbook says, even the REFRESH MATERIALIZED VIEW that would work. The
- * runner refuses such a file before applying anything: write a plain CREATE
- * INDEX instead, or a step run by hand. `ALTER TYPE ... ADD VALUE` is allowed
- * in a transaction, but the new value cannot be used before the file
- * commits: put its use in the next file.
- */
-export function nonTransactionalStatement(statements) {
-  const refused = [
-    /\bCONCURRENTLY\b/i,
-    /^(VACUUM|ALTER\s+SYSTEM)\b/i,
-    /^(CREATE|DROP)\s+(DATABASE|TABLESPACE|SUBSCRIPTION)\b/i,
-    /^REINDEX\s+(\([^)]*\)\s*)?(SYSTEM|DATABASE)\b/i,
-  ];
-  return statements.find((st) => refused.some((re) => re.test(st.trim()))) ?? null;
+export class MigrationError extends Error {
+  constructor(message) { super(message); this.name = "MigrationError"; }
 }
 
-/** First migration number that must ship with a `_down.sql` and an Apply/Rollback header. */
-export const ROLLBACK_REQUIRED_FROM = 36;
-
-/**
- * Playbook 1.4: the statements that give the app a role with data access only
- * (SELECT, INSERT, UPDATE, DELETE; no DDL, no ownership, so it cannot drop the
- * ledger trigger or a table). Idempotent: running it again resets the password
- * and re-grants the tables created since. `database` is the current database.
- */
-export function appRoleStatements(role, password, database) {
-  if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
-  if (password.length < 24) throw new Error("the password needs at least 24 characters");
-  const ident = (v) => `"${v.replaceAll('"', '""')}"`;
-  const literal = (v) => `'${v.replaceAll("'", "''")}'`;
-  return [
-    `DO $$ BEGIN
-      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = ${literal(role)}) THEN
-        CREATE ROLE ${ident(role)} LOGIN PASSWORD ${literal(password)} NOSUPERUSER NOCREATEDB NOCREATEROLE;
-      ELSE
-        ALTER ROLE ${ident(role)} PASSWORD ${literal(password)};
-      END IF;
-    END $$`,
-    `GRANT CONNECT ON DATABASE ${ident(database)} TO ${ident(role)}`,
-    `GRANT USAGE ON SCHEMA public TO ${ident(role)}`,
-    `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${ident(role)}`,
-    `GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${ident(role)}`,
-    `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${ident(role)}`,
-    `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ${ident(role)}`,
-    migrationLedgerRevokeStatement(role),
-  ];
+export function isMigrationFile(name) {
+  return /^\d+_[a-z0-9_]+\.sql$/.test(name) && !name.endsWith("_down.sql");
 }
 
-/**
- * The migration ledger is read by the configuration status, never written by
- * the app. A role created before the ledger exists (a new installation) gets
- * write access to it through the default privileges, so db-migrate.mjs runs
- * this again after creating the ledger. A no-op when the ledger or the role
- * does not exist.
- */
-export function migrationLedgerRevokeStatement(role) {
-  if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
-  const literal = `'${role}'`;
-  return `DO $$ BEGIN
-      IF to_regclass('public._migrations') IS NOT NULL AND EXISTS (SELECT FROM pg_roles WHERE rolname = ${literal}) THEN
-        REVOKE INSERT, UPDATE, DELETE ON public._migrations FROM "${role}";
-      END IF;
-    END $$`;
+/** Hash original file bytes, not the kit's line-ending-normalized fingerprint. */
+export function checksum(raw) {
+  return createHash("sha256").update(raw).digest("hex");
 }
 
-/**
- * The restricted role the app connects with, when migrations run with a
- * different (owner) address: the user of DATABASE_URL while
- * DATABASE_MIGRATION_URL is set to another user. Null otherwise.
- */
-export function appRoleFromEnv(env) {
-  const appUrl = env.DATABASE_URL?.trim();
-  const migrationUrl = env.DATABASE_MIGRATION_URL?.trim();
-  if (!appUrl || !migrationUrl) return null;
+/** A lexical splitter, not a SQL grammar parser. Quoted bodies stay opaque. */
+function scanStatements(raw) {
+  const result = [];
+  let text = "", code = "", i = 0;
+  const flush = () => {
+    if (text.trim()) result.push({ text: text.trim(), code: code.trim() });
+    text = ""; code = "";
+  };
+  while (i < raw.length) {
+    if (raw.startsWith("--", i)) {
+      const end = raw.indexOf("\n", i);
+      if (raw.startsWith("--> statement-breakpoint", i)) flush();
+      text += " "; code += " ";
+      i = end === -1 ? raw.length : end + 1;
+    } else if (raw.startsWith("/*", i)) {
+      let depth = 1;
+      i += 2;
+      while (i < raw.length && depth) {
+        if (raw.startsWith("/*", i)) { depth++; i += 2; }
+        else if (raw.startsWith("*/", i)) { depth--; i += 2; }
+        else i++;
+      }
+      if (depth) throw new MigrationError("Unterminated SQL comment");
+      text += " "; code += " ";
+    } else if (raw[i] === "'" || raw[i] === '"') {
+      const quote = raw[i], start = i;
+      const escaped = quote === "'" && /[eE]/.test(raw[i - 1] ?? "") && !/[\w$]/.test(raw[i - 2] ?? "");
+      let closed = false;
+      i++;
+      while (i < raw.length) {
+        if (escaped && raw[i] === "\\") i += 2;
+        else if (raw[i] === quote && raw[i + 1] === quote) i += 2;
+        else if (raw[i] === quote) { i++; closed = true; break; }
+        else i++;
+      }
+      if (!closed) throw new MigrationError("Unterminated SQL quote");
+      text += raw.slice(start, i); code += " ";
+    } else if (raw[i] === "$" && !/[\w$]/.test(raw[i - 1] ?? "") && /^\$(?:[a-zA-Z_][a-zA-Z0-9_]*)?\$/.test(raw.slice(i))) {
+      const tag = raw.slice(i).match(/^\$(?:[a-zA-Z_][a-zA-Z0-9_]*)?\$/)[0];
+      const end = raw.indexOf(tag, i + tag.length);
+      if (end === -1) throw new MigrationError("Unterminated SQL dollar quote");
+      text += raw.slice(i, end + tag.length); code += " ";
+      i = end + tag.length;
+    } else if (raw[i] === ";") {
+      flush(); i++;
+    } else {
+      text += raw[i]; code += raw[i]; i++;
+    }
+  }
+  flush();
+  return result;
+}
+
+export function splitStatements(raw) {
+  return scanStatements(raw).map(({ text }) => text);
+}
+
+const transactionControl = /^(?:BEGIN|START\s+TRANSACTION|COMMIT|END|ROLLBACK|ABORT|PREPARE\s+TRANSACTION)\b/i;
+const begin = /^(?:BEGIN(?:\s+(?:WORK|TRANSACTION))?|START\s+TRANSACTION)$/i;
+const commit = /^(?:COMMIT|END)(?:\s+(?:WORK|TRANSACTION))?$/i;
+
+export function prepareMigration(name, raw) {
+  if (!isMigrationFile(name)) throw new MigrationError("Invalid migration filename");
+  const pieces = scanStatements(raw);
+  const ownsTransaction = begin.test(pieces[0]?.code ?? "");
+  let body = pieces;
+  if (ownsTransaction) {
+    if (pieces.length < 2 || !commit.test(pieces.at(-1).code)) throw new MigrationError(`Invalid file transaction: ${name}`);
+    body = pieces.slice(1, -1);
+  }
+  if (body.some(({ code }) => transactionControl.test(code) || /^SET\s+(?:LOCAL\s+)?TRANSACTION\b/i.test(code))) {
+    throw new MigrationError(`Unexpected transaction control: ${name}`);
+  }
+  const timeouts = body.filter(({ text }) => /^(?:SET\s+(?:(?:LOCAL|SESSION)\s+)?(?:lock_timeout\b|"lock_timeout")|RESET\s+(?:lock_timeout\b|"lock_timeout"|ALL\b))/i.test(text));
+  const validTimeout = (piece) => /^SET\s+LOCAL\s+lock_timeout\s*(?:=|TO)\s*'5s'$/i.test(piece.text);
+  if ((ownsTransaction && !timeouts.length) || timeouts.some((piece) => !validTimeout(piece))) {
+    throw new MigrationError(`Expected SET LOCAL lock_timeout = '5s': ${name}`);
+  }
+  const refused = body.some(({ code }) => /\bCONCURRENTLY\b/i.test(code)
+    || /^(?:VACUUM|ALTER\s+SYSTEM)\b/i.test(code)
+    || /^(?:CREATE|DROP)\s+(?:DATABASE|TABLESPACE|SUBSCRIPTION)\b/i.test(code)
+    || /^REINDEX\s+(?:\([^)]*\)\s*)?(?:SYSTEM|DATABASE)\b/i.test(code)
+    || /^SET\s+(?:(?:LOCAL|SESSION)\s+)?standard_conforming_strings\b/i.test(code)
+    || /^DISCARD\s+ALL\b/i.test(code));
+  const changesStringRules = body.some(({ text }) => /^(?:SET\s+(?:(?:LOCAL|SESSION)\s+)?|RESET\s+)(?:standard_conforming_strings\b|"standard_conforming_strings")/i.test(text));
+  if (refused || changesStringRules) throw new MigrationError(`Migration cannot run in a transaction: ${name}`);
+  return {
+    name, checksum: checksum(raw), transaction: ownsTransaction ? "file" : "runner",
+    begin: ownsTransaction ? pieces[0].text : "BEGIN",
+    commit: ownsTransaction ? pieces.at(-1).text : "COMMIT",
+    statements: body.map(({ text }) => text),
+  };
+}
+
+export function readMigrations(dir) {
   try {
-    const app = decodeURIComponent(new URL(appUrl).username);
-    const owner = decodeURIComponent(new URL(migrationUrl).username);
-    return app && app !== owner && /^[a-z_][a-z0-9_]{0,62}$/.test(app) ? app : null;
+    return readdirSync(dir).filter(isMigrationFile).map((name) => {
+      const raw = readFileSync(join(dir, name));
+      const sql = raw.toString("utf8");
+      // Reject invalid UTF-8 rather than hashing a replacement-character version.
+      if (!Buffer.from(sql, "utf8").equals(raw)) throw new Error();
+      return { name, sql };
+    });
   } catch {
-    return null;
+    throw new MigrationError("Cannot read migration directory");
   }
 }
 
-/**
- * The way back: takes every privilege away and drops the role (on Neon the
- * owner cannot DROP OWNED BY, so privileges are revoked one by one).
- */
-export function appRoleRevokeStatements(role, database) {
-  if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
-  const ident = (v) => `"${v.replaceAll('"', '""')}"`;
-  const r = ident(role);
-  return [
-    `ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM ${r}`,
-    `ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM ${r}`,
-    `REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ${r}`,
-    `REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM ${r}`,
-    `REVOKE ALL ON SCHEMA public FROM ${r}`,
-    `REVOKE ALL ON DATABASE ${ident(database)} FROM ${r}`,
-    `DROP ROLE IF EXISTS ${r}`,
-  ];
+export function sortMigrations(migrations) {
+  const seen = new Set();
+  const prepared = migrations.map(({ name, sql }) => {
+    if (!isMigrationFile(name) || typeof sql !== "string") throw new MigrationError("Invalid migration input");
+    const number = BigInt(name.split("_")[0]);
+    if (seen.has(number)) throw new MigrationError(`Duplicate migration number: ${number}`);
+    seen.add(number);
+    return { name, sql, checksum: checksum(sql), number };
+  });
+  return prepared.sort((a, b) => a.number < b.number ? -1 : a.number > b.number ? 1 : 0);
+}
+
+function connectionUrl(raw) {
+  try {
+    const url = new URL(raw);
+    if (!["postgres:", "postgresql:"].includes(url.protocol) || !url.hostname) throw new Error();
+    // Driver routing overrides would make a hostname-only production guard unsafe.
+    if ([...url.searchParams.keys()].some((key) => ["host", "hostaddr", "port", "user", "password", "dbname", "database", "service"].includes(key.toLowerCase()))) throw new Error();
+    return url;
+  } catch { throw new MigrationError("Invalid database connection"); }
+}
+
+export function refusesProduction(raw, env, argv) {
+  const url = connectionUrl(raw);
+  const production = env.PRODUCTION_DB_HOST?.trim();
+  if (!production) return false;
+  if (production.includes("://") || /[\s/@?#]/.test(production)) throw new MigrationError("Invalid PRODUCTION_DB_HOST");
+  const configured = connectionUrl(`postgresql://${production}/unused`);
+  const canonical = (host) => host.toLowerCase().replace(/\.$/, "").replace(/-pooler(?=\..*\.neon\.tech$)/, "");
+  return canonical(url.hostname) === canonical(configured.hostname) && !argv.includes("--allow-prod");
+}
+
+export function appRoleFromEnv(env) {
+  if (!env.DATABASE_MIGRATION_URL || !env.DATABASE_URL) return null;
+  try {
+    const app = decodeURIComponent(connectionUrl(env.DATABASE_URL).username);
+    const owner = decodeURIComponent(connectionUrl(env.DATABASE_MIGRATION_URL).username);
+    return app && app !== owner && /^[a-z_][a-z0-9_]{0,62}$/.test(app) ? app : null;
+  } catch { throw new MigrationError("Invalid database connection role"); }
 }

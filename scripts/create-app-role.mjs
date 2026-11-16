@@ -17,7 +17,8 @@
 import { randomBytes } from "node:crypto";
 import { appendFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
-import { appRoleStatements, refusesProduction, roleUrl } from "./db-migrate-lib.mjs";
+import { refusesProduction } from "./db-migrate-lib.mjs";
+import { appRoleStatements, roleUrl } from "./db-role-lib.mjs";
 
 const flag = (name) => {
   const i = process.argv.indexOf(name);

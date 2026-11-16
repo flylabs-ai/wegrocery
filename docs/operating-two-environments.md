@@ -153,17 +153,17 @@ production**, then demo.
 ```bash
 # 1. staging = the Neon branch "dev" (what `npm run db:migrate` targets
 #    with .env.local)
-DATABASE_URL="…dev…" node scripts/db-migrate.mjs --status
-DATABASE_URL="…dev…" node scripts/db-migrate.mjs
+DATABASE_URL="…dev…" node scripts/db-migrate.mjs --dir drizzle --status
+DATABASE_URL="…dev…" node scripts/db-migrate.mjs --dir drizzle
 
 # 2. production — only at promotion time, with explicit confirmation,
 #    after running the pre-flight query from the file header
 #    (with PRODUCTION_DB_HOST set to the production host, the script refuses
 #    it unless --allow-prod is passed: set it in your local env files)
-DATABASE_URL="…production…" node scripts/db-migrate.mjs --allow-prod
+DATABASE_URL="…production…" node scripts/db-migrate.mjs --dir drizzle --allow-prod
 
 # 3. demo (reads .env.demo.local)
-node --env-file=.env.demo.local scripts/db-migrate.mjs
+node --env-file=.env.demo.local scripts/db-migrate.mjs --dir drizzle
 ```
 
 Each file runs in one transaction with a 5 s lock timeout, together with its

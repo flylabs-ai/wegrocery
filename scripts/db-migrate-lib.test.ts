@@ -1,210 +1,79 @@
-import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  LOCK_TIMEOUT,
-  ROLLBACK_REQUIRED_FROM,
-  appRoleFromEnv,
-  appRoleRevokeStatements,
-  appRoleStatements,
-  isMigrationFile,
-  migrationLedgerRevokeStatement,
-  nonTransactionalStatement,
-  refusesProduction,
-  roleUrl,
-  splitStatements,
+  checksum, isMigrationFile, prepareMigration, refusesProduction, splitStatements,
 } from "./db-migrate-lib.mjs";
 
-describe("isMigrationFile", () => {
-  it("applies numbered SQL and never a rollback file", () => {
-    expect(isMigrationFile("0036_thing.sql")).toBe(true);
-    expect(isMigrationFile("0036_thing_down.sql")).toBe(false);
+describe("SQL splitting", () => {
+  it("splits statements while preserving quoted semicolons and removing comments", () => {
+    expect(splitStatements("-- SELECT 0;\nSELECT ';', 'it''s fine'; /* nested /* ; */ comment */ SELECT 2; -- tail")).toEqual([
+      "SELECT ';', 'it''s fine'", "SELECT 2",
+    ]);
+  });
+  it("keeps dollar-quoted function bodies and quoted identifiers together", () => {
+    const sql = 'DO $body$ BEGIN PERFORM \'a;b\'; END $body$; SELECT "a;b";';
+    expect(splitStatements(sql)).toEqual(["DO $body$ BEGIN PERFORM 'a;b'; END $body$", 'SELECT "a;b"']);
+  });
+  it("handles escape strings and Drizzle breakpoints outside strings", () => {
+    expect(splitStatements("SELECT E'one\\';two';--> statement-breakpoint\nSELECT 2;")).toEqual(["SELECT E'one\\';two'", "SELECT 2"]);
+    expect(splitStatements("SELECT 1\n--> statement-breakpoint\nSELECT 2")).toEqual(["SELECT 1", "SELECT 2"]);
+  });
+  it("rejects unfinished quotes/comments without printing their contents", () => {
+    for (const sql of ["SELECT 'private-value", "DO $x$ private-value", "/* private-value", 'SELECT "private-value']) {
+      expect(() => splitStatements(sql)).toThrow(/Unterminated SQL/);
+      try { splitStatements(sql); } catch (error) { expect(String(error)).not.toContain("private-value"); }
+    }
+  });
+});
+
+describe("migration plans", () => {
+  it("keeps file transaction boundaries and uses runner boundaries otherwise", () => {
+    const file = prepareMigration("001_file.sql", "BEGIN; SET LOCAL lock_timeout = '5s'; SELECT 1; COMMIT;");
+    expect(file.transaction).toBe("file");
+    expect(file.begin).toBe("BEGIN");
+    expect(file.commit).toBe("COMMIT");
+    expect(file.statements).toEqual(["SET LOCAL lock_timeout = '5s'", "SELECT 1"]);
+    expect(prepareMigration("0001_runner.sql", "SELECT 1;").transaction).toBe("runner");
+  });
+  it("rejects partial/nested transaction control before running a file", () => {
+    for (const sql of ["BEGIN; SELECT 1;", "SELECT 1; COMMIT;", "BEGIN; BEGIN; COMMIT; COMMIT;", "ROLLBACK;", "BEGIN; SET LOCAL lock_timeout='5s'; COMMIT AND CHAIN;"]) {
+      expect(() => prepareMigration("001_bad.sql", sql)).toThrow(/transaction/i);
+    }
+  });
+  it("requires the file's own lock timeout to be 5 seconds", () => {
+    expect(() => prepareMigration("001_bad.sql", "BEGIN; SELECT 1; COMMIT;")).toThrow(/lock_timeout/);
+    expect(() => prepareMigration("001_bad.sql", "BEGIN; SET LOCAL lock_timeout='10s'; COMMIT;")).toThrow(/lock_timeout/);
+    for (const sql of ["SET SESSION lock_timeout='0'", 'SET LOCAL "lock_timeout"=\'0\'', "RESET lock_timeout", "RESET ALL"]) {
+      expect(() => prepareMigration("001_bad.sql", sql)).toThrow(/lock_timeout/);
+    }
+  });
+  it("rejects non-transactional commands without confusing literals or comments", () => {
+    for (const sql of ["VACUUM x", "CREATE INDEX CONCURRENTLY x ON y(id)", "ALTER SYSTEM SET work_mem='1MB'", "CREATE DATABASE x", "REINDEX DATABASE x"]) {
+      expect(() => prepareMigration("001_bad.sql", sql)).toThrow(/cannot run in a transaction/);
+    }
+    expect(prepareMigration("001_ok.sql", "SELECT 'VACUUM CONCURRENTLY'; /* VACUUM */ SELECT 2;").statements).toHaveLength(2);
+  });
+  it("excludes rollbacks and hashes the original bytes, including line endings", () => {
+    expect(isMigrationFile("001_ok.sql")).toBe(true);
+    expect(isMigrationFile("0001_ok.sql")).toBe(true);
+    expect(isMigrationFile("001_ok_down.sql")).toBe(false);
     expect(isMigrationFile("README.md")).toBe(false);
+    expect(checksum("hello\n")).toBe("5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03");
+    expect(checksum("hello\r\n")).not.toBe(checksum("hello\n"));
   });
 });
 
-describe("splitStatements", () => {
-  it("splits on semicolons and drops comment lines, even with SQL in them", () => {
-    const raw = "-- example: SELECT 1; SELECT 2;\nCREATE TABLE a (id int);\nCREATE INDEX i ON a (id);\n";
-    expect(splitStatements(raw)).toEqual(["CREATE TABLE a (id int)", "CREATE INDEX i ON a (id)"]);
+describe("production guard", () => {
+  const direct = "postgresql://test:synthetic@ep-test.region.neon.tech/example";
+  it("requires --allow-prod for direct and pooled forms of the configured host", () => {
+    const env = { PRODUCTION_DB_HOST: "ep-test.region.neon.tech" };
+    expect(refusesProduction(direct, env, [])).toBe(true);
+    expect(refusesProduction(direct.replace("ep-test.", "ep-test-pooler."), env, [])).toBe(true);
+    expect(refusesProduction(direct, env, ["--status"])).toBe(true);
+    expect(refusesProduction(direct, env, ["--allow-prod"])).toBe(false);
+    expect(refusesProduction(direct, {}, [])).toBe(false);
   });
-
-  it("splits on drizzle's statement-breakpoint when present", () => {
-    const raw = "CREATE TABLE a (x text DEFAULT ';');--> statement-breakpoint\nCREATE TABLE b (id int);";
-    expect(splitStatements(raw)).toEqual(["CREATE TABLE a (x text DEFAULT ';')", "CREATE TABLE b (id int)"]);
-  });
-
-  it("drops a file's own BEGIN and COMMIT: the runner wraps the file in a transaction", () => {
-    expect(splitStatements("BEGIN;\nALTER TABLE a ADD COLUMN b int;\nCOMMIT;")).toEqual(["ALTER TABLE a ADD COLUMN b int"]);
-  });
-});
-
-describe("nonTransactionalStatement", () => {
-  it("refuses what Postgres cannot run in a transaction", () => {
-    for (const st of [
-      "CREATE INDEX CONCURRENTLY i ON a (id)",
-      "create unique index concurrently if not exists i on a (id)",
-      "DROP INDEX CONCURRENTLY i",
-      "REINDEX INDEX CONCURRENTLY i",
-      "ALTER TABLE p DETACH PARTITION c CONCURRENTLY",
-      "VACUUM ANALYZE a",
-      "ALTER SYSTEM SET work_mem = '64MB'",
-      "CREATE DATABASE x",
-      "REINDEX DATABASE neondb",
-    ]) {
-      expect(nonTransactionalStatement(["CREATE TABLE a (id int)", st])).toBe(st);
-    }
-  });
-
-  it("lets ordinary DDL, DML and DO blocks through", () => {
-    expect(
-      nonTransactionalStatement([
-        "CREATE INDEX IF NOT EXISTS i ON a (id)",
-        "ALTER TABLE a ADD COLUMN b int",
-        "ALTER TYPE t ADD VALUE IF NOT EXISTS 'x'",
-        "REINDEX TABLE a",
-        "DO $$ BEGIN RAISE NOTICE 'ok'; END $$",
-        "UPDATE a SET b = 1",
-      ]),
-    ).toBeNull();
-  });
-});
-
-// Playbook 6.2: every file in drizzle/ runs in one transaction with a lock
-// timeout, and from ROLLBACK_REQUIRED_FROM on each ships with its rollback.
-describe("the migrations in drizzle/", () => {
-  const files = readdirSync("drizzle").filter((f) => f.endsWith(".sql")).sort();
-  const migrations = files.filter(isMigrationFile);
-  const number = (f: string) => Number(f.slice(0, 4));
-
-  it("are numbered NNNN_name.sql, one per number", () => {
-    for (const f of files) expect(f).toMatch(/^\d{4}_[a-z0-9_]+\.sql$/);
-    expect(new Set(migrations.map(number)).size).toBe(migrations.length);
-  });
-
-  it("can all run inside a transaction", () => {
-    const refused = migrations.flatMap((f) => {
-      const st = nonTransactionalStatement(splitStatements(readFileSync(`drizzle/${f}`, "utf8")));
-      return st ? [`${f}: ${st}`] : [];
-    });
-    expect(refused).toEqual([]);
-  });
-
-  it("wait at most 5 seconds for a lock", () => {
-    expect(LOCK_TIMEOUT).toBe("5s");
-  });
-
-  it(`from ${ROLLBACK_REQUIRED_FROM} on, come with a _down.sql and an Apply/Rollback header`, () => {
-    const recent = migrations.filter((f) => number(f) >= ROLLBACK_REQUIRED_FROM);
-    expect(recent.length).toBeGreaterThan(0);
-    for (const f of recent) {
-      const down = f.replace(/\.sql$/, "_down.sql");
-      expect(files, `${f} needs drizzle/${down}`).toContain(down);
-      const header = readFileSync(`drizzle/${f}`, "utf8");
-      expect(header, `${f} header`).toMatch(/^-- Apply:/m);
-      expect(header, `${f} header`).toMatch(new RegExp(`^-- Rollback:.*${down}`, "m"));
-    }
-  });
-
-  it("have no rollback file without its migration", () => {
-    for (const f of files.filter((n) => n.endsWith("_down.sql"))) {
-      expect(migrations).toContain(f.replace(/_down\.sql$/, ".sql"));
-    }
-  });
-});
-
-describe("refusesProduction", () => {
-  const prod = "postgres://u:p@ep-prod.eu-central-1.aws.neon.tech/db";
-  const env = { PRODUCTION_DB_HOST: "ep-prod.eu-central-1.aws.neon.tech" };
-
-  it("refuses the production host without --allow-prod", () => {
-    expect(refusesProduction(prod, env, [])).toBe(true);
-    expect(refusesProduction(prod, env, ["--status"])).toBe(true);
-  });
-
-  it("lets --allow-prod through", () => {
-    expect(refusesProduction(prod, env, ["--allow-prod"])).toBe(false);
-  });
-
-  it("leaves other hosts alone", () => {
-    expect(refusesProduction("postgres://u:p@ep-dev.neon.tech/db", env, [])).toBe(false);
-  });
-
-  it("knows nothing about production without PRODUCTION_DB_HOST", () => {
-    expect(refusesProduction(prod, {}, [])).toBe(false);
-  });
-});
-
-describe("appRoleStatements", () => {
-  const all = (role = "app_rw", pw = "p".repeat(24)) => appRoleStatements(role, pw, "neondb").join("\n");
-
-  it("grants data access only: no DDL, no ownership, no superuser", () => {
-    const sql = all();
-    expect(sql).toContain("GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public");
-    expect(sql).toContain("NOSUPERUSER NOCREATEDB NOCREATEROLE");
-    expect(sql).not.toMatch(/GRANT (ALL|CREATE)\b|OWNER TO|TRUNCATE|REFERENCES/i);
-  });
-
-  it("covers the tables created later and keeps the migration ledger read only", () => {
-    const sql = all();
-    expect(sql).toContain("ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES");
-    expect(sql).toContain("REVOKE INSERT, UPDATE, DELETE ON public._migrations");
-  });
-
-  it("refuses a role name that is not a plain identifier and a short password", () => {
-    expect(() => appRoleStatements('x"; DROP TABLE members; --', "p".repeat(24), "db")).toThrow(/invalid role/);
-    expect(() => appRoleStatements("app_rw", "short", "db")).toThrow(/24 characters/);
-  });
-
-  it("quotes a password with a single quote", () => {
-    expect(all("app_rw", "a'b".padEnd(24, "x"))).toContain("'a''bxxxxxxxxxxxxxxxxxxxxx'");
-  });
-});
-
-describe("appRoleRevokeStatements", () => {
-  it("revokes everything and drops the role", () => {
-    const sql = appRoleRevokeStatements("app_rw", "neondb");
-    expect(sql.at(-1)).toBe('DROP ROLE IF EXISTS "app_rw"');
-    expect(sql.join("\n")).toContain('REVOKE ALL ON ALL TABLES IN SCHEMA public FROM "app_rw"');
-  });
-});
-
-describe("roleUrl", () => {
-  it("swaps user and password, keeps host, database and options, encodes the password", () => {
-    const out = roleUrl("postgresql://neondb_owner:old@ep-x.eu-central-1.aws.neon.tech/neondb?sslmode=require", "app_rw", "a/b+c=d");
-    const u = new URL(out);
-    expect(u.username).toBe("app_rw");
-    expect(decodeURIComponent(u.password)).toBe("a/b+c=d");
-    expect(u.host).toBe("ep-x.eu-central-1.aws.neon.tech");
-    expect(u.pathname).toBe("/neondb");
-    expect(u.search).toBe("?sslmode=require");
-  });
-});
-
-describe("migrationLedgerRevokeStatement", () => {
-  it("takes write access to the ledger away, only when ledger and role exist", () => {
-    const sql = migrationLedgerRevokeStatement("app_rw");
-    expect(sql).toContain('REVOKE INSERT, UPDATE, DELETE ON public._migrations FROM "app_rw"');
-    expect(sql).toContain("to_regclass('public._migrations') IS NOT NULL");
-    expect(sql).toContain("rolname = 'app_rw'");
-  });
-
-  it("refuses a role name that is not a plain identifier", () => {
-    expect(() => migrationLedgerRevokeStatement("x'; DROP TABLE members; --")).toThrow(/invalid role/);
-  });
-});
-
-describe("appRoleFromEnv", () => {
-  const owner = "postgresql://neondb_owner:o@ep-x.neon.tech/neondb";
-  const app = "postgresql://app_rw:a@ep-x.neon.tech/neondb";
-
-  it("is the app's user while migrations run as another user", () => {
-    expect(appRoleFromEnv({ DATABASE_URL: app, DATABASE_MIGRATION_URL: owner })).toBe("app_rw");
-  });
-
-  it("is null with one address, the same user twice or an unreadable address", () => {
-    expect(appRoleFromEnv({ DATABASE_URL: owner })).toBeNull();
-    expect(appRoleFromEnv({ DATABASE_MIGRATION_URL: owner })).toBeNull();
-    expect(appRoleFromEnv({ DATABASE_URL: owner, DATABASE_MIGRATION_URL: owner })).toBeNull();
-    expect(appRoleFromEnv({ DATABASE_URL: "not a url", DATABASE_MIGRATION_URL: owner })).toBeNull();
+  it("rejects invalid connection syntax without echoing it", () => {
+    expect(() => refusesProduction("private-value", {}, [])).toThrow("Invalid database connection");
+    expect(() => refusesProduction(`${direct}?host=other-host`, {}, [])).toThrow("Invalid database connection");
   });
 });
