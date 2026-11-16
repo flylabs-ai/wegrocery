@@ -200,7 +200,7 @@ export const adminGuideIt: GuideContent = {
       steps: [
         "**Panoramica**: quanti soci hanno ordinato, il totale e quanto manca alla scadenza.",
         "**Ordini**: l'ordine di ogni socio e i totali per prodotto. Da qui scarichi anche la distinta in Excel.",
-        "Per inserire l'ordine di un socio usa **+ Aggiungi ordine per un socio**, per cambiarlo **✎ Modifica**. Funziona anche dopo la scadenza, finché non chiudi il ciclo.",
+        "Per inserire o cambiare l'ordine di un socio usa **+ Ordine per un socio**: in cima chi ha già ordinato (Modifica), sotto chi non ha ancora ordinato (Aggiungi). Puoi anche usare **✎ Modifica** sulla riga del socio. Funziona anche dopo la scadenza, finché non chiudi il ciclo.",
       ],
       notes: ["Un ordine inserito o cambiato da te viene addebitato alla chiusura, come gli altri, e il socio riceve un avviso. Pesi e prezzi veri si registrano dopo la chiusura."],
       keywords: ["vedere ordini", "chi ha ordinato", "totale", "riepilogo", "aggiungere ordine", "ordine per un socio", "ordine in ritardo"],
@@ -259,7 +259,7 @@ export const adminGuideIt: GuideContent = {
       title: "Gli ordini sono scaduti ma il ciclo è ancora aperto",
       intro: "È normale: alla scadenza i soci non possono più ordinare, ma il ciclo non si chiude da solo. Così hai tempo di sistemare gli ordini, mandare l'ordine al fornitore e aspettare la distinta con i costi veri.",
       steps: [
-        "In **Ordini** controlla gli ordini e aggiungi chi è arrivato tardi con **+ Aggiungi ordine per un socio**.",
+        "In **Ordini** controlla gli ordini e aggiungi chi è arrivato tardi con **+ Ordine per un socio**.",
         "In **Fornitore** scarica la distinta e inviala al fornitore.",
         "Quando hai pesi e prezzi veri (o se non servono), chiudi il ciclo con **Chiudi ciclo…**: è l'ultimo passo, quello che addebita i soci.",
       ],
@@ -363,7 +363,7 @@ export const adminGuideIt: GuideContent = {
         "Apri il ciclo chiuso e vai in **Ordini**.",
         "Tocca il prodotto da correggere e scrivi la quantità ricevuta o il totale vero.",
         "Per cambiare più righe o aggiungere un prodotto dimenticato, tocca **✎ Modifica** sul socio.",
-        "Se un socio non aveva ordinato ma ha ritirato, usa **+ Aggiungi ordine per un socio**.",
+        "Se un socio non aveva ordinato ma ha ritirato, usa **+ Ordine per un socio**.",
       ],
       notes: ["Ogni correzione crea un movimento separato e un avviso al socio. L'addebito originale non viene toccato."],
       keywords: ["rettifica", "peso", "quantita", "sbagliato", "mancante", "dimenticato"],

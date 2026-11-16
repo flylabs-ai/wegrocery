@@ -46,7 +46,15 @@ jobs:
 
   integration:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    # Most of the time goes in round trips to Neon (eu-central-1) from the
+    # runner, one query after the other: the suite is split in three parts,
+    # each on its own throwaway branch, run side by side. The new
+    # installation check runs once, in the last part.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     # The repository is public, so are these logs: the connection string of
     # the test branch is masked before anything can print it, and the Neon
     # API key is given only to the steps that call Neon.
@@ -86,7 +94,7 @@ jobs:
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
-          BRANCH: ci-${{ github.run_id }}-${{ github.run_attempt }}
+          BRANCH: ci-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
         run: |
           EXPIRES=$(date -u -d '+2 hours' +%Y-%m-%dT%H:%M:%SZ)
           npx -y neonctl@7.0.1 branches create --project-id "$NEON_PROJECT_ID" --name "$BRANCH" \
@@ -104,14 +112,14 @@ jobs:
 
       - name: Integration tests
         if: steps.neon.outputs.available == 'true'
-        run: npm run test:int
+        run: npm run test:int -- --shard=${{ matrix.shard }}/3
 
       # A new installation: an empty database in the same branch, every
       # migration from 0000, then the first-day checks and the money
       # invariants. Nothing else tests that the migrations still build the
       # schema from scratch.
       - name: Create an empty database
-        if: steps.neon.outputs.available == 'true'
+        if: steps.neon.outputs.available == 'true' && matrix.shard == 3
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
@@ -136,7 +144,7 @@ jobs:
       # As the console installs a group: the restricted role exists before
       # any table, the migrations run as the owner, the app uses the role.
       - name: Create the restricted role before any migration
-        if: steps.neon.outputs.available == 'true'
+        if: steps.neon.outputs.available == 'true' && matrix.shard == 3
         run: |
           SAVE="$RUNNER_TEMP/fresh-role.env"
           DATABASE_URL="$FRESH_DATABASE_URL" node scripts/create-app-role.mjs --role fresh_app_rw --save-url "$SAVE" --save-as FRESH_APP_URL
@@ -146,15 +154,15 @@ jobs:
           echo "FRESH_APP_URL=$URL" >> "$GITHUB_ENV"
 
       - name: Apply every migration to the empty database
-        if: steps.neon.outputs.available == 'true'
+        if: steps.neon.outputs.available == 'true' && matrix.shard == 3
         run: DATABASE_URL="$FRESH_APP_URL" DATABASE_MIGRATION_URL="$FRESH_DATABASE_URL" node scripts/db-migrate.mjs --dir drizzle
 
       - name: First-day tests on the empty database
-        if: steps.neon.outputs.available == 'true'
+        if: steps.neon.outputs.available == 'true' && matrix.shard == 3
         run: INT_TEST_DATABASE_URL="$FRESH_APP_URL" INT_TEST_FRESH=1 INT_TEST_FRESH_RESTRICTED=1 npx vitest run -c vitest.int.config.ts test/int/fresh-install.integration.test.ts
 
       - name: Money invariants on the new installation
-        if: steps.neon.outputs.available == 'true'
+        if: steps.neon.outputs.available == 'true' && matrix.shard == 3
         run: DATABASE_URL="$FRESH_DATABASE_URL" node node_modules/tsx/dist/cli.mjs scripts/check-invariants.mts
 
       - name: Delete the database branch
