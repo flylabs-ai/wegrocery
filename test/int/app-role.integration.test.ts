@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { neon } from "@neondatabase/serverless";
 import { afterAll, beforeAll, expect, it } from "vitest";
-import { appRoleRevokeStatements, appRoleStatements } from "@/scripts/db-migrate-lib.mjs";
+import { appRoleRevokeStatements, appRoleStatements } from "@/scripts/db-role-lib.mjs";
 import { describeDb, rawClient } from "./fixtures";
 
 // Playbook 1.4: the restricted role reads and writes data, and nothing else.

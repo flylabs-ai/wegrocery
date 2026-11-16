@@ -1,15 +1,51 @@
 {
   "app": "wegrocery",
-  "kit": "0.13",
+  "profile": "white-label",
+  "kit": "0.16",
   "modules": {
     "changelog": "1.0",
     "console": "1.0",
-    "email": "1.2",
+    "email": {
+      "version": "1.2",
+      "path": "lib/email"
+    },
     "firma": "1.0",
     "guida": "1.0",
-    "ics": "1.0"
+    "i18n": {
+      "version": "1.0",
+      "path": "lib/i18n"
+    },
+    "ics": "1.0",
+    "migrazioni": {
+      "version": "1.0",
+      "path": "scripts"
+    },
+    "sicurezza": {
+      "version": "1.0",
+      "path": "lib/security"
+    },
+    "tema": {
+      "version": "2.0",
+      "path": "lib/brand"
+    }
   },
-  "notAdopted": {
-    "tema": "Tema e test di contrasto propri (lib/theme.ts, lib/brand/theme-contrast.test.ts), equivalenti al modulo."
+  "templates": {
+    "backup": ".github/workflows/backup.yml",
+    "dependabot": ".github/dependabot.yml",
+    "deploy-health": ".github/workflows/deploy-health.yml",
+    "release": ".github/workflows/release.yml",
+    "restore-test": ".github/workflows/restore-test.yml",
+    "vercel": "vercel.json"
+  },
+  "localChanges": {
+    "email/layout.ts": "White-label: logo, nome e colori del gruppo in testa e firma spegnibile dal gruppo (Playbook 7.7, 2.11); il kit ha la variante prodotto",
+    "tema/theme-choice.tsx": "Non copiato: scelta del tema nel Profilo con components/profile/theme-row.tsx, stessa logica",
+    "tema/theme.ts": "Non copiato: lib/theme.ts proprio (cookie wegrocery_theme) e barra di stato dal primario in app/layout.tsx; passa a themeViewport con statusBarColors nel secondo passo di B2, con screenshot e ok",
+    "templates/backup": "Origine del template: nomi dei file gas-backup-*, invarianti del denaro dopo il dump e controlli rclone propri",
+    "templates/dependabot": "Better Auth in ignore (aggiornato a mano, Playbook 1.5) e gruppi minor/patch e major separati",
+    "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo e Console esclusa (ha la sua versione)",
+    "templates/release": "Origine del template: note estratte dalla sezione di CHANGELOG.md con lo script di WeGrocery",
+    "templates/restore-test": "Origine del template: invarianti del denaro sul ramo ripristinato e lettura dei dump in chiaro ancora su Drive fino a febbraio 2027",
+    "templates/vercel": "Cron giornalieri (apertura dei cicli, promemoria delle bozze); il template non ha cron"
   }
 }

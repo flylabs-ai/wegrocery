@@ -13,6 +13,6 @@ if (process.env.MIGRATE_ON_BUILD === "true") {
     console.log(`MIGRATE_ON_BUILD: skipped on a ${vercelEnv} build (production only)`);
   } else {
     console.log("MIGRATE_ON_BUILD: applying pending migrations");
-    execFileSync(process.execPath, ["scripts/db-migrate.mjs", "--allow-prod"], { stdio: "inherit" });
+    execFileSync(process.execPath, ["scripts/db-migrate.mjs", "--dir", "drizzle", "--allow-prod"], { stdio: "inherit" });
   }
 }

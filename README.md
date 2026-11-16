@@ -275,7 +275,7 @@ Other scripts:
 Pushing to `main` triggers a Vercel production deploy and `staging` gets a
 preview deployment; other branches are not deployed (`git.deploymentEnabled`
 in `vercel.json`). Migrations (`drizzle/*.sql`) are applied
-before the code that needs them, with `node scripts/db-migrate.mjs`, or at
+before the code that needs them, with `node scripts/db-migrate.mjs --dir drizzle`, or at
 every production build with `MIGRATE_ON_BUILD=true`: see
 [docs/upgrading.md](docs/upgrading.md). What a deploy has set up shows in
 admin → Impostazioni → *Configuration status* and in `npm run doctor`.

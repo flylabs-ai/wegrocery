@@ -2,22 +2,26 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-15 (release 1.47.1 is in production, on the demo and on the example brand: security headers and encrypted backups; no migration).
+Last updated: 2026-11-15 (release 1.47.2 is in production, on the demo and on the example brand: report-only Content Security Policy; no migration).
 
 ## Versions and migrations
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.47.1 (2026-11-15) | up to `0055` |
-| Public demo (`main`) | 1.47.1 | up to `0055` |
-| Example brand installation | 1.47.1 | up to `0055` (migrates on build) |
-| Staging (`staging`) | 1.47.1 | up to `0055` (2026-11-14, Neon branch `staging`) |
+| Production (`main`) | 1.47.2 (2026-11-15) | up to `0055` |
+| Public demo (`main`) | 1.47.2 | up to `0055` |
+| Example brand installation | 1.47.2 | up to `0055` (migrates on build) |
+| Staging (`staging`) | 1.47.2 | up to `0055` (2026-11-14, Neon branch `staging`) |
 
 ## Waiting on `staging` for the next release
 
-Nothing. Next planned: a Content Security Policy with a nonce, report-only first, then enforced after a week without real violations.
+FlyLabs Kit modules `sicurezza` 1.0 and `i18n` 1.0 adopted (security headers, report-only CSP, CSP report endpoint and cron check from the kit, same policy as 1.47.2; parity test of the four language packs against Italian, with the bank reference template placeholders listed as translated on purpose). Next planned: enforce the Content Security Policy (`Content-Security-Policy` instead of `-Report-Only`) after a week of `csp-report` lines without real violations, around 2026-11-22. On staging the only report so far is `frame-src https://vercel.live` (Vercel's preview toolbar, not on production).
 
-Latest release: version 1.47.1 (security headers on every response, PR #424; daily backup encrypted with age and restore test that decrypts it, PR #425) was released on Sunday 2026-11-15 through PR #426 (merge commit `d6a87a9`) at the maintainer's explicit request. The encrypted manual backup run `43731285946` was green first (`gas-backup-2026-11-15.sql.gz.age` uploaded, invariants passed) and restore test run `43731468165` decrypted it, restored it on a throwaway branch and found every money invariant holding. No migration. Staging was fast-forwarded to `main` and the example brand aligned (`078f796`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.1`; production answers `/login`, `/api/health` and an unknown path with the five headers and no `X-Powered-By`; Deploy Health passed; the GitHub release workflow published `v1.47.1`; no runtime errors after the deploy. From now on the daily backup fails instead of uploading if `BACKUP_AGE_RECIPIENT` is missing; the unencrypted dumps already on Drive expire after 90 days.
+FlyLabs Kit module `migrazioni` 1.0 prepared (PR to staging, not merged yet on purpose: it goes in after the work in progress). On its first run on each database it adds the nullable `checksum` column to `_migrations` and fills it from the local files without running them; then applied files are immutable. Commands take `--dir drizzle`. The role helpers moved to `scripts/db-role-lib.mjs`.
+
+Latest release: version 1.47.2 (report-only Content Security Policy with a per-request nonce and the `/api/csp-report` endpoint, PR #428) was released on Sunday 2026-11-15 through PR #430 (merge commit `89c07e2`) at the maintainer's explicit request, after the maintainer tried Google sign-in and a card payment on staging with the policy on. No migration and no data change. Staging was fast-forwarded to `main` and the example brand aligned (`c3738df`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.2`; production `/login` sends the policy with a nonce; the GitHub release workflow published `v1.47.2`.
+
+Release before: version 1.47.1 (security headers on every response, PR #424; daily backup encrypted with age and restore test that decrypts it, PR #425) was released on Sunday 2026-11-15 through PR #426 (merge commit `d6a87a9`) at the maintainer's explicit request. The encrypted manual backup run `43731285946` was green first (`gas-backup-2026-11-15.sql.gz.age` uploaded, invariants passed) and restore test run `43731468165` decrypted it, restored it on a throwaway branch and found every money invariant holding. No migration. Staging was fast-forwarded to `main` and the example brand aligned (`078f796`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.1`; production answers `/login`, `/api/health` and an unknown path with the five headers and no `X-Powered-By`; Deploy Health passed; the GitHub release workflow published `v1.47.1`; no runtime errors after the deploy. From now on the daily backup fails instead of uploading if `BACKUP_AGE_RECIPIENT` is missing; the unencrypted dumps already on Drive expire after 90 days.
 
 Previous release: version 1.47.0 (draft visibility for admins, draft reminders, draft summaries and filters; PRs #418 to #421, migration `0055_draft_reminders.sql`) was released on Sunday 2026-11-15 through PR #423 (merge commit `6ed0274`), with the maintainer's explicit weekend exception. Manual backup run `43718997359` was green first (dump uploaded, invariants passed). Migration `0055` was then applied to production and the demo in one transaction with a 5 s lock timeout; on both, `_migrations` holds 56 rows, `draft_reminders` has its primary key and two foreign keys, and `app_rw` has SELECT, INSERT, UPDATE and DELETE on it and still cannot write `_migrations`. Staging was fast-forwarded to `main` and the example brand aligned (`7946d26`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.0`; Deploy Health passed on the release commit; the GitHub release workflow published `v1.47.0`; no runtime errors in the first minutes. The smoke test ran on the demo (login, Home, Order, Admin, Profile, changelog); production was checked without a session only (login page 200, cron endpoints 404 without the secret), so a signed-in look by the maintainer is still due. Draft reminders now run at 05:00 and 17:00 UTC where `CRON_SECRET` is set.
 

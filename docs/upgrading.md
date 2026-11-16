@@ -11,8 +11,8 @@ status*, or `npm run doctor` from a checkout with your environment.
 2. Apply the pending migrations **before** the new code goes live: the code
    names every column of the tables it writes.
    ```bash
-   DATABASE_URL="postgres://…" node scripts/db-migrate.mjs --status
-   DATABASE_URL="postgres://…" node scripts/db-migrate.mjs
+   DATABASE_URL="postgres://…" node scripts/db-migrate.mjs --dir drizzle --status
+   DATABASE_URL="postgres://…" node scripts/db-migrate.mjs --dir drizzle
    ```
    Or set `MIGRATE_ON_BUILD=true` on your Vercel project: every production
    build applies them first (preview builds never do), and a failing
@@ -62,7 +62,7 @@ must be in the project environment too: for the full benefit run the migrations
 from your machine or CI instead and leave the variable off.
 
 Way back: put the owner's address in `DATABASE_URL` again and redeploy; then
-revoke the role (`appRoleRevokeStatements` in `scripts/db-migrate-lib.mjs` lists
+revoke the role (`appRoleRevokeStatements` in `scripts/db-role-lib.mjs` lists
 the statements; on Neon the owner cannot `DROP OWNED BY`, so privileges are
 revoked one by one before `DROP ROLE`). `test/int/app-role.integration.test.ts` checks
 the role end to end, and the whole integration suite passes with it.
@@ -71,6 +71,7 @@ the role end to end, and the whole integration suite passes with it.
 
 | Version | Migration | Environment | Stripe webhook events |
 |---|---|---|---|
+| 1.47.3 | none. The new runner (`scripts/db-migrate.mjs`, kit `migrazioni` 1.0, now run with `--dir drizzle`) adds a nullable `checksum` column to `_migrations` on its first run and fills it from the local files without running them; example-brand installs do it on build | none | none |
 | 1.47.2 | none | none. Pages send `Content-Security-Policy-Report-Only` (nothing blocked); the public `POST /api/csp-report` logs what the policy would block. A new outside origin (script, frame, form target, fetch) must be added to `lib/security/csp.ts` before the policy is enforced | none |
 | 1.47.1 | none | No app variable. The backup workflows need GitHub secrets `BACKUP_AGE_RECIPIENT` (required, or the daily backup fails instead of uploading a readable dump), `BACKUP_AGE_RECIPIENT_RESTORE` and `AGE_RESTORE_IDENTITY` (for the weekly restore test); see AGENTS.md "Backup & Restore" | none |
 | 1.47.0 | `0055_draft_reminders.sql` (additive: `draft_reminders`, one reservation per cycle/member). Apply to staging before merging, then production and demo before deployment; example-brand installs migrate on build. Rollback: stop the reminder cron, deploy code without the table, then run `0055_draft_reminders_down.sql` | Existing `CRON_SECRET` now also enables draft reminders at 05:00 and 17:00 UTC; no new variable. New `draft_reminder` category defaults to app and email on only for unconfirmed drafts; saved preferences remain unchanged | none |
