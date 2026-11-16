@@ -569,7 +569,7 @@ export function OutgoingMovementForm({ members }: { members: PickerMember[] }) {
             {formError}
           </p>
         )}
-        <button type="submit" className="min-h-12 w-full rounded-xl bg-inverse py-2 text-[13px] font-bold text-inverse-foreground">
+        <button type="submit" className="min-h-12 w-full rounded-xl bg-primary py-2 text-[13px] font-bold text-primary-foreground">
           {t.admin.treasury.review}
         </button>
       </form>

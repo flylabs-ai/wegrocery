@@ -182,7 +182,7 @@ function IdentitySection({ defaults, current, logoUrl, uploadedLogo }: Props) {
         type="button"
         onClick={handleSave}
         disabled={isPending}
-        className="mt-4 rounded-xl bg-inverse px-4 py-2 text-[13px] font-bold text-inverse-foreground disabled:opacity-60"
+        className="mt-4 rounded-xl bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground disabled:opacity-60"
       >
         {isPending ? t.admin.common.saving : s.save}
       </button>
@@ -332,7 +332,7 @@ function ContactsSection({ defaults, current }: Props) {
         type="button"
         onClick={() => save({ supportEmail, techEmail, archiveCcEmail, privacyUrl, termsUrl, membershipUrl })}
         disabled={isPending}
-        className="mt-4 rounded-xl bg-inverse px-4 py-2 text-[13px] font-bold text-inverse-foreground disabled:opacity-60"
+        className="mt-4 rounded-xl bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground disabled:opacity-60"
       >
         {isPending ? t.admin.common.saving : s.save}
       </button>

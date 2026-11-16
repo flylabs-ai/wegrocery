@@ -235,7 +235,7 @@ export function SupplierSteps({ cycleId, cycleOpen = false }: { cycleId: string;
             <button
               onClick={handleSendMail}
               disabled={defaultsLoading || sending}
-              className="min-h-11 w-full rounded-xl px-5 sm:w-auto bg-inverse py-2.5 text-[13px] font-bold text-inverse-foreground shadow-lg active:scale-95 disabled:opacity-50"
+              className="min-h-11 w-full rounded-xl px-5 sm:w-auto bg-primary py-2.5 text-[13px] font-bold text-primary-foreground shadow-lg active:scale-95 disabled:opacity-50"
             >
               {sending ? t.admin.common.sending : t.admin.supplierActions.sendButton}
             </button>
@@ -279,7 +279,7 @@ export function SupplierSteps({ cycleId, cycleOpen = false }: { cycleId: string;
                 (preview.corrections.length === 0 && preview.shippingChanges.length === 0) ||
                 applying
               }
-              className="min-h-11 w-full rounded-xl px-5 sm:w-auto bg-inverse py-2.5 text-[13px] font-bold text-inverse-foreground shadow-lg active:scale-95 disabled:opacity-50"
+              className="min-h-11 w-full rounded-xl px-5 sm:w-auto bg-primary py-2.5 text-[13px] font-bold text-primary-foreground shadow-lg active:scale-95 disabled:opacity-50"
             >
               {applying ? t.admin.supplierActions.applying : t.admin.supplierActions.applyButton}
             </button>

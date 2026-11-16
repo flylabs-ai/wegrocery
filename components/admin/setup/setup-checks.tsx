@@ -33,7 +33,7 @@ export function SetupChecks({ adminEmail, webhookUrl }: { adminEmail: string; we
           type="button"
           onClick={sendTest}
           disabled={sending}
-          className="min-h-11 rounded-xl bg-inverse px-4 py-2 text-[13px] font-bold text-inverse-foreground disabled:opacity-60"
+          className="min-h-11 rounded-xl bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground disabled:opacity-60"
         >
           {sending ? t.admin.common.sending : s.testEmail}
         </button>

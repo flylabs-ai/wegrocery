@@ -65,7 +65,7 @@ export function CycleList({
       <Link
         href={adminHref("ciclo", null, { new: "1" })}
         onClick={onNavigate}
-        className="mb-3 flex min-h-11 items-center justify-center rounded-xl bg-inverse text-[13px] font-bold text-inverse-foreground"
+        className="mb-3 flex min-h-11 items-center justify-center rounded-xl bg-primary text-[13px] font-bold text-primary-foreground"
       >
         {w.newCycle}
       </Link>
