@@ -8,14 +8,12 @@ Last updated: 2026-11-15 (release 1.47.2 is in production, on the demo and on th
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.47.2 (2026-11-15) | up to `0055` |
-| Public demo (`main`) | 1.47.2 | up to `0055` |
-| Example brand installation | 1.47.2 | up to `0055` (migrates on build) |
-| Staging (`staging`) | 1.47.2 | up to `0055` (2026-11-14, Neon branch `staging`) |
+| Production (`main`) | 1.49.0 (2026-11-16) | up to `0056` |
+| Public demo (`main`) | 1.49.0 | up to `0056` |
+| Example brand installation | 1.49.0 | up to `0056` (migrates on build) |
+| Staging (`staging`) | 1.49.0 | up to `0056` (Neon branch `staging`) |
 
 ## Waiting on `staging` for the next release
-
-Release 1.49.0 prepared (no migration). Admin "order for a member" (PR #443): fixes the form that replaced a member's existing order instead of adding to it (both admin order actions now refuse a save whose starting lines are not the member's current order), and turns the member dropdown into a list of who already ordered (Edit) and who has not (Add). No migration.
 
 FlyLabs Kit `pagamenti` 1.0 adopted for the Stripe webhook (signature, live/test check and the `stripe_events` register, migration `0056_stripe_events.sql`, same answers to Stripe). Migration 0056 must be applied to production and the demo before the release deploys.
 
@@ -23,7 +21,9 @@ FlyLabs Kit modules `sicurezza` 1.0 and `i18n` 1.0 adopted (security headers, re
 
 FlyLabs Kit module `migrazioni` 1.0 prepared (PR to staging, not merged yet on purpose: it goes in after the work in progress). On its first run on each database it adds the nullable `checksum` column to `_migrations` and fills it from the local files without running them; then applied files are immutable. Commands take `--dir drizzle`. The role helpers moved to `scripts/db-role-lib.mjs`.
 
-Latest release: version 1.47.2 (report-only Content Security Policy with a per-request nonce and the `/api/csp-report` endpoint, PR #428) was released on Sunday 2026-11-15 through PR #430 (merge commit `89c07e2`) at the maintainer's explicit request, after the maintainer tried Google sign-in and a card payment on staging with the policy on. No migration and no data change. Staging was fast-forwarded to `main` and the example brand aligned (`c3738df`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.2`; production `/login` sends the policy with a nonce; the GitHub release workflow published `v1.47.2`.
+Latest release: version 1.49.0 (admin "order for a member", PR #443: the form no longer replaces a member's existing order, both admin order actions refuse a save whose starting lines are not the member's current order, and the member dropdown became a list of who already ordered (Edit) and who has not (Add); PR #444 version bump) was released on Monday 2026-11-16 through PR #445 (merge commit `e54094a`) at the maintainer's explicit request. Manual backup run `43894481383` was green first. No migration and no data change. Staging was fast-forwarded to `main` and the example brand aligned (`df4c43e`). `/api/health` on production and demo reports `ok: true`, `db: true`, version `1.49.0`; the GitHub release workflow published `v1.49.0`. The integration CI job sits close to its 15 minute timeout and was cancelled once on #444 and #445 (green on rerun): raising `timeout-minutes` is a suggested follow-up.
+
+Release before (1.47.2): version 1.47.2 (report-only Content Security Policy with a per-request nonce and the `/api/csp-report` endpoint, PR #428) was released on Sunday 2026-11-15 through PR #430 (merge commit `89c07e2`) at the maintainer's explicit request, after the maintainer tried Google sign-in and a card payment on staging with the policy on. No migration and no data change. Staging was fast-forwarded to `main` and the example brand aligned (`c3738df`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.2`; production `/login` sends the policy with a nonce; the GitHub release workflow published `v1.47.2`.
 
 Release before: version 1.47.1 (security headers on every response, PR #424; daily backup encrypted with age and restore test that decrypts it, PR #425) was released on Sunday 2026-11-15 through PR #426 (merge commit `d6a87a9`) at the maintainer's explicit request. The encrypted manual backup run `43731285946` was green first (`gas-backup-2026-11-15.sql.gz.age` uploaded, invariants passed) and restore test run `43731468165` decrypted it, restored it on a throwaway branch and found every money invariant holding. No migration. Staging was fast-forwarded to `main` and the example brand aligned (`078f796`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.1`; production answers `/login`, `/api/health` and an unknown path with the five headers and no `X-Powered-By`; Deploy Health passed; the GitHub release workflow published `v1.47.1`; no runtime errors after the deploy. From now on the daily backup fails instead of uploading if `BACKUP_AGE_RECIPIENT` is missing; the unencrypted dumps already on Drive expire after 90 days.
 
