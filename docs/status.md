@@ -15,7 +15,7 @@ Last updated: 2026-11-15 (release 1.47.2 is in production, on the demo and on th
 
 ## Waiting on `staging` for the next release
 
-Admin "order for a member" (PR #443): fixes the form that replaced a member's existing order instead of adding to it (both admin order actions now refuse a save whose starting lines are not the member's current order), and turns the member dropdown into a list of who already ordered (Edit) and who has not (Add). No migration.
+Release 1.49.0 prepared (no migration). Admin "order for a member" (PR #443): fixes the form that replaced a member's existing order instead of adding to it (both admin order actions now refuse a save whose starting lines are not the member's current order), and turns the member dropdown into a list of who already ordered (Edit) and who has not (Add). No migration.
 
 FlyLabs Kit `pagamenti` 1.0 adopted for the Stripe webhook (signature, live/test check and the `stripe_events` register, migration `0056_stripe_events.sql`, same answers to Stripe). Migration 0056 must be applied to production and the demo before the release deploys.
 
