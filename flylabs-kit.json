@@ -1,7 +1,7 @@
 {
   "app": "wegrocery",
   "profile": "white-label",
-  "kit": "0.15",
+  "kit": "0.16",
   "modules": {
     "changelog": "1.0",
     "console": "1.0",
@@ -23,10 +23,11 @@
     "sicurezza": {
       "version": "1.0",
       "path": "lib/security"
+    },
+    "tema": {
+      "version": "2.0",
+      "path": "lib/brand"
     }
-  },
-  "notAdopted": {
-    "tema": "Tema e test di contrasto propri (lib/theme.ts, lib/brand/theme-contrast.test.ts), equivalenti al modulo."
   },
   "templates": {
     "backup": ".github/workflows/backup.yml",
@@ -38,6 +39,8 @@
   },
   "localChanges": {
     "email/layout.ts": "White-label: logo, nome e colori del gruppo in testa e firma spegnibile dal gruppo (Playbook 7.7, 2.11); il kit ha la variante prodotto",
+    "tema/theme-choice.tsx": "Non copiato: scelta del tema nel Profilo con components/profile/theme-row.tsx, stessa logica",
+    "tema/theme.ts": "Non copiato: lib/theme.ts proprio (cookie wegrocery_theme) e barra di stato dal primario in app/layout.tsx; passa a themeViewport con statusBarColors nel secondo passo di B2, con screenshot e ok",
     "templates/backup": "Origine del template: nomi dei file gas-backup-*, invarianti del denaro dopo il dump e controlli rclone propri",
     "templates/dependabot": "Better Auth in ignore (aggiornato a mano, Playbook 1.5) e gruppi minor/patch e major separati",
     "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo e Console esclusa (ha la sua versione)",
