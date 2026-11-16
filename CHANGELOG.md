@@ -27,6 +27,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 ### Changed
 - 🎨 **Main buttons in the group's colour**: the main action of a screen (for example "+ New cycle" or "Save") now uses the group's colour instead of black, with readable text guaranteed for any colour.
 - 📱 **Phone status bar matches the page**: the bar at the top of the phone takes the page's background, light or dark, instead of the group's colour, so the clock and battery stay readable with any colour.
+- 🔐 **Sign-in settings from the FlyLabs Kit** [tech]: hashed links and codes, 6 digits and 3 tries, sessions, rate limits, cookies, trusted addresses and the public sign-in endpoints now come from the kit module `auth` 1.0.1. Nothing changes for members: same email, link, code, Google and demo.
 
 ## [1.47.3] - 2026-11-16
 

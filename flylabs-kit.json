@@ -3,6 +3,10 @@
   "profile": "white-label",
   "kit": "0.16",
   "modules": {
+    "auth": {
+      "version": "1.0.1",
+      "path": "lib/auth/kit"
+    },
     "changelog": "1.0",
     "console": "1.0",
     "email": {
