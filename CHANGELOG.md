@@ -24,6 +24,8 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+- 🧺 **"Order for a member" lists who already ordered and who has not**: members who ordered come first with Edit (their products are loaded, so the admin adds instead of replacing them), then the others with Add. If the order changed in the meantime, nothing is saved.
+
 ## [1.48.0] - 2026-11-16
 
 *Buttons in the group's colour, and more shared FlyLabs Kit building blocks.*

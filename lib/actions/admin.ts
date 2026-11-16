@@ -28,7 +28,7 @@ import { effectiveMinBalance } from "@/lib/membership/signup";
 import { getWalletBalance } from "@/lib/payments/balance-due";
 import { findEmailConflict, normalizeEmail } from "@/lib/member-email";
 import type { BatchItem } from "drizzle-orm/batch";
-import { orderLinesSnapshot, planClosedOrderEdit } from "@/lib/closed-order-edit";
+import { orderLinesSnapshot, planClosedOrderEdit, sameOrderLines } from "@/lib/closed-order-edit";
 import { cancelledCycleReversalTypes, finalCostsAfterDistinta, ordersSnapshot } from "@/lib/cycle-close";
 import {
   commitCycleClose,
@@ -1874,6 +1874,9 @@ export type EditClosedOrderInput = {
   // Final desired state of the member's order. Lines with quantity ≤ 0 are
   // ignored.
   lines: Array<{ productId: string; quantity: number }>;
+  // The member's lines the admin's form started from: if the order is not
+  // those lines any more, nothing is written (sameOrderLines).
+  baseline: Array<{ productId: string; quantity: number }>;
   // Free-form motivation that ends up on the ledger entry and notification.
   note?: string;
 };
@@ -1924,6 +1927,7 @@ export async function adminEditClosedOrder(input: EditClosedOrderInput): Promise
       })
       .from(orders)
       .where(and(eq(orders.cycleId, input.cycleId), eq(orders.memberId, input.memberId)));
+    if (!sameOrderLines(previousLines, input.baseline)) return { error: t.errors.orderBaselineChanged };
 
     // Resolve requested products against the cycle. Existing lines keep their
     // unit_price_snapshot; only products new to this order take the current
@@ -2147,6 +2151,8 @@ export type SaveOpenOrderInput = {
   memberId: string;
   // Final desired state of the member's order. Lines with quantity <= 0 are dropped.
   lines: Array<{ productId: string; quantity: number }>;
+  // The member's lines the admin's form started from (see EditClosedOrderInput).
+  baseline: Array<{ productId: string; quantity: number }>;
   // Free-form reason, shown to the member in the notification.
   note?: string;
 };
@@ -2223,6 +2229,7 @@ export async function adminSaveOpenOrder(input: SaveOpenOrderInput): Promise<Sav
     }));
 
     const previous = await readMemberOrderLines(db, input.memberId, input.cycleId);
+    if (!sameOrderLines(previous, input.baseline)) return { error: t.errors.orderBaselineChanged };
     const cents = (v: string) => Math.round(parseFloat(v) * 100);
     const oldCents = previous.reduce((sum, l) => sum + cents(l.lineTotal), 0);
     const newCents = lines.reduce((sum, l) => sum + cents(l.unitPrice) * l.quantity, 0);

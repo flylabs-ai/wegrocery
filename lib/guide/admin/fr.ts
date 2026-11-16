@@ -198,7 +198,7 @@ export const adminGuideFr: GuideContent = {
       steps: [
         "**Vue d'ensemble** : combien de membres ont commandé, le total et le temps restant avant la date limite.",
         "**Commandes** : la commande de chaque membre et les totaux par produit. D'ici, vous pouvez aussi télécharger le bon de commande en Excel.",
-        "Pour saisir la commande d'un membre, utilisez **+ Ajouter une commande pour un membre**, pour la modifier **✎ Modifier**. Cela marche aussi après la date limite, jusqu'à ce que vous clôturiez le cycle.",
+        "Pour saisir ou modifier la commande d'un membre, utilisez **+ Commande pour un membre** : d'abord ceux qui ont déjà commandé (Modifier), puis ceux qui n'ont pas encore commandé (Ajouter). **✎ Modifier** sur la ligne du membre marche aussi. Cela marche aussi après la date limite, jusqu'à ce que vous clôturiez le cycle.",
       ],
       notes: ["Une commande que vous saisissez ou modifiez est prélevée à la clôture, comme les autres, et le membre reçoit un avis. Les poids et prix réels se saisissent après la clôture."],
       keywords: ["voir les commandes", "qui a commandé", "total", "récapitulatif", "ajouter une commande", "commande pour un membre", "commande en retard"],
@@ -257,7 +257,7 @@ export const adminGuideFr: GuideContent = {
       title: "La date limite est passée mais le cycle est encore ouvert",
       intro: "C'est normal : après la date limite, les membres ne peuvent plus commander, mais le cycle ne se clôture pas tout seul. Cela vous laisse le temps de mettre de l'ordre dans les commandes, d'envoyer la commande au fournisseur et d'attendre le fichier avec les coûts réels.",
       steps: [
-        "Dans **Commandes**, vérifiez les commandes et ajoutez les retardataires avec **+ Ajouter une commande pour un membre**.",
+        "Dans **Commandes**, vérifiez les commandes et ajoutez les retardataires avec **+ Commande pour un membre**.",
         "Dans **Fournisseur**, téléchargez le bon de commande et envoyez-le au fournisseur.",
         "Quand vous avez les poids et prix réels (ou si vous n'en avez pas besoin), clôturez le cycle avec **Clôturer le cycle…** : c'est la dernière étape, celle qui prélève les membres.",
       ],
@@ -361,7 +361,7 @@ export const adminGuideFr: GuideContent = {
         "Ouvrez le cycle clôturé et allez dans **Commandes**.",
         "Touchez le produit à corriger et écrivez la quantité reçue ou le total réel.",
         "Pour changer plusieurs lignes ou ajouter un produit oublié, touchez **✎ Modifier** sur le membre.",
-        "Si un membre n'avait pas commandé mais a pris quelque chose, utilisez **+ Ajouter une commande pour un membre**.",
+        "Si un membre n'avait pas commandé mais a pris quelque chose, utilisez **+ Commande pour un membre**.",
       ],
       notes: ["Chaque correction crée un mouvement séparé et une notification pour le membre. Le prélèvement d'origine n'est pas touché."],
       keywords: ["ajustement", "poids", "quantité", "erreur", "manquant", "oublié"],

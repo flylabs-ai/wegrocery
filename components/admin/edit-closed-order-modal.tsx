@@ -2,7 +2,7 @@
 
 import { editedOrderPreview } from "@/lib/closed-order-preview";
 import { groupCycleProducts, OTHER_CATEGORY } from "@/lib/products/cycle-order";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   adminGetEditClosedOrderBootstrap,
   type EditClosedOrderBootstrap,
@@ -15,8 +15,8 @@ import { confirmDiscard } from "@/components/ui/confirm-dialog";
 import { formatEur, getProductEmoji } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
 import { Label } from "@/components/ui/label";
+import { OrderMemberPicker } from "@/components/admin/order-member-picker";
 
 type Mode =
   | { kind: "edit"; memberId: string; memberName: string }
@@ -47,6 +47,9 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
   const [note, setNote] = useState("");
   const [memberId, setMemberId] = useState<string>(mode.kind === "edit" ? mode.memberId : "");
   const [isPending, startTransition] = useTransition();
+  // "Add an order": the chosen member's existing lines are loading.
+  const [memberLoading, setMemberLoading] = useState(false);
+  const memberRequest = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +73,42 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cycleId, mode.kind, mode.kind === "edit" ? mode.memberId : null]);
+
+  // "Order for a member": choosing someone loads their order, never an empty
+  // one, or saving would replace their lines (the form sends the whole order).
+  function selectMember(nextId: string) {
+    const request = ++memberRequest.current;
+    setMemberId(nextId);
+    setQuantities({});
+    setNote("");
+    setBootstrap((b) => (b ? { ...b, memberLines: [] } : b));
+    if (!nextId) {
+      setMemberLoading(false);
+      return;
+    }
+    setMemberLoading(true);
+    adminGetEditClosedOrderBootstrap(cycleId, nextId).then((res) => {
+      if (request !== memberRequest.current) return;
+      setMemberLoading(false);
+      if (res.error || !res.data) {
+        toast.error(res.error ?? t.admin.editClosedOrder.errorLoading);
+        setMemberId("");
+        return;
+      }
+      const lines = res.data.memberLines;
+      const next: Record<string, number> = {};
+      for (const l of lines) next[l.productId] = l.quantity;
+      setBootstrap((b) => (b ? { ...b, memberLines: lines } : b));
+      setQuantities(next);
+    });
+  }
+
+  // Back from the products to the member list, asking first on unsaved work.
+  async function backToMembers() {
+    if (isPending) return;
+    if ((Math.abs(delta) >= 0.005 || note.trim()) && !(await confirmDiscard())) return;
+    selectMember("");
+  }
 
   function bump(productId: string, by: number) {
     setQuantities((prev) => {
@@ -101,6 +140,7 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
   );
 
   function handleSave() {
+    if (!bootstrap || memberLoading) return;
     if (mode.kind === "create" && !memberId) {
       toast.error(t.admin.editClosedOrder.selectMemberError);
       return;
@@ -108,10 +148,11 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
     const lines = Object.entries(quantities)
       .filter(([, qty]) => qty > 0)
       .map(([productId, quantity]) => ({ productId, quantity }));
+    const baseline = bootstrap.memberLines.map(({ productId, quantity }) => ({ productId, quantity }));
     startTransition(async () => {
       try {
         if (cycleOpen) {
-          const saved = await adminSaveOpenOrder({ cycleId, memberId, lines, note: note.trim() || undefined });
+          const saved = await adminSaveOpenOrder({ cycleId, memberId, lines, baseline, note: note.trim() || undefined });
           if ("error" in saved) {
             toast.error(saved.error);
             return;
@@ -127,6 +168,7 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
           cycleId,
           memberId,
           lines,
+          baseline,
           note: note.trim() || undefined,
         });
         if ("error" in result) {
@@ -152,6 +194,9 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
     mode.kind === "edit"
       ? mode.memberName
       : bootstrap?.members.find((m) => m.memberId === memberId)?.fullName ?? "";
+  const picking = mode.kind === "create" && !memberId;
+  const hasOrder = (bootstrap?.memberLines.length ?? 0) > 0;
+  const paidCents = bootstrap?.memberSummaries.find((m) => m.memberId === memberId)?.paidCents ?? 0;
 
   // Changed quantities or a note are unsaved work: closing asks first.
   async function requestClose() {
@@ -164,9 +209,20 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
     <Sheet
       open
       onRequestClose={() => void requestClose()}
-      title={mode.kind === "edit" ? memberName : t.admin.editClosedOrder.addOrderTitle}
-      subtitle={`${cycleTitle} · ${mode.kind === "create" ? t.admin.editClosedOrder.newOrder : t.admin.editClosedOrder.editOrder}`}
+      title={picking ? t.admin.editClosedOrder.addOrderTitle : memberName}
+      subtitle={
+        picking
+          ? `${cycleTitle} · ${t.admin.editClosedOrder.pickMemberSubtitle}`
+          : `${cycleTitle} · ${mode.kind === "create" && !hasOrder && !memberLoading ? t.admin.editClosedOrder.newOrder : t.admin.editClosedOrder.editOrder}`
+      }
       footer={
+        picking ? (
+          <SheetActions>
+            <Button variant="outline" className="flex-1" onClick={onClose}>
+              {t.admin.common.cancel}
+            </Button>
+          </SheetActions>
+        ) : (
         <>
           <div className="mb-3 grid grid-cols-3 gap-2 text-center">
             <div>
@@ -212,15 +268,16 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
               variant="brand"
               className="flex-1"
               onClick={handleSave}
-              disabled={isPending || (mode.kind === "create" && !memberId)}
+              disabled={isPending || memberLoading || (mode.kind === "create" && !memberId)}
             >
               {isPending ? t.admin.common.saving : t.admin.common.saveChanges}
             </Button>
           </SheetActions>
         </>
+        )
       }
     >
-      {cycleOpen ? (
+      {picking ? null : cycleOpen ? (
         <p className="mb-4 text-label leading-snug text-secondary-foreground">{t.admin.editClosedOrder.openNote}</p>
       ) : (
         <>
@@ -232,26 +289,35 @@ export function EditClosedOrderModal({ cycleId, cycleTitle, mode, cycleOpen = fa
       )}
       {loading || !bootstrap ? (
         <div className="py-20 text-center text-secondary-foreground">{t.admin.common.loading}</div>
+      ) : picking ? (
+        <OrderMemberPicker
+          members={bootstrap.members}
+          summaries={bootstrap.memberSummaries}
+          onPick={selectMember}
+        />
       ) : (
         <>
           {mode.kind === "create" && (
-            <div className="mb-4 rounded-xl border border-border bg-card p-3">
-              <Label htmlFor="edit-order-member">
-                {t.admin.editClosedOrder.memberLabel}
-              </Label>
-              <NativeSelect
-                id="edit-order-member"
-                value={memberId}
-                onChange={(e) => setMemberId(e.target.value)}
-              >
-                <option value="">{t.admin.editClosedOrder.selectMember}</option>
-                {bootstrap.members.map((m) => (
-                  <option key={m.memberId} value={m.memberId}>
-                    {m.fullName}
-                  </option>
-                ))}
-              </NativeSelect>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => void backToMembers()} disabled={isPending}>
+                {t.admin.editClosedOrder.backToMembers}
+              </Button>
+              {memberLoading && (
+                <span className="text-label text-secondary-foreground" aria-live="polite">
+                  {t.admin.editClosedOrder.loadingMemberOrder}
+                </span>
+              )}
             </div>
+          )}
+          {!memberLoading && mode.kind === "create" && hasOrder && (
+            <p className="mb-4 rounded-lg bg-accent/10 px-2.5 py-1.5 text-label leading-snug text-accent-text" aria-live="polite">
+              {t.admin.editClosedOrder.existingOrderLoaded(memberName)}
+            </p>
+          )}
+          {cycleOpen && paidCents > 0 && (
+            <p className="mb-4 rounded-lg bg-tint/[0.04] px-2.5 py-1.5 text-label leading-snug text-secondary-foreground">
+              {t.admin.editClosedOrder.paidByCardNote(formatEur(paidCents / 100))}
+            </p>
           )}
 
           {grouped.length === 0 ? (

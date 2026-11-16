@@ -25,6 +25,8 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+- 🧺 **"Ordine per un socio" mostra chi ha già ordinato e chi no**: prima i soci che hanno ordinato, con Modifica (i loro prodotti sono già caricati, così l'admin aggiunge invece di sostituire), poi gli altri con Aggiungi. Se nel frattempo l'ordine è cambiato, non viene salvato nulla.
+
 ## [1.48.0] - 2026-11-16
 
 *Bottoni nel colore del gruppo e altri mattoni comuni del FlyLabs Kit.*
