@@ -84,7 +84,8 @@ describe("sendMail outbound policy wiring", () => {
     await sendMail({ ...mail, idempotencyKey: "notification-1", headers: { "List-Unsubscribe": "<https://a>" } });
     expect(send).toHaveBeenCalledWith(
       expect.objectContaining({ headers: { "List-Unsubscribe": "<https://a>" } }),
-      { idempotencyKey: "notification-1" },
+      // The kit also passes an AbortSignal for its 10 s timeout.
+      expect.objectContaining({ idempotencyKey: "notification-1", signal: expect.any(AbortSignal) }),
     );
   });
 

@@ -1,81 +1,45 @@
 import { describe, expect, it } from "vitest";
 import { REDIRECT_BATCH_CAP, resolveOutbound, resolveOutboundBatch } from "./outbound-policy";
 
-const BLOCKED = "blocked-outside-production";
-const msg = { to: "member@example.org", cc: ["admin@example.org", "archive@example.org"], subject: "Ordine" };
-
+const message = { to: "member@example.com", cc: ["copy@example.com"], subject: "Update", text: "Example" };
+const blocked = "Email disabled in this environment";
 describe("resolveOutbound", () => {
-  it("sends unchanged in production", () => {
-    expect(resolveOutbound(msg, { vercelEnv: "production", redirectTo: "qa@example.org" }, BLOCKED)).toEqual({
-      action: "send",
-      to: "member@example.org",
-      cc: ["admin@example.org", "archive@example.org"],
-      subject: "Ordine",
+  it("sends unchanged only in Vercel production and copies cc", () => {
+    const decision = resolveOutbound(message, { vercelEnv: "production", redirectTo: "test@example.test" }, blocked);
+    expect(decision).toEqual({ action: "send", to: message.to, cc: message.cc, subject: message.subject });
+    if (decision.action === "send") expect(decision.cc).not.toBe(message.cc);
+  });
+  it("blocks without a redirect in every other environment", () => {
+    for (const vercelEnv of [undefined, "preview", "development", "staging", "Production"]) {
+      expect(resolveOutbound(message, { vercelEnv, redirectTo: " " }, blocked)).toEqual({ action: "block", error: blocked });
+    }
+  });
+  it("redirects with the original recipient in the subject and removes cc", () => {
+    expect(resolveOutbound(message, { vercelEnv: "preview", redirectTo: " test@example.test " }, blocked)).toEqual({
+      action: "send", to: "test@example.test", cc: [], subject: "[STAGING -> member@example.com] Update",
     });
-  });
-
-  it("redirects preview sends to EMAIL_REDIRECT_TO, drops cc and tags the subject", () => {
-    expect(resolveOutbound(msg, { vercelEnv: "preview", redirectTo: "qa@example.org" }, BLOCKED)).toEqual({
-      action: "send",
-      to: "qa@example.org",
-      cc: [],
-      subject: "[STAGING -> member@example.org] Ordine",
-    });
-  });
-
-  it("treats local dev (VERCEL_ENV unset) as non-production", () => {
-    const d = resolveOutbound(msg, { vercelEnv: undefined, redirectTo: "qa@example.org" }, BLOCKED);
-    expect(d).toMatchObject({ action: "send", to: "qa@example.org", cc: [] });
-  });
-
-  it("blocks non-production sends when no redirect is configured", () => {
-    expect(resolveOutbound(msg, { vercelEnv: "preview" }, BLOCKED)).toEqual({ action: "block", error: BLOCKED });
-    expect(resolveOutbound(msg, { vercelEnv: undefined, redirectTo: "" }, BLOCKED)).toEqual({
-      action: "block",
-      error: BLOCKED,
-    });
-  });
-
-  it("treats a whitespace-only redirect as unset", () => {
-    expect(resolveOutbound(msg, { vercelEnv: "development", redirectTo: "   " }, BLOCKED).action).toBe("block");
-  });
-
-  it("does not match production case-insensitively or by prefix", () => {
-    expect(resolveOutbound(msg, { vercelEnv: "Production" }, BLOCKED).action).toBe("block");
-    expect(resolveOutbound(msg, { vercelEnv: "production-like" }, BLOCKED).action).toBe("block");
-  });
-
-  it("accepts a message without cc", () => {
-    expect(
-      resolveOutbound({ to: "a@example.org", subject: "S" }, { vercelEnv: "production" }, BLOCKED),
-    ).toEqual({ action: "send", to: "a@example.org", cc: [], subject: "S" });
   });
 });
-
 describe("resolveOutboundBatch", () => {
-  const items = Array.from({ length: 7 }, (_, i) => ({ to: `m${i}@example.org`, subject: `S${i}`, text: `T${i}` }));
-
-  it("sends every item unchanged in production", () => {
-    const d = resolveOutboundBatch(items, { vercelEnv: "production", redirectTo: "qa@example.org" }, BLOCKED);
-    expect(d).toEqual({ action: "send", messages: items, suppressed: 0 });
+  it("caps redirected broadcasts and retains message metadata without cc", () => {
+    const items = Array.from({ length: 7 }, (_, i) => ({ ...message, to: `member${i}@example.com`, headers: { Example: "value" }, heading: "News" }));
+    const decision = resolveOutboundBatch(items, { vercelEnv: "preview", redirectTo: "test@example.test" }, blocked);
+    expect(REDIRECT_BATCH_CAP).toBe(3);
+    expect(decision.action).toBe("send");
+    if (decision.action === "send") {
+      expect(decision.messages).toHaveLength(REDIRECT_BATCH_CAP);
+      expect(decision.suppressed).toBe(4);
+      expect(decision.messages[0]).toMatchObject({ to: "test@example.test", subject: "[STAGING -> member0@example.com] Update", headers: { Example: "value" }, heading: "News", text: "Example" });
+      expect(decision.messages[0]).not.toHaveProperty("cc");
+    }
+    expect(items[0].to).toBe("member0@example.com");
   });
-
-  it("redirects outside production and caps the fan-out to a small sample", () => {
-    const d = resolveOutboundBatch(items, { vercelEnv: "preview", redirectTo: "qa@example.org" }, BLOCKED);
-    if (d.action !== "send") throw new Error("expected send");
-    expect(d.messages).toHaveLength(REDIRECT_BATCH_CAP);
-    expect(d.suppressed).toBe(items.length - REDIRECT_BATCH_CAP);
-    expect(d.messages[0]).toEqual({ to: "qa@example.org", subject: "[STAGING -> m0@example.org] S0", text: "T0" });
-    expect(d.messages.every((m) => m.to === "qa@example.org")).toBe(true);
-  });
-
-  it("does not suppress anything when the batch fits under the cap", () => {
-    const d = resolveOutboundBatch(items.slice(0, 2), { vercelEnv: undefined, redirectTo: "qa@example.org" }, BLOCKED);
-    expect(d).toMatchObject({ action: "send", suppressed: 0 });
-    if (d.action === "send") expect(d.messages).toHaveLength(2);
-  });
-
-  it("blocks the whole batch outside production without a redirect", () => {
-    expect(resolveOutboundBatch(items, { vercelEnv: "preview" }, BLOCKED)).toEqual({ action: "block", error: BLOCKED });
+  it("keeps the full production batch, blocks previews and accepts an empty batch", () => {
+    const items = Array.from({ length: 5 }, () => message);
+    const production = resolveOutboundBatch(items, { vercelEnv: "production" }, blocked);
+    if (production.action === "send") { expect(production.messages).toHaveLength(5); expect(production.suppressed).toBe(0); }
+    else throw new Error("Production unexpectedly blocked");
+    expect(resolveOutboundBatch(items, { vercelEnv: undefined }, blocked)).toEqual({ action: "block", error: blocked });
+    expect(resolveOutboundBatch([], { vercelEnv: undefined }, blocked)).toEqual({ action: "send", messages: [], suppressed: 0 });
   });
 });

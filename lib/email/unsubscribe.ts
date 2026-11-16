@@ -1,56 +1,111 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
-import { isNotificationCategory, type NotificationCategory } from "@/lib/notifications/categories";
+import { createHmac, hkdfSync, timingSafeEqual } from "node:crypto";
 
-// One-click unsubscribe (RFC 8058, FlyLabs Playbook 7.6): every notification
-// email carries a link signed with HMAC-SHA256 that turns off the email channel
-// of that one category for that one member. No session is needed (mail clients
-// POST to it), no expiry (an old email must still work), and the signature is
-// the only proof: it is derived from AUTH_SECRET, so rotating that secret
-// retires every old link (the manage-preferences link in the body still works).
+export type UnsubscribeConfig<Field extends string> = {
+  secret: string;
+  /** App-specific HKDF info; keep it stable for the lifetime of sent links. */
+  context: string;
+  fields: readonly Field[];
+  categoryField: Field;
+  isCategory: (value: string) => boolean;
+  /** Verification only. New tokens always use HKDF and the v2 format. */
+  legacy?: { format: "base64-dot" | "uuid-dot"; context: string; idField: Field };
+};
 
-const CONTEXT = "wegrocery-unsubscribe-v1";
+const SALT = "flylabs-email-unsubscribe-v2";
+const MAX_TOKEN_LENGTH = 8192;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-function sign(payload: string, secret: string): string {
-  return createHmac("sha256", `${CONTEXT}:${secret}`).update(payload).digest("base64url");
+function configured<Field extends string>(config: UnsubscribeConfig<Field>): boolean {
+  return Boolean(config.secret && config.context && Buffer.byteLength(config.context) <= 1024
+    && config.fields.length > 0 && config.fields.length <= 16
+    && new Set(config.fields).size === config.fields.length
+    && config.fields.every((field) => /^[a-zA-Z][a-zA-Z0-9_]*$/.test(field) && !["constructor", "prototype", "__proto__"].includes(field))
+    && config.fields.includes(config.categoryField));
 }
 
-/** `<memberId>.<category>` in base64url, then the signature. */
-export function signUnsubscribeToken(memberId: string, category: NotificationCategory, secret: string): string {
-  const payload = Buffer.from(`${memberId}.${category}`).toString("base64url");
-  return `${payload}.${sign(payload, secret)}`;
+function claimsValid<Field extends string>(value: unknown, config: UnsubscribeConfig<Field>): value is Record<Field, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const claims = value as Record<string, unknown>;
+  return Object.keys(claims).length === config.fields.length
+    && config.fields.every((field) => Object.hasOwn(claims, field) && typeof claims[field] === "string" && claims[field].length > 0)
+    && config.isCategory(claims[config.categoryField] as string);
 }
 
-export function verifyUnsubscribeToken(
-  token: string,
-  secret: string,
-): { memberId: string; category: NotificationCategory } | null {
-  const [payload, signature, ...rest] = token.split(".");
-  if (!payload || !signature || rest.length > 0 || !secret) return null;
-  const expected = Buffer.from(sign(payload, secret));
-  const given = Buffer.from(signature);
-  if (expected.length !== given.length || !timingSafeEqual(expected, given)) return null;
-  const decoded = Buffer.from(payload, "base64url").toString("utf8");
-  const dot = decoded.lastIndexOf(".");
-  if (dot < 1) return null;
-  const memberId = decoded.slice(0, dot);
-  const category = decoded.slice(dot + 1);
-  return isNotificationCategory(category) ? { memberId, category } : null;
+function derivedKey<Field extends string>(config: UnsubscribeConfig<Field>): Buffer {
+  return Buffer.from(hkdfSync("sha256", config.secret, SALT, config.context, 32));
 }
 
-export function unsubscribeUrl(baseUrl: string, token: string): string {
-  return `${baseUrl}/api/unsubscribe?t=${encodeURIComponent(token)}`;
+function mac(payload: string, key: string | Buffer): Buffer {
+  return createHmac("sha256", key).update(payload).digest();
 }
 
-/**
- * The two headers that make a mail client show an "Unsubscribe" button that
- * works in one click. Null when there is nothing to sign with or link to.
- */
-export function unsubscribeHeaders(
-  input: { memberId: string; category: NotificationCategory | null },
-  baseUrl: string | null,
-  secret: string | undefined,
-): Record<string, string> | null {
-  if (!input.category || !baseUrl || !secret) return null;
-  const url = unsubscribeUrl(baseUrl, signUnsubscribeToken(input.memberId, input.category, secret));
+function signatureMatches(signature: string, expected: Buffer): boolean {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(signature)) return false;
+  const given = Buffer.from(signature, "base64url");
+  return given.length === expected.length && given.toString("base64url") === signature && timingSafeEqual(given, expected);
+}
+
+export function signUnsubscribeToken<Field extends string>(claims: Record<Field, string>, config: UnsubscribeConfig<Field>): string {
+  if (!configured(config)) throw new Error("Invalid unsubscribe configuration");
+  const selected = Object.fromEntries(config.fields.map((field) => [field, claims[field]]));
+  if (!claimsValid(selected, config)) throw new Error("Invalid unsubscribe claims");
+  const payload = Buffer.from(JSON.stringify(selected)).toString("base64url");
+  const signed = `v2.${payload}`;
+  const token = `${signed}.${mac(signed, derivedKey(config)).toString("base64url")}`;
+  if (token.length > MAX_TOKEN_LENGTH) throw new Error("Unsubscribe claims too large");
+  return token;
+}
+
+function readLegacy<Field extends string>(token: string, config: UnsubscribeConfig<Field>): Record<Field, string> | null {
+  const legacy = config.legacy;
+  if (!legacy?.context || config.fields.length !== 2 || !config.fields.includes(legacy.idField) || legacy.idField === config.categoryField) return null;
+  const parts = token.split(".");
+  let id: string, category: string;
+  if (legacy.format === "base64-dot") {
+    if (parts.length !== 2 || !signatureMatches(parts[1], mac(parts[0], `${legacy.context}:${config.secret}`))) return null;
+    const decoded = Buffer.from(parts[0], "base64url").toString("utf8");
+    const dot = decoded.lastIndexOf(".");
+    if (dot < 1) return null;
+    id = decoded.slice(0, dot); category = decoded.slice(dot + 1);
+  } else {
+    if (parts.length !== 3 || !UUID.test(parts[0])) return null;
+    const key = createHmac("sha256", config.secret).update(legacy.context).digest();
+    if (!signatureMatches(parts[2], mac(`${parts[0]}.${parts[1]}`, key))) return null;
+    [id, category] = parts;
+  }
+  const claims = { [legacy.idField]: id, [config.categoryField]: category };
+  return claimsValid(claims, config) ? claims : null;
+}
+
+/** No expiry: old email links remain valid until their secret/context is retired. */
+export function verifyUnsubscribeToken<Field extends string>(token: unknown, config: UnsubscribeConfig<Field>): Record<Field, string> | null {
+  try {
+    if (typeof token !== "string" || token.length > MAX_TOKEN_LENGTH || !configured(config)) return null;
+    if (!token.startsWith("v2.")) return readLegacy(token, config);
+    const parts = token.split(".");
+    if (parts.length !== 3 || !/^[A-Za-z0-9_-]+$/.test(parts[1])) return null;
+    if (!signatureMatches(parts[2], mac(`v2.${parts[1]}`, derivedKey(config)))) return null;
+    const value: unknown = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+    return claimsValid(value, config) ? value : null;
+  } catch { return null; }
+}
+
+function safeUrl(value: string): URL {
+  if (/[\s<>]/.test(value)) throw new Error("Invalid unsubscribe URL");
+  const url = new URL(value);
+  if (url.protocol !== "https:" || url.username || url.password || url.hash) throw new Error("Invalid unsubscribe URL");
+  return url;
+}
+
+export function unsubscribeUrl(baseUrl: string, path: string, token: string): string {
+  const base = safeUrl(baseUrl);
+  if (base.search || !path.startsWith("/") || path.startsWith("//") || /[\\?#\s<>]/.test(path)) throw new Error("Invalid unsubscribe path");
+  const url = safeUrl(`${baseUrl.replace(/\/+$/, "")}${path}`);
+  url.searchParams.set("t", token);
+  return url.toString();
+}
+
+export function unsubscribeHeaders(url: string): Record<string, string> {
+  safeUrl(url);
   return { "List-Unsubscribe": `<${url}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" };
 }

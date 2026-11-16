@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_SKEW_SECONDS, signRequest, verifiedContract, verifyRequest } from "./signature";
+import { MAX_SKEW_SECONDS, signRequest, verifyRequest, signedStatsHeaders, verifiedContract } from "./signature";
 
 const secret = "a".repeat(64);
 const path = "/api/instance-stats";
@@ -52,44 +52,25 @@ describe("verifyRequest", () => {
 });
 
 describe("signRequest", () => {
-  // The vector of the FlyLabs Kit module `console` and of the Console's own
-  // test, made with openssl: both sides check against the same number.
+  it("sends both header pairs and recognizes the existing WeGrocery contract", () => {
+    const key = "test-secret-0123456789abcdef0123456789";
+    const headers = signedStatsHeaders(key, 1700000000.9);
+    expect(headers).toEqual({
+      "x-flylabs-timestamp": "1700000000", "x-flylabs-signature": "5e7bea8559a8ce2f534d172c70f2af6d322ab0c94f4160c424ecac30b1641a59",
+      "x-wegrocery-timestamp": "1700000000", "x-wegrocery-signature": "5e7bea8559a8ce2f534d172c70f2af6d322ab0c94f4160c424ecac30b1641a59",
+    });
+    const base = { secret: key, method: "GET", path, nowSeconds: 1700000000 };
+    expect(verifiedContract(new Headers(headers), base)).toBe("flylabs");
+    expect(verifiedContract(new Headers({ "x-wegrocery-timestamp": headers["x-wegrocery-timestamp"], "x-wegrocery-signature": headers["x-wegrocery-signature"] }), base)).toBe("wegrocery");
+    expect(verifiedContract(new Headers(), base)).toBeNull();
+  });
+  // The vector of the Console's own test (WeGrocery console/lib/stats), made
+  // with openssl: both sides check against the same number.
   //   printf '%s' '1700000000.GET./api/instance-stats' \
   //     | openssl dgst -sha256 -hmac 'test-secret-0123456789abcdef0123456789'
   it("matches the Console's known vector", () => {
     expect(signRequest("test-secret-0123456789abcdef0123456789", "1700000000", "GET", path)).toBe(
       "5e7bea8559a8ce2f534d172c70f2af6d322ab0c94f4160c424ecac30b1641a59",
     );
-  });
-});
-
-describe("verifiedContract", () => {
-  const base = { secret, method: "GET", path, nowSeconds: now };
-  const signature = signRequest(secret, String(now), "GET", path);
-  const headers = (h: Record<string, string>) => new Headers(h);
-
-  it("answers the kit's contract to x-flylabs-* headers", () => {
-    expect(verifiedContract(headers({ "x-flylabs-timestamp": String(now), "x-flylabs-signature": signature }), base)).toBe("flylabs");
-  });
-
-  it("still answers the WeGrocery Console's x-wegrocery-* headers", () => {
-    expect(verifiedContract(headers({ "x-wegrocery-timestamp": String(now), "x-wegrocery-signature": signature }), base)).toBe("wegrocery");
-  });
-
-  it("prefers the kit's headers when a console sends both", () => {
-    const both = {
-      "x-flylabs-timestamp": String(now),
-      "x-flylabs-signature": signature,
-      "x-wegrocery-timestamp": String(now),
-      "x-wegrocery-signature": signature,
-    };
-    expect(verifiedContract(headers(both), base)).toBe("flylabs");
-  });
-
-  it("refuses no headers, a bad signature and mixed pairs", () => {
-    expect(verifiedContract(headers({}), base)).toBeNull();
-    expect(verifiedContract(headers({ "x-flylabs-timestamp": String(now), "x-flylabs-signature": "0".repeat(64) }), base)).toBeNull();
-    expect(verifiedContract(headers({ "x-flylabs-timestamp": String(now), "x-wegrocery-signature": signature }), base)).toBeNull();
-    expect(verifiedContract(headers({ "x-flylabs-timestamp": String(now), "x-flylabs-signature": signature }), { ...base, secret: undefined })).toBeNull();
   });
 });

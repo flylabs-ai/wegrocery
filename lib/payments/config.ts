@@ -1,3 +1,5 @@
+import { stripeModeRefusal as kitStripeModeRefusal, type StripeModeRefusal } from "./shared/mode";
+
 // Online top-up rules and Stripe key policy. Pure (no env reads, no I/O) so
 // they are unit tested; lib/payments/stripe.ts applies them to process.env.
 
@@ -89,17 +91,17 @@ export function applyStripeKeyPolicy(rawKey: string | null | undefined, env: Str
   return { enabled: true, secretKey: key, livemode };
 }
 
-// Why a key of this mode cannot be used here; null = it can.
-export function stripeModeRefusal(
-  livemode: boolean,
-  env: StripeEnv,
-): "liveKeyOutsideProduction" | "testKeyInProduction" | null {
-  const isRealProduction = env.VERCEL_ENV === "production" && env.DEMO_MODE !== "true";
-  if (livemode && !isRealProduction) return "liveKeyOutsideProduction";
-  if (!livemode && isRealProduction) return "testKeyInProduction";
-  return null;
+// Why a key of this mode cannot be used here; null = it can. The FlyLabs Kit
+// rule (lib/payments/shared/mode.ts) with WeGrocery's real production: the
+// demo is a production deploy with fake data, so it is excluded.
+export function stripeModeRefusal(livemode: boolean, env: StripeEnv): StripeModeRefusal | null {
+  return kitStripeModeRefusal(livemode, env, {
+    production: env.VERCEL_ENV === "production" && env.DEMO_MODE !== "true",
+  });
 }
 
+// Lax on purpose: an env or stored key of another shape counts as a test key,
+// as before (the pasted key is checked for its format in stripe-connect.ts).
 export function isLiveStripeKey(key: string): boolean {
   return /^(sk|rk)_live_/.test(key);
 }

@@ -1,12 +1,16 @@
 {
   "app": "wegrocery",
   "profile": "white-label",
-  "kit": "0.16",
+  "kit": "0.20",
   "modules": {
+    "auth": {
+      "version": "1.0.1",
+      "path": "lib/auth/kit"
+    },
     "changelog": "1.0",
-    "console": "1.0",
+    "console": "1.1",
     "email": {
-      "version": "1.2",
+      "version": "2.0",
       "path": "lib/email"
     },
     "firma": "1.0",
@@ -19,6 +23,10 @@
     "migrazioni": {
       "version": "1.0",
       "path": "scripts"
+    },
+    "pagamenti": {
+      "version": "1.0",
+      "path": "lib/payments/shared"
     },
     "sicurezza": {
       "version": "1.0",
@@ -38,9 +46,10 @@
     "vercel": "vercel.json"
   },
   "localChanges": {
-    "email/layout.ts": "White-label: logo, nome e colori del gruppo in testa e firma spegnibile dal gruppo (Playbook 7.7, 2.11); il kit ha la variante prodotto",
+    "email/send.ts": "sendMailBatch non usa sendEmail: trasporto batch di Resend a blocchi di 100 con resolveOutboundBatch, come previsto dal modulo",
+    "pagamenti/events.test.ts": "Non copiato: la prova usa pg e PostgreSQL 17 locale; il registro è provato su Neon da lib/payments/webhook-receive.integration.test.ts e test/int/migration-0056",
     "tema/theme-choice.tsx": "Non copiato: scelta del tema nel Profilo con components/profile/theme-row.tsx, stessa logica",
-    "tema/theme.ts": "Non copiato: lib/theme.ts proprio (cookie wegrocery_theme) e barra di stato dal primario in app/layout.tsx; passa a themeViewport con statusBarColors nel secondo passo di B2, con screenshot e ok",
+    "tema/theme.ts": "Non copiato: lib/theme.ts proprio (cookie wegrocery_theme); la barra di stato usa statusBarColors del modulo in app/layout.tsx, con la scelta del tema dal cookie",
     "templates/backup": "Origine del template: nomi dei file gas-backup-*, invarianti del denaro dopo il dump e controlli rclone propri",
     "templates/dependabot": "Better Auth in ignore (aggiornato a mano, Playbook 1.5) e gruppi minor/patch e major separati",
     "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo e Console esclusa (ha la sua versione)",

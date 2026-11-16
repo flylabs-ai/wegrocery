@@ -67,7 +67,7 @@ export default async function SetupPage({ searchParams }: { searchParams: Promis
           <span />
         )}
         {next && (
-          <Link href={setupHref(next)} className="inline-flex min-h-11 items-center rounded-full bg-inverse px-5 py-2 text-[14px] font-bold text-inverse-foreground">
+          <Link href={setupHref(next)} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2 text-[14px] font-bold text-primary-foreground">
             {s.next}
           </Link>
         )}

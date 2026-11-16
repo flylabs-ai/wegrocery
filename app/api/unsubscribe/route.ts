@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import { disableEmailForCategory } from "@/lib/notifications/unsubscribe-store";
-import { verifyUnsubscribeToken } from "@/lib/email/unsubscribe";
+import { verifyMemberUnsubscribeToken } from "@/lib/email/unsubscribe-config";
 import { getBrand } from "@/lib/brand/get-brand";
 import { brand } from "@/lib/brand";
 import { t } from "@/lib/i18n";
 import { reportError } from "@/lib/observability";
 
 // One-click unsubscribe from a notification email (RFC 8058). Public: the
-// signature in `t` is the proof (lib/email/unsubscribe.ts). A mail client
+// signature in `t` is the proof (lib/email/unsubscribe-config.ts). A mail client
 // POSTs `List-Unsubscribe=One-Click`; a person who opens the link in a browser
 // gets a button that does the same POST, because mail scanners open links and a
 // GET must never change anything. A bad signature answers 400 and nothing else.
@@ -24,7 +24,7 @@ function token(request: Request): string {
 }
 
 export async function GET(request: Request) {
-  const claims = verifyUnsubscribeToken(token(request), process.env.AUTH_SECRET ?? "");
+  const claims = verifyMemberUnsubscribeToken(token(request), process.env.AUTH_SECRET ?? "");
   if (!claims) return html(t.unsubscribe.invalidTitle, `<p>${t.unsubscribe.invalid}</p>`, 400);
   const identity = await getBrand();
   return html(
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const claims = verifyUnsubscribeToken(token(request), process.env.AUTH_SECRET ?? "");
+  const claims = verifyMemberUnsubscribeToken(token(request), process.env.AUTH_SECRET ?? "");
   if (!claims) return html(t.unsubscribe.invalidTitle, `<p>${t.unsubscribe.invalid}</p>`, 400);
   try {
     await disableEmailForCategory(getDb(), claims.memberId, claims.category);

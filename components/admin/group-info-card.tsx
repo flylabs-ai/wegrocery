@@ -56,7 +56,7 @@ export function GroupInfoCard({ initial }: { initial: string | null }) {
           type="button"
           onClick={handleSave}
           disabled={isPending || unchanged || tooLong}
-          className="rounded-xl bg-inverse px-4 py-2 text-[13px] font-bold text-inverse-foreground disabled:opacity-60"
+          className="rounded-xl bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground disabled:opacity-60"
         >
           {isPending ? t.admin.common.saving : s.save}
         </button>
