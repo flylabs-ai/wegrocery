@@ -25,6 +25,11 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.47.3] - 2026-11-16
+
+*Mattoni comuni dal FlyLabs Kit.*
+
+### Modificato
 - 🛡️ **Codice di sicurezza dal FlyLabs Kit** [tecnico]: header di sicurezza, Content Security Policy (ancora in sola osservazione), endpoint dei report CSP e controllo dei cron vengono ora dal modulo `sicurezza` 1.0 del kit. Stessa policy della 1.47.2.
 - 🌍 **Controlli delle lingue dal FlyLabs Kit** [tecnico]: i quattro pacchetti di testi sono ora confrontati con quello italiano (chiavi, segnaposti, funzioni) e la lingua viene dal modulo `i18n` 1.0 del kit.
 - 🗄️ **Migrazioni dal FlyLabs Kit** [tecnico]: `scripts/db-migrate.mjs` è ora il modulo `migrazioni` 1.0 del kit (si lancia con `--dir drizzle`). Ogni file gira in una transazione con un advisory lock, e la tabella `_migrations` riceve una colonna `checksum` riempita alla prima esecuzione: un file già applicato non può più cambiare senza che si veda. Nuovo `--dry-run`; `--baseline` non c'è più.
