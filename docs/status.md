@@ -15,6 +15,8 @@ Last updated: 2026-11-15 (release 1.47.2 is in production, on the demo and on th
 
 ## Waiting on `staging` for the next release
 
+FlyLabs Kit `pagamenti` 1.0 adopted for the Stripe webhook (signature, live/test check and the `stripe_events` register, migration `0056_stripe_events.sql`, same answers to Stripe). Migration 0056 must be applied to production and the demo before the release deploys.
+
 FlyLabs Kit modules `sicurezza` 1.0 and `i18n` 1.0 adopted (security headers, report-only CSP, CSP report endpoint and cron check from the kit, same policy as 1.47.2; parity test of the four language packs against Italian, with the bank reference template placeholders listed as translated on purpose). Next planned: enforce the Content Security Policy (`Content-Security-Policy` instead of `-Report-Only`) after a week of `csp-report` lines without real violations, around 2026-11-22. On staging the only report so far is `frame-src https://vercel.live` (Vercel's preview toolbar, not on production).
 
 FlyLabs Kit module `migrazioni` 1.0 prepared (PR to staging, not merged yet on purpose: it goes in after the work in progress). On its first run on each database it adds the nullable `checksum` column to `_migrations` and fills it from the local files without running them; then applied files are immutable. Commands take `--dir drizzle`. The role helpers moved to `scripts/db-role-lib.mjs`.

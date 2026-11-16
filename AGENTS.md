@@ -110,7 +110,7 @@ Never read `.env*` files other than `.env.example` (Playbook 8.3).
 │                               #   access.ts: pure checkAccess/sessionClaims (no imports, used by proxy.ts)
 ├── proxy.ts                     # Redirect unauthenticated to /login (Next.js 16's middleware)
 ├── auth.ts                     # Better Auth instance, auth() (session + member), signOut()
-├── drizzle/                    # SQL migrations (0000–0055)
+├── drizzle/                    # SQL migrations (0000–0056)
 ├── console/                    # WeGrocery Console: separate Next.js app (own package.json, registry DB, Vercel project with
 │                               #   Root Directory `console`) for the operator's fleet; excluded from the root tsc/eslint/vitest; see console/README.md
 └── public/logo.png, public/mail/logo.png (email logo, 3x)
@@ -424,6 +424,7 @@ and its sections).
 | `payments` | Online top-ups (Stripe Checkout): `status` pending → succeeded / failed / expired → partially_refunded / refunded, amounts in integer cents; `refunded_cents` = sum of its `pending` / `succeeded` refunds |
 | `refunds` | Stripe refunds, one row each (`ref_*`): `status` requested → pending / succeeded → failed / canceled, `reason` (only `dashboard` until the app starts refunds), `stripe_refund_id`. Written only by `upsertStripeRefund` (`lib/payments/refund-store.ts`). Pre-1.15.0 refunds were imported by migration 0020 (`created_by = 'import'`, no Stripe id until an event names them) |
 | `app_settings` | Payment settings from admin → Impostazioni, one row (`id = 1`): `payment_mode` (`wallet` | `per_order`, changed only by `adminChangePaymentMode`), `min_balance` / `max_balance`, bank transfer on/off with holder and IBAN, online payments on/off, `families_enabled`, `group_info` ("Il nostro gruppo" at the top of `/guida`, migration 0030, `lib/guide/group-info.ts`), `bank_reference_template` / `bank_receipt_email` (the bank transfer reference of each order paid by bank transfer, shown with Copy on `/ricarica` and in Storico, and the receipt address; migration 0033, `lib/payments/bank-reference.ts`, `order-reference.ts`). No row = brand defaults. Read only through `getPaymentSettings` (`lib/payments/get-settings.ts`) |
+| `stripe_events` | Register of Stripe webhook deliveries (migration 0056, FlyLabs Kit `pagamenti` 1.0): `id` (the event id), `type`, `received_at`, `processed_at` (null while running or after a failure), `error` (fixed codes only, never payment data). Written only by `lib/payments/shared/events.ts` |
 | `draft_reminders` | One reminder reservation per cycle and account (`cycle_id`, `member_id`, `sent_at`, migration 0055); foreign keys cascade when the member or cycle is deleted. Member merges and family joins move reservations to the survivor, keeping the earliest `sent_at` on a collision |
 | `order_drafts` | A member's unconfirmed edits on an open cycle (`member_id`, `cycle_id`, `lines` jsonb), autosaved by the order form; `saveOrder` and the cycle close delete them in their batch |
 | `order_cycles.payment_mode` / `handling_fee_*`, `payments.kind` / `cycle_id` / `order_snapshot` | Pay-per-order (`drizzle/0021_pay_per_order.sql`): see Online top-ups (Stripe). Ledger types `order_payment` (+) and `order_refund` (−) sit on the cycle. `order_cycles.settled_at` and `members.pays_offline` (`drizzle/0024_settlement.sql`): see Pay-per-order |
@@ -545,8 +546,13 @@ All four emit `order_adjusted` or `order_corrected` notifications and `audit_log
   back at the deploy the member is on. `/ricarica` only displays the payment
   row's status; **only the signed webhook credits**.
 - Webhook `app/api/stripe/webhook/route.ts`, excluded from the auth
-  proxy, verifies the signature on the raw body and rejects events whose
-  `livemode` differs from the key's. `lib/payments/webhook.ts` maps events
+  proxy, goes through FlyLabs Kit `pagamenti` 1.0 (`lib/payments/shared/`,
+  adapter `lib/payments/webhook-receive.ts`): it verifies the signature on the
+  raw body, rejects events whose `livemode` differs from the key's and claims
+  the event id in `stripe_events` (migration 0056): a processed id answers 200
+  without running the handlers, one still running 409, a failure releases it
+  for Stripe's retry (500). Only fixed codes go in `stripe_events.error`; the
+  handler error is logged with the event id and type. `lib/payments/webhook.ts` maps events
   (`planWebhookAction`, pure) and applies each as ONE SQL statement: a guarded
   `UPDATE payments ... WHERE status = 'pending'` feeding the ledger `INSERT`,
   so a replayed or concurrent event writes nothing. An amount/currency
