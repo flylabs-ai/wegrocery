@@ -60,7 +60,3 @@ export function resolveOutboundBatch(
   const kept = messages.slice(0, REDIRECT_BATCH_CAP);
   return { action: "send", messages: kept, suppressed: messages.length - kept.length };
 }
-
-export function outboundEnvFromProcess(): OutboundEnv {
-  return { vercelEnv: process.env.VERCEL_ENV, redirectTo: process.env.EMAIL_REDIRECT_TO };
-}
