@@ -1,7 +1,7 @@
 {
   "app": "wegrocery",
   "profile": "white-label",
-  "kit": "0.22",
+  "kit": "0.23",
   "modules": {
     "auth": {
       "version": "1.0.1",
@@ -28,6 +28,10 @@
       "version": "1.0",
       "path": "lib/payments/shared"
     },
+    "shell": {
+      "version": "1.1",
+      "path": "components/shell"
+    },
     "sicurezza": {
       "version": "1.0",
       "path": "lib/security"
@@ -52,6 +56,7 @@
   "localChanges": {
     "email/send.ts": "sendMailBatch non usa sendEmail: trasporto batch di Resend a blocchi di 100 con resolveOutboundBatch, come previsto dal modulo",
     "pagamenti/events.test.ts": "Non copiato: la prova usa pg e PostgreSQL 17 locale; il registro è provato su Neon da lib/payments/webhook-receive.integration.test.ts e test/int/migration-0056",
+    "shell/app-nav": "Wrapper dell'app in components/app-nav.tsx: voci da nav-items con le sezioni Admin come sottovoci, logo, campanella e avatar in header, Notifiche e Profilo in fondo alla sidebar, onReselect che torna in cima e aggiorna (non sulla pagina ordine); la shell non usa più la cornice a 480 px su sm",
     "tema/theme-choice.tsx": "Non copiato: scelta del tema nel Profilo con components/profile/theme-row.tsx, stessa logica",
     "tema/theme.ts": "Non copiato: lib/theme.ts proprio (cookie wegrocery_theme); la barra di stato usa statusBarColors del modulo in app/layout.tsx, con la scelta del tema dal cookie",
     "templates/backup": "Origine del template: nomi dei file gas-backup-*, invarianti del denaro dopo il dump e controlli rclone propri",

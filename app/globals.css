@@ -41,7 +41,6 @@
      group's, so no brand changes them. The dark pair is in lib/brand/roles.ts. */
   --flylabs-ai: #343bec;
   --flylabs-spark: #d99a00;
-  --nav-h: 82px;
   /* Height of a compact control: 40 px with a mouse, 44 px on touch. */
   --control-h: 40px;
   /* WeGrocery's shape for the kit primitives: 18 px cards and sheets, pill controls. */
@@ -93,7 +92,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --spacing-nav-h: var(--nav-h);
   /* Smallest text in the app: labels, badges, captions. Nothing goes under it. */
   --text-label: 0.75rem;
   /* Page titles (h1). */
