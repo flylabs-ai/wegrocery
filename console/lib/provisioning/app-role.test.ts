@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import * as app from "../../../scripts/db-migrate-lib.mjs";
+import * as app from "../../../scripts/db-role-lib.mjs";
 import { APP_ROLE, appRoleStatements, createAppRole, migrationLedgerRevokeStatement, roleUrl, type SqlRunner } from "./app-role";
 
 const OWNER = "postgresql://neondb_owner:owner-pw@ep-x-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require";
 
 describe("same statements as the app", () => {
-  it("creates the role exactly as scripts/db-migrate-lib.mjs does", () => {
+  it("creates the role exactly as scripts/db-role-lib.mjs does", () => {
     const pw = "p".repeat(32);
     expect(appRoleStatements(APP_ROLE, pw, "neondb")).toEqual(app.appRoleStatements(APP_ROLE, pw, "neondb"));
     expect(migrationLedgerRevokeStatement(APP_ROLE)).toBe(app.migrationLedgerRevokeStatement(APP_ROLE));

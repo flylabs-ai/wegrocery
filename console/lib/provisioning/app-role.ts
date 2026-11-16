@@ -6,7 +6,7 @@ import { ProviderError } from "@/lib/http";
 // 1.4): rows only, no DDL, so a leaked DATABASE_URL cannot drop a table or
 // the ledger's append-only trigger. The owner's address stays for migrations
 // (DATABASE_MIGRATION_URL). The statements are the ones of the app's
-// scripts/db-migrate-lib.mjs, copied because the console builds on its own;
+// scripts/db-role-lib.mjs, copied because the console builds on its own;
 // app-role.test.ts fails when the two differ. Passwords and addresses live
 // only in memory and go straight to Vercel.
 

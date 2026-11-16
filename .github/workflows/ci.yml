@@ -100,7 +100,7 @@ jobs:
 
       - name: Apply pending migrations
         if: steps.neon.outputs.available == 'true'
-        run: DATABASE_URL="$INT_TEST_DATABASE_URL" node scripts/db-migrate.mjs
+        run: DATABASE_URL="$INT_TEST_DATABASE_URL" node scripts/db-migrate.mjs --dir drizzle
 
       - name: Integration tests
         if: steps.neon.outputs.available == 'true'
@@ -147,7 +147,7 @@ jobs:
 
       - name: Apply every migration to the empty database
         if: steps.neon.outputs.available == 'true'
-        run: DATABASE_URL="$FRESH_APP_URL" DATABASE_MIGRATION_URL="$FRESH_DATABASE_URL" node scripts/db-migrate.mjs
+        run: DATABASE_URL="$FRESH_APP_URL" DATABASE_MIGRATION_URL="$FRESH_DATABASE_URL" node scripts/db-migrate.mjs --dir drizzle
 
       - name: First-day tests on the empty database
         if: steps.neon.outputs.available == 'true'

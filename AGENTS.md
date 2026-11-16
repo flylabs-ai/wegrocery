@@ -41,7 +41,7 @@ Intended deviations (as of 2026-10-17):
 
 Found in the review of 2026-10-14 (each line, its reason and its timing are in
 [`docs/2026-10-14-flylabs-playbook-alignment.md`](./docs/2026-10-14-flylabs-playbook-alignment.md)):
-- 1.4 The app can connect with a role without schema privileges (`scripts/create-app-role.mjs`, `DATABASE_MIGRATION_URL` for the owner's address, `docs/upgrading.md`), tested end to end. Production, demo, staging and dev run on `app_rw` since 2026-10-14; the example-brand installation still connects as the owner because its `DATABASE_URL` is managed by the Neon integration on Vercel and it migrates during the build. A group installed from the console gets `app_rw` at installation (`console/lib/provisioning/app-role.ts`, the same statements as `scripts/db-migrate-lib.mjs`, compared by a test); one installed with the Deploy button starts as the owner (`docs/self-hosting.md`). With both addresses set, `db-migrate` takes write access to `_migrations` away from the app's role (a role created before the ledger gets it through the default privileges); CI builds the empty database that way.
+- 1.4 The app can connect with a role without schema privileges (`scripts/create-app-role.mjs`, `DATABASE_MIGRATION_URL` for the owner's address, `docs/upgrading.md`), tested end to end. Production, demo, staging and dev run on `app_rw` since 2026-10-14; the example-brand installation still connects as the owner because its `DATABASE_URL` is managed by the Neon integration on Vercel and it migrates during the build. A group installed from the console gets `app_rw` at installation (`console/lib/provisioning/app-role.ts`, the same statements as `scripts/db-role-lib.mjs`, compared by a test); one installed with the Deploy button starts as the owner (`docs/self-hosting.md`). With both addresses set, `db-migrate` takes write access to `_migrations` away from the app's role (a role created before the ledger gets it through the default privileges); CI builds the empty database that way.
 - 2.7 Done for the components: `Sheet` and `ConfirmDialog` are on Base UI Dialog, `Button` is shadcn's Button on Base UI (`buttonVariants`, variants `default`, `brand`, `accent`, `destructive`, `outline`, `ghost`), `Card` (`CardHeader`, `CardContent`, `CardFooter`), `Badge` (`badgeVariants`, variants `default`, `brand`, `accent`, `destructive`) and the Sonner `Toaster` (`components/ui/sonner.tsx`) follow shadcn, and the interface icons are lucide (the movement icons in `components/movement-icon.tsx` and the Statistiche chart stay hand-drawn, as the rule allows). The fields are shadcn too: `Input` (on Base UI Input), `Textarea`, `NativeSelect` (a real `<select>` with a lucide chevron) and `Label` (the uppercase caption; `labelClass` for a caption on a `<span>` or `<legend>`), all with their borders on `input`. What stays custom: checkboxes, radios and switches (native inputs with `accent-*`), file and colour inputs, the filter chips, and the hand-drawn domain icons above.
 - 4.4 Welcome card: the steps shown follow the settings; the ones the member's own rows already show as done (top-up or payment, an order, saved preferences, a family) carry "Già fatto" (`getWelcomeFacts`, `welcomeDone`), and the step they stopped at is `members.welcome_step` (migration 0036). The "Riprendi" bar on other pages still uses `sessionStorage`, per tab, on purpose.
 - 5.1 Integration tests run on a throwaway Neon branch that needs `NEON_API_KEY` (skipped on forks), not on a plain Postgres: the Neon HTTP driver needs Neon's proxy. This stays.
@@ -611,14 +611,19 @@ All four emit `order_adjusted` or `order_corrected` notifications and `audit_log
   it too (the B2.1 Stripe check on staging wrote to it), so apply a
   migration to the `staging` Neon branch before merging to `staging`. A per-PR Neon branch
   integration would be a further upgrade, not required.
-- **Migrations** (since 2026-07-11, issue #85): `scripts/db-migrate.mjs` tracks
-  applied files in a `_migrations` table — the ledger is baselined on prod,
-  demo and dev. Flow for a schema change: write the next `drizzle/NNNN_*.sql`
-  (additive, idempotent), then run `npm run db:migrate` per environment
-  (defaults to `.env.local` = the `staging` Neon branch; target another DB with
-  `DATABASE_URL=… node scripts/db-migrate.mjs`). `--status` lists
-  applied/pending, `--baseline` records without executing. This replaces the
-  one-off-script convention; `db:push` remains for local schema iteration only.
+- **Migrations** (since 2026-07-11, issue #85; FlyLabs Kit module
+  `migrazioni` 1.0 since 2026-11-16): `scripts/db-migrate.mjs` and
+  `scripts/db-migrate-lib.mjs` are the kit's runner, copied unchanged (do not
+  edit them here; the app's own helpers are in `scripts/db-role-lib.mjs`). It
+  tracks applied files and their SHA-256 checksum in `_migrations`: an applied
+  file is immutable, a fix goes in a new file. Flow for a schema change: write
+  the next `drizzle/NNNN_*.sql` (additive, idempotent), then run
+  `npm run db:migrate` per environment (defaults to `.env.local` = the
+  `staging` Neon branch; target another DB with
+  `DATABASE_URL=… node scripts/db-migrate.mjs --dir drizzle`). `--status` and
+  `--dry-run` write nothing. There is no `--baseline` any more: every
+  installation already has its ledger. This replaces the one-off-script
+  convention; `db:push` remains for local schema iteration only.
 - **No real data in the repo, and DB-writing scripts refuse prod by default.**
   The repository is public: never commit one-off scripts, fixtures or seeds
   that contain real members' names, emails or balances (the 2026 one-off
@@ -633,14 +638,15 @@ All four emit `order_adjusted` or `order_corrected` notifications and `audit_log
   with `PRODUCTION_DB_HOST` set to the production host (in the local env
   files of whoever migrates) it refuses that host unless `--allow-prod` is
   passed; `MIGRATE_ON_BUILD` passes it itself. Each migration file runs in one
-  transaction (`sql.transaction` of the Neon driver) with `SET LOCAL
-  lock_timeout = '5s'` and its `_migrations` record, so a file that fails or
-  waits too long for a lock leaves nothing behind and stays pending. Nothing
+  transaction (a Neon WebSocket client, only in the migration process) with
+  `SET LOCAL lock_timeout = '5s'`, an advisory lock and its `_migrations`
+  record, so a file that fails or waits too long for a lock leaves nothing
+  behind and stays pending. Nothing
   that Postgres refuses in a transaction (any `CONCURRENTLY`, `VACUUM`,
   database-level commands): the runner refuses such a file before applying
   anything. A new migration has `Apply:` and `Rollback:` lines in its header,
   a `NNNN_name_down.sql` the runner never applies, and a test; from 0036 on
-  `scripts/db-migrate-lib.test.ts` checks the rollback file and the header
+  `scripts/db-role-lib.test.ts` checks the rollback file and the header
   (Playbook 5.3, 6.1, 6.2; `docs/operating-two-environments.md`).
 - **Integration tests against a real DB** (recipe, not wired into CI): create
   a throwaway Neon branch, point the test run at it, delete it after —

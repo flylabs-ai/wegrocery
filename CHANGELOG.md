@@ -26,6 +26,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 - 🛡️ **Security code from the FlyLabs Kit** [tech]: security headers, the Content Security Policy (still Report-Only), the CSP report endpoint and the cron check now come from the kit module `sicurezza` 1.0. Same policy as 1.47.2.
 - 🌍 **Language checks from the FlyLabs Kit** [tech]: the four language packs are now checked against the Italian one (keys, placeholders, functions), and the language comes from the kit module `i18n` 1.0.
+- 🗄️ **Migration runner from the FlyLabs Kit** [tech]: `scripts/db-migrate.mjs` is now the kit module `migrazioni` 1.0 (run it with `--dir drizzle`). Each file runs in one transaction with an advisory lock, and the `_migrations` table gains a `checksum` column filled in on the first run: an applied file can no longer change unnoticed. New `--dry-run`; `--baseline` is gone.
 
 ## [1.47.2] - 2026-11-15
 
