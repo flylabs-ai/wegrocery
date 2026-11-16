@@ -76,7 +76,7 @@ export async function TabCassa({ balanceFilter, memberId }: Props) {
           <OutgoingMovementForm members={pickerMembers} />
         </div>
 
-        <Card>
+        <Card className="mb-3.5 mb-3.5">
           <CardHeader>
             <h3 className="text-[13px] font-bold text-foreground">
               {t.admin.treasury.balancesTitle(membersWithBalances.length)}

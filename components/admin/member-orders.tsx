@@ -46,7 +46,7 @@ export async function MemberOrders({ memberId }: { memberId: string }) {
       ) : (
         <div className="space-y-3">
           {orders.map((cycle) => (
-            <Card key={cycle.cycleId}>
+            <Card key={cycle.cycleId} className="mb-3.5">
               <CardHeader className="flex items-center justify-between">
                 <div>
                   <Link

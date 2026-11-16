@@ -40,7 +40,7 @@ export async function CycleAccountsView({
     <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0">
       <div className="space-y-4">
         {settlement && (
-          <Card className="border-primary-mid">
+          <Card className="mb-3.5 border-primary-mid">
             <CardContent>
               <h3 className="text-[14px] font-bold text-foreground">{a.settleTitle}</h3>
               <p className="mt-1 mb-3 max-w-prose text-[13px] text-secondary-foreground">{w.accountsIntro}</p>
@@ -55,7 +55,7 @@ export async function CycleAccountsView({
           </Card>
         )}
 
-        <Card>
+        <Card className="mb-3.5 mb-3.5">
           <CardHeader>
             <h3 className="text-[13px] font-bold text-foreground">{a.movementsTitle}</h3>
             <p className="mt-0.5 text-label text-secondary-foreground">{a.movementsHint}</p>
@@ -85,7 +85,7 @@ export async function CycleAccountsView({
           )}
         </Card>
 
-        <Card>
+        <Card className="mb-3.5 mb-3.5">
           <CardContent>
             <h3 className="text-[13px] font-bold text-foreground">{a.shippingTitle}</h3>
             <p className="mt-1 text-[13px] text-foreground">{shippingText(cycle) ?? a.shippingNone}</p>
@@ -99,7 +99,7 @@ export async function CycleAccountsView({
       </div>
 
       <div className="space-y-4">
-        <Card>
+        <Card className="mb-3.5 mb-3.5">
           <CardHeader>
             <h3 className="text-[13px] font-bold text-foreground">
               {a.adjustmentsTitle} <span className="font-normal text-secondary-foreground">({money.adjustments.length})</span>
@@ -128,7 +128,7 @@ export async function CycleAccountsView({
         </Card>
 
         {cycle.status === "closed" && (
-          <Card>
+          <Card className="mb-3.5 mb-3.5">
             <CardContent>
               <h3 className="text-[13px] font-bold text-foreground">{a.howTitle}</h3>
               <ul className="mt-2 space-y-2 text-[13px] text-secondary-foreground">
@@ -151,7 +151,7 @@ export async function CycleAccountsView({
         )}
 
         {cycle.status === "closed" && (
-          <Card className="border-destructive/30">
+          <Card className="mb-3.5 border-destructive/30">
             <CardContent>
               <h3 className="text-[14px] font-bold text-destructive">{w.dangerZone}</h3>
               <p className="mt-1 mb-3 max-w-prose text-[13px] text-secondary-foreground">{w.cancelIntro}</p>

@@ -1,7 +1,7 @@
 {
   "app": "wegrocery",
   "profile": "white-label",
-  "kit": "0.20",
+  "kit": "0.22",
   "modules": {
     "auth": {
       "version": "1.0.1",
@@ -35,6 +35,10 @@
     "tema": {
       "version": "2.0",
       "path": "lib/brand"
+    },
+    "ui": {
+      "version": "1.1",
+      "path": "components/ui"
     }
   },
   "templates": {
@@ -55,6 +59,8 @@
     "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo e Console esclusa (ha la sua versione)",
     "templates/release": "Origine del template: note estratte dalla sezione di CHANGELOG.md con lo script di WeGrocery",
     "templates/restore-test": "Origine del template: invarianti del denaro sul ramo ripristinato e lettura dei dump in chiaro ancora su Drive fino a febbraio 2027",
-    "templates/vercel": "Cron giornalieri (apertura dei cicli, promemoria delle bozze); il template non ha cron"
+    "templates/vercel": "Cron giornalieri (apertura dei cicli, promemoria delle bozze); il template non ha cron",
+    "ui/adapters": "Adattatori dell'app in components/app-ui: toast con le chiamate esistenti (toast.success/error/warning/message, 3 s e 8 s), conferma a Promise sopra ConfirmDialog, Sheet con etichetta Chiudi dalla lingua, soglia 640 px e senza chiusura mentre una conferma è aperta, Label con il margine dei moduli",
+    "ui/native-select.tsx": "Riesporta select.tsx per gli import esistenti, come previsto dal modulo"
   }
 }

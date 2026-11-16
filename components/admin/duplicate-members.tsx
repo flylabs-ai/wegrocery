@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminDismissDuplicate } from "@/lib/actions/admin-members";
 import type { DuplicatePair } from "@/lib/members/duplicates";
 import { getRoleLabel } from "@/lib/roles";

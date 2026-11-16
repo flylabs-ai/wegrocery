@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { adminBuildSupplierDistinta } from "@/lib/actions/admin";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { t } from "@/lib/i18n";
 
 function decodeBase64ToBlob(base64: string, mimeType: string): Blob {

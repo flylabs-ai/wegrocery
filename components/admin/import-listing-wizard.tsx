@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { Button } from "@/components/ui/button";
-import { Sheet } from "@/components/ui/sheet";
-import { confirmDiscard } from "@/components/ui/confirm-dialog";
+import { Sheet } from "@/components/app-ui/sheet";
+import { confirmDiscard } from "@/components/app-ui/confirm";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import {
   adminInspectSupplierListing,
@@ -28,6 +28,7 @@ import { productEmojiKey, resolveProductEmoji, rowsWithSameName } from "@/lib/pr
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = {
   open: boolean;
@@ -655,25 +656,17 @@ function Step3Review({
       )}
       <div className="flex flex-wrap items-center gap-3 rounded-lg bg-primary-bg px-3 py-2 text-[12px]">
         <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={updatePriceOnDup}
-            onChange={(e) => setUpdatePriceOnDup(e.target.checked)}
-          />
+          <Checkbox checked={updatePriceOnDup} onCheckedChange={(checked) => setUpdatePriceOnDup(checked)} />
           {t.admin.importWizard.updatePriceOnDup}
         </label>
         {hasCycle && (
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={addToCycle}
-              onChange={(e) => setAddToCycle(e.target.checked)}
-            />
+            <Checkbox checked={addToCycle} onCheckedChange={(checked) => setAddToCycle(checked)} />
             {t.admin.importWizard.addToCycle}
           </label>
         )}
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={computePpk} onChange={(e) => setComputePpk(e.target.checked)} />
+          <Checkbox checked={computePpk} onCheckedChange={(checked) => setComputePpk(checked)} />
           {t.admin.importWizard.computePricePerKg}
         </label>
         {unmatchedEmojiCount > 0 && (
@@ -688,10 +681,9 @@ function Step3Review({
           <thead className="border-b border-border bg-background">
             <tr>
               <th className="p-2 text-left">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={selectedIndexes.size === sheet.rows.length && sheet.rows.length > 0}
-                  onChange={toggleAll}
+                  onCheckedChange={toggleAll}
                 />
               </th>
               <th className="p-2 text-left">{t.admin.importWizard.colIconHeader}</th>
@@ -720,7 +712,7 @@ function Step3Review({
               return (
                 <tr key={i} className={`border-b border-border ${selected ? "" : "opacity-40"}`}>
                   <td className="p-2 align-middle">
-                    <input type="checkbox" checked={selected} onChange={() => toggle(i)} />
+                    <Checkbox checked={selected} onCheckedChange={() => toggle(i)} />
                   </td>
                   <td className="p-2 align-middle">
                     <EmojiPicker

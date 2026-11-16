@@ -1,27 +1,11 @@
-import { type HTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
-
-// shadcn's Card (Playbook 2.7) on the app's own surface: one border, the soft
-// card shadow and 18px padding per part. Plain elements, no Base UI part.
-
-export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      data-slot="card"
-      className={cn("bg-card rounded-card border border-border shadow-card mb-3.5", className)}
-      {...props}
-    />
-  );
+import type { ComponentProps } from "react";
+import { cn } from "./cn";
+export function Card({ className, size = "default", ...props }: ComponentProps<"div"> & { size?: "default" | "sm" }) {
+  return <div {...props} data-slot="card" data-size={size} className={cn("group/card rounded-(--radius) border border-border bg-card text-card-foreground", className)} />;
 }
-
-export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div data-slot="card-header" className={cn("p-4.5 border-b border-border", className)} {...props} />;
-}
-
-export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div data-slot="card-content" className={cn("p-4.5", className)} {...props} />;
-}
-
-export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div data-slot="card-footer" className={cn("p-4.5 border-t border-border", className)} {...props} />;
-}
+export function CardHeader({ className, ...props }: ComponentProps<"div">) { return <div {...props} data-slot="card-header" className={cn("flex flex-col gap-2 p-4 group-data-[size=sm]/card:p-3", className)} />; }
+export function CardTitle({ className, ...props }: ComponentProps<"h2">) { return <h2 {...props} data-slot="card-title" className={cn("font-heading text-lg font-semibold", className)} />; }
+export function CardDescription({ className, ...props }: ComponentProps<"p">) { return <p {...props} data-slot="card-description" className={cn("text-sm text-muted-foreground", className)} />; }
+export function CardAction({ className, ...props }: ComponentProps<"div">) { return <div {...props} data-slot="card-action" className={cn("self-end", className)} />; }
+export function CardContent({ className, ...props }: ComponentProps<"div">) { return <div {...props} data-slot="card-content" className={cn("p-4 group-data-[size=sm]/card:p-3", className)} />; }
+export function CardFooter({ className, ...props }: ComponentProps<"div">) { return <div {...props} data-slot="card-footer" className={cn("flex items-center gap-2 border-t border-border p-4 group-data-[size=sm]/card:p-3", className)} />; }

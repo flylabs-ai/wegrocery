@@ -2,13 +2,14 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminRemoveLogo, adminUpdateIdentity, adminUploadLogo } from "@/lib/actions/admin-identity";
 import { THEME_KEYS, type IdentityOverrides, type ThemeKey } from "@/lib/brand/identity";
 import { brandContrastWarnings, deriveRoleVars, resolvePalette } from "@/lib/brand/roles";
 import type { BrandConfig } from "@/lib/brand/types";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // The group's identity as its admins edit it (first-run setup and
 // Impostazioni): "identity" is names, logo and colours, "contacts" the
@@ -132,12 +133,12 @@ function IdentitySection({ defaults, current, logoUrl, uploadedLogo }: Props) {
       <LogoField logoUrl={logoUrl} uploaded={uploadedLogo} shortName={shortName || defaults.shortName} />
 
       <label className="mt-3 flex min-h-11 items-center gap-2 text-[13px] text-foreground">
-        <input type="checkbox" checked={showName} onChange={(e) => setShowName(e.target.checked)} className="h-4 w-4" />
+        <Checkbox checked={showName} onCheckedChange={(checked) => setShowName(checked)} />
         {s.headerShowName}
       </label>
 
       <label className="mt-1 flex min-h-11 items-center gap-2 text-[13px] text-foreground">
-        <input type="checkbox" checked={signature} onChange={(e) => setSignature(e.target.checked)} aria-describedby="identity-signature-hint" className="h-4 w-4" />
+        <Checkbox checked={signature} onCheckedChange={(checked) => setSignature(checked)} aria-describedby="identity-signature-hint" />
         {s.flylabsSignature}
       </label>
       <p id="identity-signature-hint" className={hint}>{s.flylabsSignatureHint}</p>

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { MovementIcon } from "@/components/movement-icon";
 import { Button } from "@/components/ui/button";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/app-ui/sheet";
 import { t, type Strings } from "@/lib/i18n";
 import { formatDateTime, formatSignedMoney } from "@/lib/i18n/format";
 import { MANUAL_PAYMENT_METHODS } from "@/lib/ledger";

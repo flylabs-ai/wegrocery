@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminCheckStripeWebhook, adminSendTestEmail, type StripeSetupCheck } from "@/lib/actions/admin-identity";
 import { t } from "@/lib/i18n";
 

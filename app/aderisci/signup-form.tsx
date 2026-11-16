@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitMembershipRequest } from "@/lib/actions/signup";
 import { t } from "@/lib/i18n";
 import { REQUEST_LIMITS } from "@/lib/membership/signup";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // The request to join ('request' sign-up mode). After sending, the same
 // message whatever happened: the page never tells who is a member.
@@ -86,7 +87,7 @@ export function SignupForm({
       </div>
       {termsNeeded ? (
         <label className="flex min-h-11 items-start gap-3 text-sm text-foreground">
-          <input type="checkbox" name="acceptTerms" required className="mt-0.5 size-5 shrink-0 accent-primary" />
+          <Checkbox name="acceptTerms" required />
           <span>
             {s.acceptPrefix}{" "}
             {privacyUrl ? (

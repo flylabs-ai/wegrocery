@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { confirm } from "@/components/ui/confirm-dialog";
-import { toast } from "@/components/ui/toast";
+import { confirm } from "@/components/app-ui/confirm";
+import { toast } from "@/components/app-ui/toast";
 import {
   acceptFamilyInvite,
   cancelFamilyInvite,

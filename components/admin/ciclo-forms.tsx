@@ -1,9 +1,9 @@
 "use client";
 
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirm } from "@/components/app-ui/confirm";
 import { useState, useTransition, useEffect, useCallback, type ReactNode } from "react";
-import { toast } from "@/components/ui/toast";
-import { Sheet } from "@/components/ui/sheet";
+import { toast } from "@/components/app-ui/toast";
+import { Sheet } from "@/components/app-ui/sheet";
 import { formatDeadline, formatLongDay, formatPickupSlot } from "@/lib/i18n/deadline";
 import { t } from "@/lib/i18n";
 import { formatMoney, formatHandlingFee } from "@/lib/i18n/format";
@@ -34,7 +34,7 @@ import { adminHref } from "@/lib/admin/nav";
 import { CycleReviewCloseButton } from "./cycle-review-modal";
 import { ImportListingWizard } from "./import-listing-wizard";
 import { Input } from "@/components/ui/input";
-import { labelClass } from "@/components/ui/label";
+import { labelClass } from "@/components/app-ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -265,7 +265,7 @@ export function OpenCycleOverview({
 }) {
   const { perOrderWarning } = closeWarnings(cycle, stats);
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardContent>
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-border px-3 py-2">
@@ -308,7 +308,7 @@ export function OpenCycleOverview({
 export function CycleProductsView({ cycle, suppliers }: { cycle: SerializedCycle; suppliers: Supplier[] }) {
   const [importing, setImporting] = useState(false);
   return (
-    <Card>
+    <Card className="mb-3.5 mb-3.5">
       <CardContent>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <p className="max-w-prose text-[13px] text-secondary-foreground">{t.admin.workspace.productsIntro}</p>
@@ -478,7 +478,7 @@ function PickupSection({
           </button>
         )}
         <label className="flex min-h-11 items-start gap-2.5 text-[13px] text-foreground">
-          <input type="checkbox" name="pickupTentative" defaultChecked={defTentative} className="mt-0.5 size-4.5 accent-primary" />
+          <Checkbox name="pickupTentative" defaultChecked={defTentative} />
           <span>
             <span className="font-semibold">{t.admin.cycle.pickupTentativeLabel}</span>
             <span className="block text-label text-secondary-foreground">{t.admin.cycle.pickupTentativeHint}</span>
@@ -946,13 +946,7 @@ function CycleDateFields({
       </div>
       {planned && (
         <label className="flex min-h-11 items-start gap-2.5 text-[13px] text-foreground">
-          <input
-            type="checkbox"
-            name="datesTentative"
-            checked={tentative}
-            onChange={(e) => onTentativeChange(e.target.checked)}
-            className="mt-0.5 size-4.5 accent-primary"
-          />
+          <Checkbox name="datesTentative" checked={tentative} onCheckedChange={(checked) => onTentativeChange(checked)} />
           <span>
             <span className="font-semibold">{c.tentativeLabel}</span>
             <span className="block text-label text-secondary-foreground">{c.tentativeHint}</span>
@@ -1289,6 +1283,7 @@ import {
 import type { ProductOrderSource } from "@/lib/db/cycle-product-order";
 import { EditCycleProductForm } from "./prodotti-forms";
 import type { ProductOrderMode } from "@/lib/products/cycle-order";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   ProductOrderSwitch,
   EditButton,

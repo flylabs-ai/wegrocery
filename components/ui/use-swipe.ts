@@ -21,9 +21,9 @@ export function swipeDismisses(dy: number, ms: number): boolean {
   return dy >= FLICK_MIN_PX && dy / Math.max(ms, 1) >= FLICK_PX_PER_MS;
 }
 
-function swipeAllowed(): boolean {
+function swipeAllowed(maxWidth: number): boolean {
   return (
-    window.matchMedia("(max-width: 639px)").matches &&
+    window.matchMedia(`(max-width: ${maxWidth}px)`).matches &&
     !window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 }
@@ -35,7 +35,7 @@ function swipeAllowed(): boolean {
  * sheet holding unsaved work still asks first, and on a destructive confirm
  * it means "Annulla".
  */
-export function useSwipeDown<T extends HTMLElement>(onDismiss: () => void, enabled = true) {
+export function useSwipeDown<T extends HTMLElement>(onDismiss: () => void, enabled = true, maxWidth = 767) {
   const target = useRef<T | null>(null);
   const start = useRef<{ y: number; at: number; id: number } | null>(null);
 
@@ -48,7 +48,7 @@ export function useSwipeDown<T extends HTMLElement>(onDismiss: () => void, enabl
 
   const handlers = {
     onPointerDown(e: ReactPointerEvent<HTMLElement>) {
-      if (!enabled || e.button !== 0 || e.clientX < LEFT_EDGE_PX || !swipeAllowed()) return;
+      if (!enabled || e.button !== 0 || e.clientX < LEFT_EDGE_PX || !swipeAllowed(maxWidth)) return;
       // Buttons and fields inside the zone keep their own taps.
       if ((e.target as HTMLElement).closest("button, a, input, select, textarea, [role=button]")) return;
       start.current = { y: e.clientY, at: e.timeStamp, id: e.pointerId };

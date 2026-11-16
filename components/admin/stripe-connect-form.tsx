@@ -2,12 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { confirm } from "@/components/ui/confirm-dialog";
-import { toast } from "@/components/ui/toast";
+import { confirm } from "@/components/app-ui/confirm";
+import { toast } from "@/components/app-ui/toast";
 import { adminConnectStripe, adminDisconnectStripe } from "@/lib/actions/admin-stripe";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/app-ui/label";
 
 const helpCls = "mt-1 text-label leading-snug text-secondary-foreground";
 

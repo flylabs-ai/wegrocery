@@ -1,9 +1,9 @@
 "use client";
 
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirm } from "@/components/app-ui/confirm";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/app-ui/toast";
 import { adminDeleteLedgerEntry, adminUpdateLedgerEntry } from "@/lib/actions/admin";
 import { formatDate, formatEur } from "@/lib/utils";
 import { DEFAULT_ROLE, normalizeRole, type Role } from "@/lib/roles";
@@ -23,7 +23,7 @@ import { MovementIcon } from "@/components/movement-icon";
 import { isAboveMaxBalance } from "@/lib/payments/settings";
 import { useWide } from "@/lib/ui/use-wide";
 import { Button } from "@/components/ui/button";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/app-ui/sheet";
 import { Input } from "@/components/ui/input";
 
 // ── Summary Cards ─────────────────────────────────────────────────────────────

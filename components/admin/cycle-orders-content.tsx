@@ -44,7 +44,7 @@ export function CycleOrdersContent({ confirmed, drafts, isOpen, draftCount }: {
       {isOpen && (draftCount > 0 || filter === "drafts") && (
         <section aria-label={t.admin.cycle.unconfirmedDrafts} hidden={!showDrafts} className={showConfirmed ? "border-t border-border pt-4" : undefined}>
           {draftCount > 0 ? drafts : (
-            <Card className="border-dashed bg-tint/[0.03]">
+            <Card className="mb-3.5 border-dashed bg-tint/[0.03]">
               <CardContent className="text-[13px] text-secondary-foreground">{o.noDrafts}</CardContent>
             </Card>
           )}

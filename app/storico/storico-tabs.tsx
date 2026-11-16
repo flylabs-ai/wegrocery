@@ -12,7 +12,7 @@ import { BalanceSummary } from "@/components/balance/balance-summary";
 import { MovementRow } from "@/components/movement-row";
 import { useWide } from "@/lib/ui/use-wide";
 import { Button } from "@/components/ui/button";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/app-ui/sheet";
 import { BankReceipt } from "@/components/ricarica/bank-receipt";
 import { CopyField } from "@/components/ricarica/copy-field";
 import type { OrderBankReferences } from "@/lib/payments/order-reference";
