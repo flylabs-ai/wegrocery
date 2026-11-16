@@ -1,6 +1,7 @@
 import { collectInstanceStats } from "@/lib/instance-stats/collect";
 import { toFlyLabsStats } from "@/lib/instance-stats/envelope";
-import { verifiedContract } from "@/lib/instance-stats/signature";
+import { STATS_PATH, verifiedContract } from "@/lib/instance-stats/signature";
+import { assertSafeStats, notFound, statsResponse } from "@/lib/instance-stats/stats";
 import { reportError } from "@/lib/observability";
 
 // Anonymous counts for a fleet console (lib/instance-stats, FlyLabs Kit module
@@ -12,20 +13,21 @@ import { reportError } from "@/lib/observability";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const PATH = "/api/instance-stats";
-
 export async function GET(request: Request): Promise<Response> {
   const now = new Date();
   const contract = verifiedContract(request.headers, {
     secret: process.env.INSTANCE_STATS_SECRET,
     method: "GET",
-    path: PATH,
+    path: STATS_PATH,
     nowSeconds: Math.floor(now.getTime() / 1000),
   });
-  if (!contract) return new Response("Not Found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  if (!contract) return notFound();
   try {
     const stats = await collectInstanceStats(now);
-    return Response.json(contract === "flylabs" ? toFlyLabsStats(stats) : stats, { headers: { "Cache-Control": "no-store" } });
+    const envelope = toFlyLabsStats(stats);
+    // Counts, config ids and statuses only: never an address or a free text.
+    assertSafeStats(envelope);
+    return contract === "flylabs" ? statsResponse(envelope) : Response.json(stats, { headers: { "Cache-Control": "no-store" } });
   } catch (e) {
     reportError("instance-stats", e);
     return Response.json({ ok: false }, { status: 503, headers: { "Cache-Control": "no-store" } });
