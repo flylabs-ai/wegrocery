@@ -23,6 +23,9 @@ function fail(where: string, e: unknown): { ok: false; error: string } {
   return { ok: false, error: userMessage(e) };
 }
 
+const NEON_PROJECT_ID = /^[a-z0-9][a-z0-9-]{2,62}$/;
+const PG_NAME = /^[a-z_][a-z0-9_]{0,62}$/;
+
 const optional = (v: FormDataEntryValue | null) => {
   const s = String(v ?? "").trim();
   return s ? s : null;
@@ -139,17 +142,31 @@ export async function updateInstanceMeta(instanceId: string, _prev: MetaState, f
     if (secret && secret.length < MIN_STATS_SECRET_LENGTH) {
       return { error: `Il segreto delle statistiche deve avere almeno ${MIN_STATS_SECRET_LENGTH} caratteri.` };
     }
+    const neonProjectId = optional(form.get("neonProjectId"));
+    if (neonProjectId && !NEON_PROJECT_ID.test(neonProjectId)) return { error: "Progetto Neon: l'id come nel pannello Neon (es. flat-river-12345678)." };
+    const neonOwnerRole = optional(form.get("neonOwnerRole"));
+    const neonDatabase = optional(form.get("neonDatabase"));
+    if ((neonOwnerRole && !PG_NAME.test(neonOwnerRole)) || (neonDatabase && !PG_NAME.test(neonDatabase))) {
+      return { error: "Ruolo e database: lettere minuscole, cifre e trattino basso." };
+    }
     await getDb()
       .update(instances)
       .set({
         url,
         notes: notes || null,
         rolloutOrder: rollout,
+        neonProjectId,
+        neonOwnerRole,
+        neonDatabase,
         vercelTeamSlug: optional(form.get("vercelTeamSlug")),
         ...(secret ? { statsSecretEnc: sealStatsSecret(instanceId, secret) } : {}),
       })
       .where(eq(instances.id, instanceId));
-    await audit("instance_meta", instanceId, `url ${url}, ordine ${rollout}${secret ? ", nuovo segreto statistiche" : ""}`);
+    await audit(
+      "instance_meta",
+      instanceId,
+      `url ${url}, ordine ${rollout}, Neon ${neonProjectId ?? "-"}${secret ? ", nuovo segreto statistiche" : ""}`,
+    );
     revalidatePath(`/istanze/${instanceId}`);
     return { error: null, saved: true };
   } catch (e) {

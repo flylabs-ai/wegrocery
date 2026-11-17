@@ -6,6 +6,7 @@ import { missingProviderTokens } from "@/lib/env";
 const NAV = [
   { href: "/", label: "Istanze" },
   { href: "/richieste", label: "Richieste" },
+  { href: "/migrazioni", label: "Migrazioni" },
   { href: "/nuovo", label: "Nuovo gruppo" },
 ];
 

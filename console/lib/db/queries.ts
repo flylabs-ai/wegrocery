@@ -5,6 +5,7 @@ import {
   instances,
   instanceSnapshots,
   loginAttempts,
+  migrationRuns,
   provisioningSteps,
   requests,
   type Instance,
@@ -119,4 +120,14 @@ export async function recordLoginAttempt(ipHash: string, success: boolean) {
 
 export async function insertSnapshot(values: typeof instanceSnapshots.$inferInsert) {
   await getDb().insert(instanceSnapshots).values(values);
+}
+
+/** Latest "Migrazioni" runs, of one instance or of the whole fleet. */
+export async function listMigrationRuns(instanceId: string | null, limit = 20) {
+  return getDb()
+    .select()
+    .from(migrationRuns)
+    .where(instanceId ? eq(migrationRuns.instanceId, instanceId) : undefined)
+    .orderBy(desc(migrationRuns.startedAt))
+    .limit(limit);
 }
