@@ -1,4 +1,5 @@
-import { createHmac, hkdfSync, timingSafeEqual } from "node:crypto";
+import { createHmac, hkdfSync } from "node:crypto";
+import { timingSafeEqualString } from "@/lib/security/secrets";
 
 export type UnsubscribeConfig<Field extends string> = {
   secret: string;
@@ -41,8 +42,9 @@ function mac(payload: string, key: string | Buffer): Buffer {
 
 function signatureMatches(signature: string, expected: Buffer): boolean {
   if (!/^[A-Za-z0-9_-]{43}$/.test(signature)) return false;
-  const given = Buffer.from(signature, "base64url");
-  return given.length === expected.length && given.toString("base64url") === signature && timingSafeEqual(given, expected);
+  // The regex admits only 43 base64url characters, so the one canonical
+  // encoding of a 32-byte MAC is the only string that can match.
+  return timingSafeEqualString(signature, expected.toString("base64url"));
 }
 
 export function signUnsubscribeToken<Field extends string>(claims: Record<Field, string>, config: UnsubscribeConfig<Field>): string {

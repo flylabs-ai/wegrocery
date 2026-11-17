@@ -24,6 +24,10 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Changed
+- 🛡️ **Content Security Policy enforced** [tech]: after the Report-Only week the policy now blocks what it does not allow (`Content-Security-Policy`), and still reports it to `/api/csp-report`. Same sources as before; preview deploys also let the Vercel Toolbar frame in.
+- 🔐 **One constant-time comparison** [tech]: the unsubscribe link, the instance stats and the Stripe signature checks use `timingSafeEqualString` from `lib/security`, like the cron routes. Same behaviour; declared in `flylabs-kit.json`.
+
 ## [1.50.0] - 2026-11-16
 
 *New look for buttons, fields and navigation, shared with the other FlyLabs apps.*

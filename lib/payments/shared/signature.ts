@@ -1,4 +1,5 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
+import { timingSafeEqualString } from "@/lib/security/secrets";
 
 export type StripeEvent = {
   id: string; type: string; livemode: boolean; created: number;
@@ -23,8 +24,8 @@ export function verifyStripeSignature(payload: string, header: string | null, se
       if (name === "v1" && /^[0-9a-f]{64}$/.test(value)) signatures.push(value);
     }
     if (!timestamp || !Number.isSafeInteger(Number(timestamp)) || Math.abs(nowSeconds - Number(timestamp)) > toleranceSeconds) return null;
-    const expected = createHmac("sha256", secret).update(`${timestamp}.${payload}`).digest();
-    if (!signatures.some((signature) => timingSafeEqual(Buffer.from(signature, "hex"), expected))) return null;
+    const expected = createHmac("sha256", secret).update(`${timestamp}.${payload}`).digest("hex");
+    if (!signatures.some((signature) => timingSafeEqualString(signature, expected))) return null;
     const event: unknown = JSON.parse(payload);
     if (!record(event) || typeof event.id !== "string" || !event.id || typeof event.type !== "string" || !event.type || typeof event.livemode !== "boolean" || typeof event.created !== "number" || !Number.isSafeInteger(event.created) || event.created < 0 || !record(event.data) || !Object.hasOwn(event.data, "object")) return null;
     return event as StripeEvent;
