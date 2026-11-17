@@ -83,15 +83,14 @@ it reaches `main` (and therefore production and the demo).
 
 Staging is **not** a separate Vercel project: it is the Preview deployment that
 `porta-moneta` builds for every push to `staging`. Vercel gives each Git branch
-a stable URL that always points to its latest deployment:
-
-```
-porta-moneta-git-staging-<scope-slug>.vercel.app
-```
-
-(`<scope-slug>` is the team slug shown in the deployment URLs; copy the exact
-"Branch" URL from the deployment page, since Vercel may truncate it.) Preview
-deployments may sit behind Vercel Authentication: log in to Vercel first.
+a stable URL that always points to its latest deployment
+(`porta-moneta-git-staging-<scope-slug>.vercel.app`), and the project's
+Domains settings attach `gas-staging.portamoneta.org` to the `staging` branch
+(a CNAME to Vercel in the `portamoneta.org` zone). Both keep working; the
+custom domain is the one in `APP_BASE_URL`, Google's redirect and the cloud
+agents' allowed domains. Preview deployments sit behind Vercel's Deployment
+Protection: log in to Vercel first, or send a Protection Bypass for
+Automation key.
 
 Environment variables on `porta-moneta` → Settings → Environment Variables,
 environment **Preview**, **Git branch `staging`**. A branch-specific value
@@ -102,7 +101,8 @@ need to be set:
 |---|---|
 | `DATABASE_URL` | connection string of the Neon branch `staging` (the database every Preview uses) |
 | `EMAIL_REDIRECT_TO` | the tester's inbox (every email goes there, cc dropped, subject tagged `[STAGING -> <recipient>]`; broadcasts to all members are capped to 3 samples). Scoped to the `staging` branch only: ordinary PR previews, on the same `staging` database, have no value and refuse to send any email |
-| `APP_BASE_URL` | the staging branch URL, so email links do not point at production |
+| `APP_BASE_URL` | `https://gas-staging.portamoneta.org`, so email links do not point at production |
+| `PREVIEW_LOGIN_SECRET`, `PREVIEW_LOGIN_EMAILS` | the automated staging check's sign-in (next section). Branch `staging` only, never Production |
 | `WALLYFOR_*` | membership-check credentials (the same read-only check as production) |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe **sandbox** keys only (the app refuses live keys outside production). The sandbox webhook endpoint is `<staging URL>/api/stripe/webhook?x-vercel-protection-bypass=<secret>`, with the secret from Settings → Deployment Protection → Protection Bypass for Automation |
 
@@ -111,17 +111,42 @@ need to be set:
 any email unless it is set: this is the safety net for the real addresses in
 the copied data.
 
+### Automated staging check
+
+An agent checks staging on its own after a merge: `scripts/staging-check.mjs`
+waits for `/api/health` to show the new version, signs in through
+`POST /api/auth/preview/sign-in` (header `x-preview-login-secret`) as the two
+test members of `PREVIEW_LOGIN_EMAILS`, and opens the main pages on an iPhone,
+an Android phone, an iPad and a desktop with screenshots and axe. It only
+reads. The route exists only when `VERCEL_ENV=preview` and both variables are
+set (`lib/auth/preview-login.ts`), accepts only `@example.com` addresses of
+members that already exist and are active, and gives a two-hour session.
+
+The two test members live in the Neon branch `staging` (a reset of the branch
+removes them: add them again with the SQL below, Neon console or MCP):
+
+```sql
+INSERT INTO members (member_id, full_name, email, role, active, created_at, updated_at) VALUES
+  ('mem_preview_user', 'Prova Claude (socio)', '<member address>', 'utenti', true, now(), now()),
+  ('mem_preview_admin', 'Prova Claude (admin)', '<admin address>', 'admin', true, now(), now())
+ON CONFLICT (member_id) DO NOTHING;
+```
+
+The agent needs `PREVIEW_LOGIN_SECRET` and the Deployment Protection bypass key
+(`VERCEL_STAGING_BYPASS`, a key of its own named `claude-staging`) in its
+environment, and `gas-staging.portamoneta.org` among its allowed domains.
+
 ### Google OAuth
 
 In Google Cloud Console → the OAuth client used by production → *Authorized
 redirect URIs*, add:
 
 ```
-https://<staging branch URL>/api/auth/callback/google
+https://gas-staging.portamoneta.org/api/auth/callback/google
 ```
 
-Only the stable branch URL works: per-commit URLs change on every push and
-cannot be whitelisted.
+Only a stable URL works (the custom domain or the branch URL): per-commit URLs
+change on every push and cannot be whitelisted.
 
 ### Database: the Neon branch `staging`
 

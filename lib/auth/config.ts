@@ -8,7 +8,7 @@ import type { getDb } from "@/lib/db/client";
 import { authAccounts, authRateLimits, authSessions, authUsers, authVerifications, members } from "@/lib/db/schema";
 import { normalizeEmail } from "@/lib/member-email";
 import { reportError } from "@/lib/observability";
-import { admitEmail, memberForNewSession } from "./admission";
+import { admitEmail, findMemberByLoginEmail, memberForNewSession } from "./admission";
 import { AUTH_COOKIE_PREFIX } from "./cookie";
 import { DEFAULT_EMAIL_CAPS, mayEmail, type EmailCaps } from "./email-caps";
 import { authEmailKind, carriesLink, type AuthEmailKind } from "./email-kind";
@@ -18,6 +18,7 @@ import { resolveAuthHosts } from "./kit/hosts";
 import { authOptions } from "./kit/options";
 import { resolveAuthPolicy } from "./kit/policy";
 import { demoLogin, devLogin } from "./plugins";
+import { PREVIEW_LOGIN_PATH, previewLogin, previewLoginConfig } from "./preview-login";
 
 // The one Better Auth configuration (auth.ts builds the instance). Sign-in
 // with an email link by default, Google where its variables are set, the
@@ -29,7 +30,7 @@ import { demoLogin, devLogin } from "./plugins";
 // sessions, rate limits, cookies, trusted origins) come from the FlyLabs
 // Kit's auth module (lib/auth/kit, white-label profile); this file keeps
 // WeGrocery's own parts: adapter and models, admission, the sign-in email,
-// hooks and the demo/dev plugins.
+// hooks and the demo/dev/preview plugins.
 
 type Env = Record<string, string | undefined>;
 type Db = ReturnType<typeof getDb>;
@@ -83,6 +84,7 @@ export function createAuth(db: Db, options: CreateAuthOptions) {
   const env = options.env ?? process.env;
   const google = googleCredentials(env);
   const devEmail = normalizeEmail(env.AUTH_DEV_LOGIN_EMAIL);
+  const preview = previewLoginConfig(env);
 
   // The code goes out in the link's email, so it is issued here rather than
   // through the plugin's own send endpoint (closed, see public-endpoints.ts).
@@ -105,7 +107,7 @@ export function createAuth(db: Db, options: CreateAuthOptions) {
       enabled: options.rateLimit ?? production,
       // On top of the kit's /sign-in/magic-link 3 and /sign-in/email-otp 5
       // a minute (the 3 tries a code allows and email-caps.ts come first).
-      rules: { "/demo/sign-in": { window: 60, max: 30 } },
+      rules: { "/demo/sign-in": { window: 60, max: 30 }, [PREVIEW_LOGIN_PATH]: { window: 60, max: 10 } },
     },
   });
   // Tests pin a local URL; the app resolves it per request among the allowed hosts.
@@ -114,6 +116,8 @@ export function createAuth(db: Db, options: CreateAuthOptions) {
   const plugins = [
     ...(env.DEMO_MODE === "true" ? [demoLogin()] : []),
     ...(env.NODE_ENV !== "production" && devEmail ? [devLogin(devEmail)] : []),
+    // Automated checks of a preview (staging) only: lib/auth/preview-login.ts.
+    ...(preview ? [previewLogin(preview, findMemberByLoginEmail)] : []),
     // Last, as Better Auth wants: lets Server Actions set its cookies.
     nextCookies(),
   ];
