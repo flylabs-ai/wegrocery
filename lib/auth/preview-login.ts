@@ -62,9 +62,14 @@ export function previewLogin(config: PreviewLoginConfig, findMember: FindActiveM
         const adapter = ctx.context.internalAdapter;
         const found = await adapter.findUserByEmail(email);
         const user = found?.user ?? (await adapter.createUser({ email, name: "", emailVerified: true }, { method: "admin" }));
-        const session = await adapter.createSession(user.id, true, {
-          expiresAt: new Date(Date.now() + PREVIEW_SESSION_SECONDS * 1000),
-        });
+        // overrideAll: otherwise "don't remember me" sets a day. With its
+        // cookie (setSessionCookie below) Better Auth never extends the session.
+        const session = await adapter.createSession(
+          user.id,
+          true,
+          { expiresAt: new Date(Date.now() + PREVIEW_SESSION_SECONDS * 1000) },
+          true,
+        );
         if (!session) throw new APIError("FORBIDDEN");
         await setSessionCookie(ctx, { session, user }, true);
         console.info(`preview-login profile=${profile}`);
