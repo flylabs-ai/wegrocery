@@ -32,7 +32,8 @@ describeDb("sign-in for the preview check", () => {
       env: {
         ...process.env,
         AUTH_SECRET: "test-secret-at-least-32-characters-long!!",
-        NODE_ENV: "production",
+        // "test" like the other auth tests: production refuses an http base URL.
+        NODE_ENV: "test",
         VERCEL_ENV: "preview",
         PREVIEW_LOGIN_SECRET: SECRET,
         PREVIEW_LOGIN_EMAILS: `${userEmail},${adminEmail}`,
