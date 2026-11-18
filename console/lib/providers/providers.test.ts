@@ -113,6 +113,39 @@ describe("neon adapter", () => {
       "https://console.neon.tech/api/v2/projects/proud-river-123/connection_uri?database_name=neondb&role_name=neondb_owner&pooled=true",
     );
   });
+
+  it("asks for the owner's direct URI of a given branch", async () => {
+    const f = mockFetch([{ body: { uri: "postgres://u:p@h/neondb" } }]);
+    await neonClient({ apiKey: "napi", fetchImpl: f }).connectionUri("p-1", { branchId: "br-9", pooled: false });
+    expect(f.calls[0].url).toBe(
+      "https://console.neon.tech/api/v2/projects/p-1/connection_uri?database_name=neondb&role_name=neondb_owner&pooled=false&branch_id=br-9",
+    );
+  });
+
+  it("lists branches, marking the default one", async () => {
+    const f = mockFetch([{ body: { branches: [{ id: "br-1", name: "production", default: true }, { id: "br-2", name: "staging", parent_id: "br-1", protected: true }] } }]);
+    expect(await neonClient({ apiKey: "napi", fetchImpl: f }).listBranches("p-1")).toEqual([
+      { id: "br-1", name: "production", parentId: null, isDefault: true, isProtected: false },
+      { id: "br-2", name: "staging", parentId: "br-1", isDefault: false, isProtected: true },
+    ]);
+  });
+
+  it("creates a branch without a compute endpoint and returns its operations", async () => {
+    const f = mockFetch([{ status: 201, body: { branch: { id: "br-3", name: "pre-migrate-abc1234", parent_id: "br-1" }, operations: [{ id: "op-1" }] } }]);
+    const r = await neonClient({ apiKey: "napi", fetchImpl: f }).createBranch("p-1", { name: "pre-migrate-abc1234", parentId: "br-1" });
+    expect(r.operationIds).toEqual(["op-1"]);
+    expect(f.calls[0].method).toBe("POST");
+    expect(f.calls[0].body).toEqual({ branch: { name: "pre-migrate-abc1234", parent_id: "br-1" } });
+  });
+
+  it("deletes a branch and reads an operation", async () => {
+    const f = mockFetch([{ body: {} }, { body: { operation: { status: "finished" } } }]);
+    const n = neonClient({ apiKey: "napi", fetchImpl: f });
+    await n.deleteBranch("p-1", "br-3");
+    expect(await n.operationStatus("p-1", "op-1")).toBe("finished");
+    expect(f.calls[0]).toMatchObject({ method: "DELETE", url: "https://console.neon.tech/api/v2/projects/p-1/branches/br-3" });
+    expect(f.calls[1].url).toBe("https://console.neon.tech/api/v2/projects/p-1/operations/op-1");
+  });
 });
 
 describe("resend adapter", () => {

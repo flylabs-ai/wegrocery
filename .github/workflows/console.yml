@@ -13,6 +13,8 @@ on:
       - ".github/workflows/console.yml"
       # console/lib/provisioning/app-role.test.ts compares with it.
       - "scripts/db-role-lib.mjs"
+      # console/lib/migrations/kit-parity.test.ts compares with them.
+      - "scripts/db-migrate*"
   push:
     branches: [main]
     paths:
@@ -20,6 +22,8 @@ on:
       - ".github/workflows/console.yml"
       # console/lib/provisioning/app-role.test.ts compares with it.
       - "scripts/db-role-lib.mjs"
+      # console/lib/migrations/kit-parity.test.ts compares with them.
+      - "scripts/db-migrate*"
 
 permissions:
   contents: read
