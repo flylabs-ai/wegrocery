@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Aggiunto
+- 🤖 **Verifica automatica di staging** [tecnico]: solo sull'anteprima di `staging`, un accesso per due soci di prova (`PREVIEW_LOGIN_SECRET`, `PREVIEW_LOGIN_EMAILS`, solo `@example.com`) e `scripts/staging-check.mjs`, che apre le pagine principali su quattro dispositivi con screenshot e axe, in sola lettura. Spento ovunque altrove; nessuna migrazione.
+
 ## [1.50.0] - 2026-11-16
 
 *Nuovo aspetto per bottoni, campi e menu, comune alle altre app FlyLabs.*
