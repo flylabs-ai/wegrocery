@@ -11,9 +11,10 @@ Promotes staging to production: <!-- the PRs included, one line each -->
 ## Before the merge
 - [ ] CI green on staging, integration tests included
 - [ ] Staging checked by hand (what was tried: )
-- [ ] Demo: migration applied and the app opened (it runs with every optional integration off)
+- [ ] Console → Migrazioni on the `staging` commit: preview green, demo and example brand migrated (backup branch `pre-migrate-<commit>` made by the Console)
+- [ ] Demo: the app opened after the migration (it runs with every optional integration off)
 - [ ] Production backup from the last night is green
-- [ ] Migration applied to production **before** the merge (Drizzle inserts name every column)
+- [ ] Migration applied to production **before** the merge, by hand through the Neon connector after the backup (Drizzle inserts name every column)
 - [ ] Stripe events added to the live endpoint, if any
 - [ ] Not a Saturday or a Sunday
 

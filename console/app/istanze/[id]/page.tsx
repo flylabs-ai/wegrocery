@@ -9,7 +9,7 @@ import { Sparkline } from "@/components/sparkline";
 import { StepChecklist } from "@/components/step-checklist";
 import { Badge, Card, Notice, PageTitle, SectionTitle, buttonClass, type Tone } from "@/components/ui";
 import { requireOperator } from "@/lib/auth/session";
-import { getInstance, listAudit, listSnapshots, listSteps } from "@/lib/db/queries";
+import { getInstance, listAudit, listMigrationRuns, listSnapshots, listSteps } from "@/lib/db/queries";
 import { MODEL_LABEL } from "@/lib/fleet/table";
 import { neonDashboardUrl } from "@/lib/providers/neon";
 import { vercelDashboardUrl } from "@/lib/providers/vercel";
@@ -28,7 +28,12 @@ export default async function InstancePage(props: { params: Promise<{ id: string
   const { id } = await props.params;
   const instance = await getInstance(id);
   if (!instance) notFound();
-  const [snapshots, stepRows, auditRows] = await Promise.all([listSnapshots(id, 60), listSteps(id), listAudit(id, 20)]);
+  const [snapshots, stepRows, auditRows, runs] = await Promise.all([
+    listSnapshots(id, 60),
+    listSteps(id),
+    listAudit(id, 20),
+    listMigrationRuns(id, 5),
+  ]);
   const latest = snapshots[0] ?? null;
   const stats = latest?.stats ?? null;
   const withStats = snapshots.filter((s) => s.stats).reverse();
@@ -162,6 +167,9 @@ export default async function InstancePage(props: { params: Promise<{ id: string
               notes={instance.notes}
               rolloutOrder={instance.rolloutOrder}
               vercelTeamSlug={instance.vercelTeamSlug}
+              neonProjectId={instance.neonProjectId}
+              neonOwnerRole={instance.neonOwnerRole}
+              neonDatabase={instance.neonDatabase}
             />
           </Card>
         </div>
@@ -213,6 +221,30 @@ export default async function InstancePage(props: { params: Promise<{ id: string
               <StepChecklist states={states} details={details} instanceId={id} />
             </Card>
           )}
+
+          <Card>
+            <SectionTitle>Migrazioni</SectionTitle>
+            {runs.length === 0 && <p className="text-sm text-muted">Nessuna dalla Console.</p>}
+            <ul className="flex flex-col gap-1.5 text-xs">
+              {runs.map((r) => (
+                <li key={r.id}>
+                  <span className="text-muted">{formatDateTime(r.startedAt)}</span>{" "}
+                  <span className="font-mono">{r.commitSha.slice(0, 7)}</span>{" "}
+                  <Badge tone={r.status === "done" ? "ok" : r.status === "failed" ? "danger" : "warn"}>
+                    {r.status === "done" ? "fatta" : r.status === "failed" ? "fallita" : "in corso"}
+                  </Badge>
+                  <span className="block break-words text-muted">
+                    {r.applied.length ? r.applied.join(", ") : "nessun file applicato"}
+                    {r.backupBranch ? `, backup ${r.backupBranch}` : ""}
+                    {r.error ? `; ${r.error}` : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/migrazioni" className="mt-2 inline-block text-sm underline-offset-2 hover:underline">
+              Apri Migrazioni
+            </Link>
+          </Card>
 
           <Card>
             <SectionTitle>Registro</SectionTitle>

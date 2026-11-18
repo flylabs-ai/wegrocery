@@ -10,12 +10,18 @@ export function MetaForm({
   notes,
   rolloutOrder,
   vercelTeamSlug,
+  neonProjectId,
+  neonOwnerRole,
+  neonDatabase,
 }: {
   instanceId: string;
   url: string;
   notes: string | null;
   rolloutOrder: number;
   vercelTeamSlug: string | null;
+  neonProjectId: string | null;
+  neonOwnerRole: string | null;
+  neonDatabase: string | null;
 }) {
   const [state, action, pending] = useActionState<MetaState, FormData>(updateInstanceMeta.bind(null, instanceId), { error: null });
   return (
@@ -28,6 +34,15 @@ export function MetaForm({
       </Field>
       <Field label="Team Vercel (slug, per i link)" htmlFor="vercelTeamSlug">
         <Input id="vercelTeamSlug" name="vercelTeamSlug" autoComplete="off" defaultValue={vercelTeamSlug ?? ""} />
+      </Field>
+      <Field label="Progetto Neon (id)" htmlFor="neonProjectId" hint="Per Migrazioni, es. flat-river-12345678.">
+        <Input id="neonProjectId" name="neonProjectId" autoComplete="off" defaultValue={neonProjectId ?? ""} />
+      </Field>
+      <Field label="Ruolo proprietario del DB" htmlFor="neonOwnerRole" hint="Vuoto = neondb_owner.">
+        <Input id="neonOwnerRole" name="neonOwnerRole" autoComplete="off" defaultValue={neonOwnerRole ?? ""} />
+      </Field>
+      <Field label="Nome del database" htmlFor="neonDatabase" hint="Vuoto = neondb.">
+        <Input id="neonDatabase" name="neonDatabase" autoComplete="off" defaultValue={neonDatabase ?? ""} />
       </Field>
       <Field label="Nuovo segreto statistiche" htmlFor="statsSecret" hint="Solo per sostituirlo; vuoto lo lascia com'è.">
         <Input id="statsSecret" name="statsSecret" type="password" autoComplete="new-password" minLength={32} />

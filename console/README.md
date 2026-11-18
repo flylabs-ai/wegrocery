@@ -53,6 +53,7 @@ the group's GitHub), otherwise creating the project or deploying fails.
 | `CONSOLE_ALERT_EMAIL` | optional | Where the daily alerts and new intake requests go. |
 | `VERCEL_TOKEN` | for provisioning | The operator's personal Vercel token (full account scope, so it reaches invited teams too). |
 | `NEON_API_KEY` | for provisioning | The operator's personal Neon API key. |
+| `NEON_FLEET_KEYS` | for *Migrazioni* | `projectId=key,projectId=key`: one Neon API key **limited to that one project** per instance the console may migrate. Never a personal key, never the key of an instance with real members. |
 | `CONSOLE_SHARED_MAIL_DOMAIN` | optional | A domain verified on the operator's Resend account, for groups without their own (`<slug>@domain`). |
 | `CONSOLE_SHARED_MAIL_DOMAIN_ID` | with the above | Its Resend domain id: the groups' sending keys are restricted to it. |
 | `WEGROCERY_REPO` | optional | Default `flylabs-ai/wegrocery`. |
@@ -150,6 +151,47 @@ redeploys every live instance one at a time, ordered by `rollout_order`
 stopping at the first failure. The browser drives the sequence through short
 server actions, so no request outlives a serverless function timeout; keep
 the page open while it runs.
+
+## Migrazioni
+
+*Migrazioni* (`/migrazioni`, `lib/migrations/`) applies the pending database
+migrations of a release to the fleet **before** the merge to `main` deploys
+it (FlyLabs Kit phase C2).
+
+1. **Commit**: a branch, tag or commit id (default `staging`). It must be on
+   `staging` or `main` of `WEGROCERY_REPO` (GitHub compare API). The
+   `drizzle/` listing of that commit gives each file's git blob id; each file
+   is downloaded from raw.githubusercontent.com and its blob id recomputed
+   (`lib/migrations/source.ts`). `GITHUB_TOKEN` is optional (rate limit).
+2. **Anteprima**: for each eligible instance, the kit runner in `dry-run`
+   mode: applied, pending, missing checksums, and a stop on a checksum
+   mismatch or on files the commit does not know (an instance ahead of it).
+3. **Migra flotta** (or *Migra solo questa*): one instance at a time, in
+   rollout order, stopping at the first failure. For each: dry-run again, a
+   Neon branch `pre-migrate-<commit>` from the default branch (a retry on the
+   same commit keeps the first one), the kit runner in `apply` mode (one
+   transaction per file, advisory lock, `lock_timeout` 5 s, checksums, write
+   access to `_migrations` taken from `app_rw`), a check that everything is
+   recorded, the removal of older `pre-migrate-*` branches and
+   `/api/health`. Each run goes to `migration_runs` and the audit log by
+   file and branch names only.
+
+Eligible: a live instance with its Neon project id in its settings, a key
+for that project in `NEON_FLEET_KEYS` and a rollout order below 1000.
+Instances with real members (order 1000 or more) are always left to the
+manual procedure. The owner's connection string is asked of Neon inside the
+action (owner role and database from the instance's settings, Neon's
+defaults when empty), used and dropped: never stored, logged or shown.
+
+The runner in `lib/migrations/kit/` is the kit module `migrazioni` 1.0,
+copied unchanged; `kit-parity.test.ts` compares it with the main app's
+`scripts/`.
+
+**Going back**: a file that fails leaves nothing behind (its transaction rolls
+back) and the fleet stops. Migrations are additive, so the running code
+keeps working with an applied one: fix forward with a new file, or apply
+that migration's `_down.sql` by hand. Data damage: restore the default branch
+from `pre-migrate-<commit>` in Neon (losing the writes made since).
 
 ## Development
 

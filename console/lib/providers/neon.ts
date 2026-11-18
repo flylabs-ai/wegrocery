@@ -43,8 +43,11 @@ export function neonClient({ apiKey, fetchImpl = fetch }: NeonClientOptions) {
       return { id: res.project.id };
     },
 
-    /** GET /projects/{id}/connection_uri: the pooled URI of the default branch. */
-    async connectionUri(projectId: string, opts: { database?: string; role?: string; pooled?: boolean } = {}): Promise<string> {
+    /** GET /projects/{id}/connection_uri: the pooled URI of the default branch (or `branchId`). */
+    async connectionUri(
+      projectId: string,
+      opts: { database?: string; role?: string; pooled?: boolean; branchId?: string } = {},
+    ): Promise<string> {
       const res = await requestJson<{ uri: string }>({
         service: SERVICE,
         fetchImpl,
@@ -52,11 +55,89 @@ export function neonClient({ apiKey, fetchImpl = fetch }: NeonClientOptions) {
           database_name: opts.database ?? DEFAULT_DATABASE,
           role_name: opts.role ?? DEFAULT_ROLE,
           pooled: String(opts.pooled ?? true),
+          branch_id: opts.branchId,
         }),
         headers,
       });
       return res.uri;
     },
+
+    /** GET /projects/{id}/branches: id, name, parent and whether it is the default (production) branch. */
+    async listBranches(projectId: string): Promise<NeonBranch[]> {
+      const res = await requestJson<{ branches: RawBranch[] }>({
+        service: SERVICE,
+        fetchImpl,
+        url: `${API}/projects/${encodeURIComponent(projectId)}/branches`,
+        headers,
+      });
+      return (res.branches ?? []).map(toBranch);
+    },
+
+    /**
+     * POST /projects/{id}/branches without a compute endpoint: a copy-on-write
+     * snapshot of `parentId` at this instant (the backup before a migration).
+     * Returns the branch and the operations Neon started for it.
+     */
+    async createBranch(projectId: string, input: { name: string; parentId: string }): Promise<{ branch: NeonBranch; operationIds: string[] }> {
+      const res = await requestJson<{ branch: RawBranch; operations?: { id: string }[] }>({
+        service: SERVICE,
+        fetchImpl,
+        url: `${API}/projects/${encodeURIComponent(projectId)}/branches`,
+        method: "POST",
+        headers,
+        body: { branch: { name: input.name, parent_id: input.parentId } },
+      });
+      return { branch: toBranch(res.branch), operationIds: (res.operations ?? []).map((o) => o.id) };
+    },
+
+    /** DELETE /projects/{id}/branches/{branch}. */
+    async deleteBranch(projectId: string, branchId: string): Promise<void> {
+      await requestJson<unknown>({
+        service: SERVICE,
+        fetchImpl,
+        url: `${API}/projects/${encodeURIComponent(projectId)}/branches/${encodeURIComponent(branchId)}`,
+        method: "DELETE",
+        headers,
+      });
+    },
+
+    /** GET /projects/{id}/operations/{op}: Neon's own status string (`finished`, `running`, `failed`, …). */
+    async operationStatus(projectId: string, operationId: string): Promise<string> {
+      const res = await requestJson<{ operation: { status: string } }>({
+        service: SERVICE,
+        fetchImpl,
+        url: `${API}/projects/${encodeURIComponent(projectId)}/operations/${encodeURIComponent(operationId)}`,
+        headers,
+      });
+      return res.operation.status;
+    },
+  };
+}
+
+export interface NeonBranch {
+  id: string;
+  name: string;
+  parentId: string | null;
+  isDefault: boolean;
+  isProtected: boolean;
+}
+
+interface RawBranch {
+  id: string;
+  name: string;
+  parent_id?: string | null;
+  default?: boolean;
+  primary?: boolean;
+  protected?: boolean;
+}
+
+function toBranch(b: RawBranch): NeonBranch {
+  return {
+    id: b.id,
+    name: b.name,
+    parentId: b.parent_id ?? null,
+    isDefault: Boolean(b.default ?? b.primary),
+    isProtected: Boolean(b.protected),
   };
 }
 

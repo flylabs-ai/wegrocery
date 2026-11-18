@@ -39,6 +39,8 @@ export const env = {
   repo: () => read("WEGROCERY_REPO") ?? "flylabs-ai/wegrocery",
   repoId: () => read("WEGROCERY_REPO_ID"),
   githubToken: () => read("GITHUB_TOKEN"),
+  /** `projectId=key,…`: Neon API keys limited to one project each, for "Migrazioni" (lib/migrations/plan.ts). */
+  neonFleetKeys: () => read("NEON_FLEET_KEYS"),
 };
 
 /** Names of the provider tokens that are missing, for the UI. */

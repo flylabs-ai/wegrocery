@@ -67,6 +67,9 @@ export const instances = pgTable("instances", {
   vercelProjectId: text("vercel_project_id"),
   neonOrgId: text("neon_org_id"),
   neonProjectId: text("neon_project_id"),
+  /** Owner role and database the migrations connect with (Neon's defaults when null). */
+  neonOwnerRole: text("neon_owner_role"),
+  neonDatabase: text("neon_database"),
   resendDomainId: text("resend_domain_id"),
   status: text("status").$type<InstanceStatus>().notNull().default("live"),
   statsSecretEnc: text("stats_secret_enc"),
@@ -115,6 +118,21 @@ export const auditLog = pgTable("audit_log", {
   detail: text("detail"),
 });
 
+/** One "Migrazioni" run on one instance (drizzle/0001_migration_runs.sql). Names only, never SQL or secrets. */
+export const migrationRuns = pgTable("migration_runs", {
+  id: text("id").primaryKey(),
+  instanceId: text("instance_id").notNull(),
+  commitSha: text("commit_sha").notNull(),
+  branch: text("branch").notNull(),
+  status: text("status").$type<"running" | "done" | "failed">().notNull().default("running"),
+  applied: jsonb("applied").$type<string[]>().notNull().default([]),
+  backupBranch: text("backup_branch"),
+  error: text("error"),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+});
+
 export type Instance = typeof instances.$inferSelect;
+export type MigrationRun = typeof migrationRuns.$inferSelect;
 export type Snapshot = typeof instanceSnapshots.$inferSelect;
 export type IntakeRequest = typeof requests.$inferSelect;

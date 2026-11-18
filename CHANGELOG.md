@@ -24,6 +24,14 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.51.0] - 2026-11-18
+
+*Tools for whoever runs the installations: an automated staging check and fleet migrations from the Console.*
+
+### Added
+- 🤖 **Automated staging check** [tech]: on the `staging` preview only, a sign-in for two test members (`PREVIEW_LOGIN_SECRET`, `PREVIEW_LOGIN_EMAILS`, `@example.com` only) and `scripts/staging-check.mjs`, which opens the main pages on four devices with screenshots and axe, read only. Off everywhere else; no migration.
+- 🗄️ **Fleet migrations from the Console** [tech]: the Console's new *Migrazioni* page previews and applies a release's migrations to the installations before the deploy, each after a Neon backup branch, with the kit runner and a Neon key limited to that installation's project (`NEON_FLEET_KEYS` on the Console). Installations with real members stay manual. No migration in the app.
+
 ## [1.50.0] - 2026-11-16
 
 *New look for buttons, fields and navigation, shared with the other FlyLabs apps.*
@@ -958,6 +966,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0
 [1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0
 [1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0
 [1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0

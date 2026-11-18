@@ -25,6 +25,14 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.51.0] - 2026-11-18
+
+*Strumenti per chi gestisce le installazioni: verifica automatica di staging e migrazioni della flotta dalla Console.*
+
+### Aggiunto
+- 🤖 **Verifica automatica di staging** [tecnico]: solo sull'anteprima di `staging`, un accesso per due soci di prova (`PREVIEW_LOGIN_SECRET`, `PREVIEW_LOGIN_EMAILS`, solo `@example.com`) e `scripts/staging-check.mjs`, che apre le pagine principali su quattro dispositivi con screenshot e axe, in sola lettura. Spento ovunque altrove; nessuna migrazione.
+- 🗄️ **Migrazioni della flotta dalla Console** [tecnico]: la nuova pagina *Migrazioni* della Console mostra e applica le migrazioni di un rilascio alle installazioni prima del deploy, ognuna dopo un ramo Neon di backup, col runner del kit e una chiave Neon limitata al progetto di quell'installazione (`NEON_FLEET_KEYS` sulla Console). Le installazioni con soci veri restano manuali. Nessuna migrazione nell'app.
+
 ## [1.50.0] - 2026-11-16
 
 *Nuovo aspetto per bottoni, campi e menu, comune alle altre app FlyLabs.*
@@ -960,6 +968,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0
 [1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0
 [1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0
 [1.47.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.47.0
