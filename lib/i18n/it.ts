@@ -2048,6 +2048,7 @@ export const it = {
       emojiNotAuto: "non auto",
       emptyName: "vuoto",
       autoCategory: "auto",
+      ignoredCategory: (value: string) => `(${value}: ignorato)`,
       selectedCount: (selected: number, total: number) => `Selezionati ${selected} / ${total} prodotti.`,
       fileInfo: (name: string) => `File: ${name}`,
       back: "← Indietro",

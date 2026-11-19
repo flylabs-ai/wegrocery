@@ -57,12 +57,44 @@ describe("guessProductCategory", () => {
   });
 });
 
+describe("guessProductCategory on a flour and seed listing", () => {
+  it("does not guess seeds, popcorn maize, yeast or dried pulses from the name", () => {
+    expect(guessProductCategory("SEMI di ZUCCA")).toBeNull();
+    expect(guessProductCategory("SEMI di SESAMO")).toBeNull();
+    expect(guessProductCategory("MAIS per POP CORN")).toBeNull();
+    expect(guessProductCategory("Miolievito Lievito di Birra secco")).toBeNull();
+    expect(guessProductCategory("CECI")).toBeNull();
+    expect(guessProductCategory("LENTICCHIE ROSSE")).toBeNull();
+  });
+
+  it("keeps flours made from them in Pane e cereali", () => {
+    expect(guessProductCategory("Farina di SEMI di LINO INTEGRALE a Pietra")).toBe("Pane e cereali");
+    expect(guessProductCategory("Farina di CECI INTEGRALE a Pietra")).toBe("Pane e cereali");
+    expect(guessProductCategory("Farina di MAIS FUMETTO")).toBe("Pane e cereali");
+  });
+
+  it("still places fresh vegetables and drinks", () => {
+    expect(guessProductCategory("Zucca delica")).toBe("Verdura");
+    expect(guessProductCategory("Mais in pannocchia")).toBe("Verdura");
+    expect(guessProductCategory("Birra artigianale")).toBe("Bevande");
+    expect(guessProductCategory("Fagioli borlotti freschi")).toBe("Verdura");
+  });
+});
+
 describe("isGenericCategoryLabel", () => {
   it("flags catch-all labels a supplier file uses instead of a real category", () => {
     expect(isGenericCategoryLabel("Altro")).toBe(true);
     expect(isGenericCategoryLabel(" ALTRO ")).toBe(true);
     expect(isGenericCategoryLabel("Varie")).toBe(true);
     expect(isGenericCategoryLabel("Misto")).toBe(true);
+  });
+
+  it("flags article or group codes a supplier file keeps in the category column", () => {
+    expect(isGenericCategoryLabel("1503")).toBe(true);
+    expect(isGenericCategoryLabel(" 583 ")).toBe(true);
+    expect(isGenericCategoryLabel("15.03")).toBe(true);
+    expect(isGenericCategoryLabel("Legumi")).toBe(false);
+    expect(isGenericCategoryLabel("Frutta 2")).toBe(false);
   });
 
   it("does not flag a real category", () => {
