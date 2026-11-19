@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Risolto
+- 🏷️ **Importa listino: categorie più pulite**: una colonna Categoria con codici articolo (1503, 1504...) viene ignorata e l'anteprima lo segnala. Semi, mais da pop corn, lievito, ceci e lenticchie secchi non finiscono più in Verdura o Bevande per il nome.
+
 ## [1.51.0] - 2026-11-18
 
 *Strumenti per chi gestisce le installazioni: verifica automatica di staging e migrazioni della flotta dalla Console.*

@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Fixed
+- 🏷️ **Listing import: cleaner categories**: a category column holding article codes (1503, 1504...) is ignored, and the preview says so. Seeds, popcorn maize, yeast and dried chickpeas or lentils no longer land in Vegetables or Drinks by name.
+
 ## [1.51.0] - 2026-11-18
 
 *Tools for whoever runs the installations: an automated staging check and fleet migrations from the Console.*

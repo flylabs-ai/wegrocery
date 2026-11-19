@@ -2044,6 +2044,7 @@ export const es: Strings = {
       emojiNotAuto: "no auto",
       emptyName: "vacío",
       autoCategory: "auto",
+      ignoredCategory: (value: string) => `(${value}: ignorado)`,
       selectedCount: (selected: number, total: number) => `Seleccionados ${selected} / ${total} productos.`,
       fileInfo: (name: string) => `Archivo: ${name}`,
       back: "← Atrás",
