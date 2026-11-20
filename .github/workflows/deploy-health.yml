@@ -11,8 +11,7 @@ name: Deploy Health
 # porta-moneta's, VERCEL_AUTOMATION_BYPASS_SECRET_DEMO wegrocery-demo's: each
 # deployment URL is protected by its own project's key. Without the right one
 # a protected deployment answers 401 or redirects (302) to the Vercel login,
-# and the check fails, which says so. The Console (wegrocery-console) has its
-# own version in console/package.json and is not checked here.
+# and the check fails, which says so.
 
 on: deployment_status
 
@@ -21,7 +20,7 @@ permissions:
 
 jobs:
   health:
-    if: ${{ github.event.deployment_status.state == 'success' && !contains(github.event.deployment.environment, 'wegrocery-console') }}
+    if: ${{ github.event.deployment_status.state == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

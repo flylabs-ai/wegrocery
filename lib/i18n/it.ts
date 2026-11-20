@@ -959,7 +959,7 @@ export const it = {
         membership: "Verifica della tessera (WallyFor)",
         sentry: "Segnalazione degli errori (Sentry)",
         dbRole: "Accesso al database con ruolo limitato",
-        fleet: "Statistiche anonime per la console (WeGrocery Console)",
+        fleet: "Statistiche anonime per la console (FlyLabs Console)",
         autoOpen: "Apertura automatica dei cicli in programma",
       } as Record<string, string>,
       notes: {
@@ -1042,7 +1042,7 @@ export const it = {
         ],
         fleet: [
           "Serve solo a chi gestisce più gruppi: la sua console legge numeri anonimi (soci, cicli, ordini, versione) senza entrare nel database. Per il gruppo non cambia nulla.",
-          "Genera un segreto (openssl rand -hex 32), mettilo in INSTANCE_STATS_SECRET e incollalo uguale nella console, alla voce Aggiungi istanza esistente. Un segreto diverso per ogni installazione.",
+          "Genera un segreto (openssl rand -hex 32), mettilo in INSTANCE_STATS_SECRET e incollalo uguale nella console, alla voce Aggiungi istanza. Un segreto diverso per ogni installazione.",
         ],
         autoOpen: [
           "I cicli in programma aprono gli ordini da soli la mattina del giorno previsto, se le date non sono indicative. Senza, li apre l'admin con Apri gli ordini.",

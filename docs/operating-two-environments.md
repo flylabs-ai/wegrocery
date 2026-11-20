@@ -31,7 +31,6 @@ vars and secrets did not either.
 | Porta Moneta | `porta-moneta` | WeGrocery / `wegrocery-porta-moneta` (`small-breeze-14972344`) | `production`, `staging`, `backup-YYYY-MM-DD-<reason>` | `wegrocery` (`main`, `staging`) |
 | Demo | `wegrocery-demo` | WeGrocery / `wegrocery-demo` (`flat-river-33694745`) | `production`; CI's throwaway `ci-*` | `wegrocery` (`main`) |
 | Example brand | `wegrocery-example-brand` | Vercel: WeGrocery / `wegrocery-example-brand` (`cold-sound-43697431`) | `main` (managed by Vercel) | `wegrocery-example-brand`, a copy updated from upstream |
-| Console | `wegrocery-console` | Vercel: WeGrocery / `wegrocery-console` (`icy-river-98732942`) | `main` (managed by Vercel) | `wegrocery`, folder `console/` |
 | Restore test | none | WeGrocery / `wegrocery-restore-test` (`late-frost-62618439`) | throwaway `restore-*` | `wegrocery` (`restore-test.yml`) |
 
 Git keeps two long-lived branches, `main` (production) and `staging`; every
