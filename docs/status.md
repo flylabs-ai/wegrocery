@@ -2,15 +2,15 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-20 (release 1.52.0: Content Security Policy enforced; no migration).
+Last updated: 2026-11-20 (release 1.52.1: the WeGrocery Console is removed, the FlyLabs Console replaces it; no migration).
 
 ## Versions and migrations
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.52.0 (2026-11-20) | up to `0056` |
-| Public demo (`main`) | 1.52.0 | up to `0056` |
-| Example brand installation | 1.52.0 | up to `0056` (migrates on build) |
+| Production (`main`) | 1.52.1 (2026-11-20) | up to `0056` |
+| Public demo (`main`) | 1.52.1 | up to `0056` |
+| Example brand installation | 1.52.1 | up to `0056` (migrates on build) |
 | Staging (`staging`) | 1.49.0 | up to `0056` (Neon branch `staging`) |
 
 ## Waiting on `staging` for the next release

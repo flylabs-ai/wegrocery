@@ -24,6 +24,10 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.52.1] - 2026-11-20
+
+*One operator console for every FlyLabs app.*
+
 ### Removed
 - 🧭 **One operator console** [tech]: the WeGrocery Console (`console/`) leaves this repository. The FlyLabs Console, shared by all FlyLabs apps, now does what it did (fleet, migrations, new groups, requests). Installations change nothing: `INSTANCE_STATS_SECRET` works as before.
 
@@ -980,6 +984,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1
 [1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0
 [1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0
 [1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0
