@@ -24,6 +24,14 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.52.2] - 2026-11-20
+
+*Updated FlyLabs signature.*
+
+### Changed
+- 🎨 **FlyLabs signature**: the updated signature appears where a group displays it.
+- 🧰 **Release workflow after the transfer** [tech]: the release and demo checks now use the current upstream repository.
+
 ## [1.52.1] - 2026-11-20
 
 *One operator console for every FlyLabs app.*
@@ -984,6 +992,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2
 [1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1
 [1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0
 [1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0

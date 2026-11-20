@@ -112,7 +112,7 @@ export const DEFAULT_TOKEN_CONFIG: TokenConfig = {
   },
   // The flylabs.ai logo's dark colours (Playbook 2.11, module firma): the
   // same for every brand, like the light pair in globals.css.
-  darkExtra: { "--flylabs-ai": "#7a80ff", "--flylabs-spark": "#ffda47" },
+  darkExtra: { "--flylabs-ai": "#a5a8f7", "--flylabs-spark": "#ffda47" },
 };
 
 const AA = 4.5; // text (WCAG 1.4.3)

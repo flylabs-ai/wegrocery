@@ -25,6 +25,14 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.52.2] - 2026-11-20
+
+*Firma FlyLabs aggiornata.*
+
+### Modificato
+- 🎨 **Firma FlyLabs**: la firma aggiornata compare dove il gruppo sceglie di mostrarla.
+- 🧰 **Rilascio dopo il trasferimento** [tecnico]: i controlli di rilascio e della demo usano il repository attuale.
+
 ## [1.52.1] - 2026-11-20
 
 *Una sola console dell'operatore per tutte le app FlyLabs.*
@@ -986,6 +994,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2
 [1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1
 [1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0
 [1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0

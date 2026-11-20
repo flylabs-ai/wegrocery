@@ -42,9 +42,9 @@ describe("the flylabs.ai colours", () => {
     const { deriveDarkRoleVars } = await import("@/lib/brand/roles");
     const css = readFileSync("app/globals.css", "utf8");
     expect(css).toMatch(/--flylabs-ai: #343bec;/);
-    expect(css).toMatch(/--flylabs-spark: #d99a00;/);
+    expect(css).toMatch(/--flylabs-spark: #925f00;/);
     for (const theme of [{}, { primary: "#237032", accent: "#1971c2" }]) {
-      expect(deriveDarkRoleVars(theme)["--flylabs-ai"]).toBe("#7a80ff");
+      expect(deriveDarkRoleVars(theme)["--flylabs-ai"]).toBe("#a5a8f7");
       expect(deriveDarkRoleVars(theme)["--flylabs-spark"]).toBe("#ffda47");
     }
   });
