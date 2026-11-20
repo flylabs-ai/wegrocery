@@ -957,7 +957,7 @@ export const es: Strings = {
         membership: "Comprobación de la tarjeta de socio (WallyFor)",
         sentry: "Avisos de errores (Sentry)",
         dbRole: "Acceso a la base de datos con un rol restringido",
-        fleet: "Estadísticas anónimas para la consola (WeGrocery Console)",
+        fleet: "Estadísticas anónimas para la consola (FlyLabs Console)",
         autoOpen: "Apertura automática de los ciclos programados",
       } as Record<string, string>,
       notes: {
@@ -1040,7 +1040,7 @@ export const es: Strings = {
         ],
         fleet: [
           "Solo para quien gestiona varios grupos: su consola lee recuentos anónimos (socios, ciclos, pedidos, versión) sin tocar la base de datos. Para el grupo no cambia nada.",
-          "Genera un secreto (openssl rand -hex 32), defínelo como INSTANCE_STATS_SECRET y pega el mismo valor en la consola, en Añadir instancia existente. Usa un secreto distinto para cada instalación.",
+          "Genera un secreto (openssl rand -hex 32), defínelo como INSTANCE_STATS_SECRET y pega el mismo valor en la consola, en Añadir instancia. Usa un secreto distinto para cada instalación.",
         ],
         autoOpen: [
           "Los ciclos programados abren los pedidos solos la mañana del día previsto, si sus fechas no son orientativas. Sin él, los abre un admin con Abrir los pedidos.",

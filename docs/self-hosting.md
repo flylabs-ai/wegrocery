@@ -174,8 +174,8 @@ forward every log line) and its SDK setup steps (the app already has them).
 
 ### Anonymous stats for an operator console
 
-If you run several groups with the WeGrocery Console (`console/` in this
-repository), set `INSTANCE_STATS_SECRET` (`openssl rand -hex 32`) on each
+If you run several groups from an operator console (the maintainer uses the
+FlyLabs Console, a separate private app), set `INSTANCE_STATS_SECRET` (`openssl rand -hex 32`) on each
 installation and give the same value to the console: it then reads counts
 only (members, cycles, orders, version, configuration states), never names,
 addresses or amounts. Without the variable the endpoint answers 404.

@@ -2,15 +2,15 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-20 (release 1.52.0: Content Security Policy enforced; no migration).
+Last updated: 2026-11-20 (release 1.52.1: the WeGrocery Console is removed, the FlyLabs Console replaces it; no migration).
 
 ## Versions and migrations
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.52.0 (2026-11-20) | up to `0056` |
-| Public demo (`main`) | 1.52.0 | up to `0056` |
-| Example brand installation | 1.52.0 | up to `0056` (migrates on build) |
+| Production (`main`) | 1.52.1 (2026-11-20) | up to `0056` |
+| Public demo (`main`) | 1.52.1 | up to `0056` |
+| Example brand installation | 1.52.1 | up to `0056` (migrates on build) |
 | Staging (`staging`) | 1.49.0 | up to `0056` (Neon branch `staging`) |
 
 ## Waiting on `staging` for the next release
@@ -20,6 +20,8 @@ FlyLabs Kit `pagamenti` 1.0 adopted for the Stripe webhook (signature, live/test
 FlyLabs Kit modules `sicurezza` 1.0 and `i18n` 1.0 adopted (security headers, report-only CSP, CSP report endpoint and cron check from the kit, same policy as 1.47.2; parity test of the four language packs against Italian, with the bank reference template placeholders listed as translated on purpose). Content Security Policy enforced on staging from 2026-11-17 (PR "Enforce the Content Security Policy"): on production, 2026-11-15/17, the only reports were five `font-src https://fonts.gstatic.com` at once with no page (an extension or the browser's translator: the app self-hosts its fonts with next/font); on staging only `frame-src https://vercel.live`, now allowed on preview deploys. No `csp-report` line on production from 2026-11-17 to 2026-11-20; released in 1.52.0 on 2026-11-20 at the maintainer's explicit request. Stripe Checkout and Google sign-in leave through `window.location.assign`, which the policy does not restrict.
 
 FlyLabs Kit module `migrazioni` 1.0 prepared (PR to staging, not merged yet on purpose: it goes in after the work in progress). On its first run on each database it adds the nullable `checksum` column to `_migrations` and fills it from the local files without running them; then applied files are immutable. Commands take `--dir drizzle`. The role helpers moved to `scripts/db-role-lib.mjs`.
+
+One operator console (2026-11-19/20): the WeGrocery Console (`console/`, Vercel project `wegrocery-console`) was replaced by the FlyLabs Console (`federicodecillia/flylabs-console`, https://console.flylabs.ai), which took over its fleet module (redeploy, fleet rollout, *Migrazioni*, new group wizard, requests) for white-label apps only; all four instances are read there and `NEON_FLEET_KEYS` was moved. `console/` and its workflow are removed here; the maintainer deletes the old Vercel project and its database after this reaches `main`.
 
 Console *Migrazioni* (kit phase C2): the Console previews and applies the migrations of a `staging` commit to the demo and the example brand, each after a Neon backup branch `pre-migrate-<commit>`, with the kit runner and the owner's address asked of Neon at that moment (never stored). Registry migration `console/drizzle/0001_migration_runs.sql` applies itself on the Console's build. Production stays manual (rollout order 1000, the maintainer's choice). Before its first use the maintainer creates two Neon API keys limited to one project each (demo, example brand), sets `NEON_FLEET_KEYS` on the Console's Vercel project, and fills the Neon project id in each instance's settings; the first run is a no-op on the example brand.
 

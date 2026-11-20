@@ -25,6 +25,13 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.52.1] - 2026-11-20
+
+*Una sola console dell'operatore per tutte le app FlyLabs.*
+
+### Rimosso
+- 🧭 **Una sola console dell'operatore** [tecnico]: la WeGrocery Console (`console/`) esce da questa repo. Quello che faceva (flotta, migrazioni, nuovi gruppi, richieste) lo fa ora la FlyLabs Console, comune a tutte le app FlyLabs. Per le installazioni non cambia nulla: `INSTANCE_STATS_SECRET` funziona come prima.
+
 ## [1.52.0] - 2026-11-20
 
 *Content Security Policy vincolante e importazione del listino più pulita.*
@@ -979,6 +986,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1
 [1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0
 [1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0
 [1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0

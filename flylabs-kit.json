@@ -63,7 +63,7 @@
     "tema/theme.ts": "Non copiato: lib/theme.ts proprio (cookie wegrocery_theme); la barra di stato usa statusBarColors del modulo in app/layout.tsx, con la scelta del tema dal cookie",
     "templates/backup": "Origine del template: nomi dei file gas-backup-*, invarianti del denaro dopo il dump e controlli rclone propri",
     "templates/dependabot": "Better Auth in ignore (aggiornato a mano, Playbook 1.5) e gruppi minor/patch e major separati",
-    "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo e Console esclusa (ha la sua versione)",
+    "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo",
     "templates/release": "Origine del template: note estratte dalla sezione di CHANGELOG.md con lo script di WeGrocery",
     "templates/restore-test": "Origine del template: invarianti del denaro sul ramo ripristinato e lettura dei dump in chiaro ancora su Drive fino a febbraio 2027",
     "templates/vercel": "Cron giornalieri (apertura dei cicli, promemoria delle bozze); il template non ha cron",

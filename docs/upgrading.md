@@ -28,7 +28,7 @@ before touching it (builds with `MIGRATE_ON_BUILD` pass it themselves).
 
 ## Restricted database role (optional, recommended)
 
-A group installed from the WeGrocery Console already has it: the console
+A group installed from the FlyLabs Console already has it: the console
 creates `app_rw` and sets both variables. These steps are for the other
 installations.
 
