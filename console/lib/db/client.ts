@@ -14,6 +14,6 @@ export function getDb() {
   return dbInstance;
 }
 
-export function newId(prefix: "ins" | "req"): string {
+export function newId(prefix: "ins" | "req" | "mig"): string {
   return `${prefix}_${randomBytes(9).toString("base64url")}`;
 }

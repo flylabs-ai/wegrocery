@@ -5,7 +5,7 @@ import { buildCsp, cspHeaderName, CSP_REPORT_PATH, generateNonce, type Extensibl
 // Every page response carries the Content Security Policy with a new nonce
 // (lib/security/csp.ts, FlyLabs Kit module sicurezza). The same header on the
 // request lets Next.js read the nonce and put it on its own scripts.
-// Enforced since 1.51 after the Report-Only week (Playbook 11.2): the browser
+// Enforced since 1.52 after the Report-Only week (Playbook 11.2): the browser
 // blocks what the policy does not allow and still reports it.
 const CSP_HEADER = cspHeaderName("enforce");
 

@@ -701,14 +701,15 @@ function Step3Review({
               const { emoji: currentEmoji, source: emojiSource } = rowEmoji(i);
               const selected = selectedIndexes.has(i);
               const fileCategoryRaw = cell(i, "category");
-              // A generic catch-all ("Altro", "Varie"...) doesn't count as a
-              // real file category — mirrors resolveRow.
+              // A generic catch-all ("Altro", "Varie"...) or a code ("1503")
+              // doesn't count as a real file category — mirrors resolveRow.
               const fileCategory =
                 fileCategoryRaw && !isGenericCategoryLabel(fileCategoryRaw) ? fileCategoryRaw : "";
               // The name-based guess wins whenever it recognizes the product —
               // mirrors resolveRow (see comment there for why).
               const nameGuess = name ? guessProductCategory(name) : null;
-              const guessedCategory = nameGuess || fileCategory || fileCategoryRaw;
+              const guessedCategory = nameGuess || fileCategory;
+              const ignoredCategory = !guessedCategory && fileCategoryRaw ? fileCategoryRaw : "";
               return (
                 <tr key={i} className={`border-b border-border ${selected ? "" : "opacity-40"}`}>
                   <td className="p-2 align-middle">
@@ -731,6 +732,13 @@ function Step3Review({
                       <span>
                         {guessedCategory}
                         {nameGuess && <span className="ml-1 text-label text-primary-text">{t.admin.importWizard.autoCategory}</span>}
+                      </span>
+                    ) : ignoredCategory ? (
+                      <span className="text-muted-foreground">
+                        -
+                        <span className="ml-1 text-label">
+                          {t.admin.importWizard.ignoredCategory(ignoredCategory)}
+                        </span>
                       </span>
                     ) : (
                       <span className="text-muted-foreground">-</span>
