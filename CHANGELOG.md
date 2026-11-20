@@ -24,6 +24,10 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Changed
+- 🛡️ **Content Security Policy enforced** [tech]: after the Report-Only week the policy now blocks what it does not allow (`Content-Security-Policy`), and still reports it to `/api/csp-report`. Same sources as before; preview deploys also let the Vercel Toolbar frame in.
+- 🔐 **One constant-time comparison** [tech]: the unsubscribe link, the instance stats and the Stripe signature checks use `timingSafeEqualString` from `lib/security`, like the cron routes. Same behaviour; declared in `flylabs-kit.json`.
+
 ### Fixed
 - 🏷️ **Listing import: cleaner categories**: a category column holding article codes (1503, 1504...) is ignored, and the preview says so. Seeds, popcorn maize, yeast and dried chickpeas or lentils no longer land in Vegetables or Drinks by name.
 

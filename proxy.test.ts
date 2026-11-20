@@ -1,5 +1,5 @@
 import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { config } from "./proxy";
 
 const matches = (url: string) => unstable_doesMiddlewareMatch({ config, url });
@@ -42,17 +42,32 @@ describe("proxy redirect", () => {
 });
 
 describe("proxy content security policy", () => {
-  it("sends a report-only policy with a new nonce on each page, and the same one to Next.js", async () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("enforces the policy with a new nonce on each page, and passes the same one to Next.js", async () => {
     const { proxy } = await import("./proxy");
     const { NextRequest } = await import("next/server");
     const a = proxy(new NextRequest("https://app.example/login"));
     const b = proxy(new NextRequest("https://app.example/login"));
-    const csp = a.headers.get("content-security-policy-report-only");
+    const csp = a.headers.get("content-security-policy");
     expect(csp).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/]+={0,2}' 'strict-dynamic'/);
-    expect(csp).not.toBe(b.headers.get("content-security-policy-report-only"));
-    expect(a.headers.get("content-security-policy")).toBeNull();
+    expect(csp).not.toBe(b.headers.get("content-security-policy"));
+    expect(a.headers.get("content-security-policy-report-only")).toBeNull();
     expect(csp).toContain("report-uri /api/csp-report");
+    expect(csp).toContain("form-action 'self' https://checkout.stripe.com https://accounts.google.com");
+    expect(csp).toContain("frame-src 'none'");
     // NextResponse.next passes the overridden request headers on with this prefix.
-    expect(a.headers.get("x-middleware-request-content-security-policy-report-only")).toBe(csp);
+    expect(a.headers.get("x-middleware-request-content-security-policy")).toBe(csp);
+  });
+
+  it("lets the Vercel Toolbar frame in only on preview deploys", async () => {
+    const { proxy } = await import("./proxy");
+    const { NextRequest } = await import("next/server");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    expect(proxy(new NextRequest("https://app.example/login")).headers.get("content-security-policy")).toContain("frame-src https://vercel.live");
+    vi.stubEnv("VERCEL_ENV", "production");
+    expect(proxy(new NextRequest("https://app.example/login")).headers.get("content-security-policy")).toContain("frame-src 'none'");
   });
 });

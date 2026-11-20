@@ -25,6 +25,10 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Modificato
+- 🛡️ **Content Security Policy vincolante** [tecnico]: dopo la settimana in Report-Only la policy blocca ciò che non permette (`Content-Security-Policy`) e continua a segnalarlo a `/api/csp-report`. Stesse origini di prima; sui deploy di anteprima può aprirsi anche la Vercel Toolbar.
+- 🔐 **Un solo confronto a tempo costante** [tecnico]: il link di disiscrizione, le statistiche di istanza e la firma Stripe usano `timingSafeEqualString` di `lib/security`, come le route dei cron. Stesso comportamento; dichiarato in `flylabs-kit.json`.
+
 ### Risolto
 - 🏷️ **Importa listino: categorie più pulite**: una colonna Categoria con codici articolo (1503, 1504...) viene ignorata e l'anteprima lo segnala. Semi, mais da pop corn, lievito, ceci e lenticchie secchi non finiscono più in Verdura o Bevande per il nome.
 
