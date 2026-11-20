@@ -2,7 +2,7 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-20 (release 1.52.1: the WeGrocery Console is removed, the FlyLabs Console replaces it; no migration).
+Last updated: 2026-11-20 (status cleanup after 1.52.1; no release).
 
 ## Versions and migrations
 
@@ -11,29 +11,22 @@ Last updated: 2026-11-20 (release 1.52.1: the WeGrocery Console is removed, the 
 | Production (`main`) | 1.52.1 (2026-11-20) | up to `0056` |
 | Public demo (`main`) | 1.52.1 | up to `0056` |
 | Example brand installation | 1.52.1 | up to `0056` (migrates on build) |
-| Staging (`staging`) | 1.49.0 | up to `0056` (Neon branch `staging`) |
+| Staging (`staging`) | 1.52.1, same commit as `main` | up to `0056` (Neon branch `staging`) |
+
+FlyLabs Kit 0.23, profile `white-label` (`flylabs-kit.json`): modules auth, changelog, console, email, firma, guida, i18n, ics, migrazioni, pagamenti, pwa, shell, sicurezza, tema and ui adopted.
 
 ## Waiting on `staging` for the next release
 
-FlyLabs Kit `pagamenti` 1.0 adopted for the Stripe webhook (signature, live/test check and the `stripe_events` register, migration `0056_stripe_events.sql`, same answers to Stripe). Migration 0056 must be applied to production and the demo before the release deploys.
+Nothing: `staging` and `main` point at the same commit.
 
-FlyLabs Kit modules `sicurezza` 1.0 and `i18n` 1.0 adopted (security headers, report-only CSP, CSP report endpoint and cron check from the kit, same policy as 1.47.2; parity test of the four language packs against Italian, with the bank reference template placeholders listed as translated on purpose). Content Security Policy enforced on staging from 2026-11-17 (PR "Enforce the Content Security Policy"): on production, 2026-11-15/17, the only reports were five `font-src https://fonts.gstatic.com` at once with no page (an extension or the browser's translator: the app self-hosts its fonts with next/font); on staging only `frame-src https://vercel.live`, now allowed on preview deploys. No `csp-report` line on production from 2026-11-17 to 2026-11-20; released in 1.52.0 on 2026-11-20 at the maintainer's explicit request. Stripe Checkout and Google sign-in leave through `window.location.assign`, which the policy does not restrict.
+## Recent releases
 
-FlyLabs Kit module `migrazioni` 1.0 prepared (PR to staging, not merged yet on purpose: it goes in after the work in progress). On its first run on each database it adds the nullable `checksum` column to `_migrations` and fills it from the local files without running them; then applied files are immutable. Commands take `--dir drizzle`. The role helpers moved to `scripts/db-role-lib.mjs`.
+- **1.52.1** (2026-11-20): the WeGrocery Console (`console/`) is removed; the FlyLabs Console (https://console.flylabs.ai) reads all instances and runs the fleet work for white-label apps (redeploy, rollout, *Migrazioni*, new group wizard). Production migrations stay manual (rollout order 1000). The maintainer deletes the old `wegrocery-console` Vercel project and its database.
+- **1.52.0** (2026-11-20): Content Security Policy enforced (Report-Only since 1.47.2; no `csp-report` on production from 2026-11-17 to 2026-11-20). Violations are `csp-report` lines in the Vercel runtime logs.
+- **1.51.0** (2026-11-18): Console fleet migrations (kit C2), sign-in for the automated staging check, listing import fixes.
+- **1.47.0 to 1.50.0** (2026-11-15/16): draft reminders (migration `0055`), security headers and encrypted backups with a restore test that decrypts them, kit modules `pagamenti` (migration `0056_stripe_events`), `email` 2.0, `auth`, `sicurezza`, `i18n`, `migrazioni` (adds `_migrations.checksum` on first run), `ui` 1.1 and `shell` 1.1. Details in `CHANGELOG.md` and the release PRs.
 
-One operator console (2026-11-19/20): the WeGrocery Console (`console/`, Vercel project `wegrocery-console`) was replaced by the FlyLabs Console (`federicodecillia/flylabs-console`, https://console.flylabs.ai), which took over its fleet module (redeploy, fleet rollout, *Migrazioni*, new group wizard, requests) for white-label apps only; all four instances are read there and `NEON_FLEET_KEYS` was moved. `console/` and its workflow are removed here; the maintainer deletes the old Vercel project and its database after this reaches `main`.
-
-Console *Migrazioni* (kit phase C2): the Console previews and applies the migrations of a `staging` commit to the demo and the example brand, each after a Neon backup branch `pre-migrate-<commit>`, with the kit runner and the owner's address asked of Neon at that moment (never stored). Registry migration `console/drizzle/0001_migration_runs.sql` applies itself on the Console's build. Production stays manual (rollout order 1000, the maintainer's choice). Before its first use the maintainer creates two Neon API keys limited to one project each (demo, example brand), sets `NEON_FLEET_KEYS` on the Console's Vercel project, and fills the Neon project id in each instance's settings; the first run is a no-op on the example brand.
-
-Latest release: version 1.49.0 (admin "order for a member", PR #443: the form no longer replaces a member's existing order, both admin order actions refuse a save whose starting lines are not the member's current order, and the member dropdown became a list of who already ordered (Edit) and who has not (Add); PR #444 version bump) was released on Monday 2026-11-16 through PR #445 (merge commit `e54094a`) at the maintainer's explicit request. Manual backup run `43894481383` was green first. No migration and no data change. Staging was fast-forwarded to `main` and the example brand aligned (`df4c43e`). `/api/health` on production and demo reports `ok: true`, `db: true`, version `1.49.0`; the GitHub release workflow published `v1.49.0`. The integration CI job sits close to its 15 minute timeout and was cancelled once on #444 and #445 (green on rerun): raising `timeout-minutes` is a suggested follow-up.
-
-Release before (1.47.2): version 1.47.2 (report-only Content Security Policy with a per-request nonce and the `/api/csp-report` endpoint, PR #428) was released on Sunday 2026-11-15 through PR #430 (merge commit `89c07e2`) at the maintainer's explicit request, after the maintainer tried Google sign-in and a card payment on staging with the policy on. No migration and no data change. Staging was fast-forwarded to `main` and the example brand aligned (`c3738df`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.2`; production `/login` sends the policy with a nonce; the GitHub release workflow published `v1.47.2`.
-
-Release before: version 1.47.1 (security headers on every response, PR #424; daily backup encrypted with age and restore test that decrypts it, PR #425) was released on Sunday 2026-11-15 through PR #426 (merge commit `d6a87a9`) at the maintainer's explicit request. The encrypted manual backup run `43731285946` was green first (`gas-backup-2026-11-15.sql.gz.age` uploaded, invariants passed) and restore test run `43731468165` decrypted it, restored it on a throwaway branch and found every money invariant holding. No migration. Staging was fast-forwarded to `main` and the example brand aligned (`078f796`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.1`; production answers `/login`, `/api/health` and an unknown path with the five headers and no `X-Powered-By`; Deploy Health passed; the GitHub release workflow published `v1.47.1`; no runtime errors after the deploy. From now on the daily backup fails instead of uploading if `BACKUP_AGE_RECIPIENT` is missing; the unencrypted dumps already on Drive expire after 90 days.
-
-Previous release: version 1.47.0 (draft visibility for admins, draft reminders, draft summaries and filters; PRs #418 to #421, migration `0055_draft_reminders.sql`) was released on Sunday 2026-11-15 through PR #423 (merge commit `6ed0274`), with the maintainer's explicit weekend exception. Manual backup run `43718997359` was green first (dump uploaded, invariants passed). Migration `0055` was then applied to production and the demo in one transaction with a 5 s lock timeout; on both, `_migrations` holds 56 rows, `draft_reminders` has its primary key and two foreign keys, and `app_rw` has SELECT, INSERT, UPDATE and DELETE on it and still cannot write `_migrations`. Staging was fast-forwarded to `main` and the example brand aligned (`7946d26`). `/api/health` on production, demo and example brand reports `ok: true`, `db: true`, version `1.47.0`; Deploy Health passed on the release commit; the GitHub release workflow published `v1.47.0`; no runtime errors in the first minutes. The smoke test ran on the demo (login, Home, Order, Admin, Profile, changelog); production was checked without a session only (login page 200, cron endpoints 404 without the secret), so a signed-in look by the maintainer is still due. Draft reminders now run at 05:00 and 17:00 UTC where `CRON_SECRET` is set.
-
-WP0 is done (2026-11-11): the repositories are under `flylabs-ai`, and all four Vercel projects (porta-moneta, demo, example brand, Console) are in the Flylabs team.
+WP0 is done (2026-11-11): the repositories are under `flylabs-ai` and the Vercel projects are in the Flylabs team.
 
 ## Released in 1.45.0, off by default
 
@@ -43,12 +36,11 @@ Still to do before a group turns on limited quantities with card payments: a Str
 
 ## Planned and in progress
 
-- Launch phase 2, "safe fleet": executable spec in `docs/2026-11-09-launch-phase2-fleet.md`. Work packages in order: WP0 (move the repositories to `flylabs-ai` and the Vercel projects to the Pro account, the maintainer wants it first), WP1 (invariants per instance), WP2 (backups and restore tests, private repo `flylabs-ai/wegrocery-backups`), WP3 (data export), WP4 (shared sender), WP5 (subdomains), WP6 (rollouts). One PR per work package to `staging`. Choices marked **[default]** stand unless the maintainer changes them; steps marked **Maintainer** (transfers, private repo, secrets, keys, domain) are done by him, so stop and ask when one blocks you. WP0 A.1 is released in 1.45.1. The maintainer next verifies organization 2FA/ownership, transfers both repositories, installs the GitHub Apps and reconnects Claude/Codex. Parts A.3/A.4 and B remain pending.
+- Launch phase 2, "safe fleet": executable spec in `docs/2026-11-09-launch-phase2-fleet.md`. Work packages in order: WP0 (done 2026-11-11), WP1 (invariants per instance), WP2 (backups and restore tests, private repo `flylabs-ai/wegrocery-backups`), WP3 (data export), WP4 (shared sender), WP5 (subdomains), WP6 (rollouts). One PR per work package to `staging`. Choices marked **[default]** stand unless the maintainer changes them; steps marked **Maintainer** (transfers, private repo, secrets, keys, domain) are done by him, so stop and ask when one blocks you.
 - Possible next steps, undecided: comments from members on the calendar and Home; moving more pieces (planned cycles) into the FlyLabs Kit.
 
 ## Known open items
 
-- Deploy Health on release commit `3015523`: runs `42621910904` (Console) and `42621987253` (demo) received HTTP 302 from deployment URLs. Production/staging checks passed and the demo public health endpoint reports healthy 1.45.1. Investigate deployment URL redirects and the Console-specific health contract separately; do not treat these failed runs as green.
 - Manual backup dispatch: an agent with the GitHub connector can start `backup.yml` (done for 1.47.0 and 1.47.1); the GitHub CLI credential on the maintainer's computer still gets 403 on dispatch.
 - The backup's rclone remote uses rclone's shared Google Drive client id, which rclone says stops working during 2026: the maintainer should create his own client id (https://rclone.org/drive/#making-your-own-client-id) and update `RCLONE_CONFIG`.
 
