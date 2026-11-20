@@ -1,31 +1,37 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hasSessionCookie } from "@/lib/auth/cookie";
-import { buildCsp, cspHeaderName, CSP_REPORT_PATH, generateNonce } from "@/lib/security/csp";
+import { buildCsp, cspHeaderName, CSP_REPORT_PATH, generateNonce, type ExtensibleDirective } from "@/lib/security/csp";
 
 // Every page response carries the Content Security Policy with a new nonce
 // (lib/security/csp.ts, FlyLabs Kit module sicurezza). The same header on the
 // request lets Next.js read the nonce and put it on its own scripts.
-// Report-Only for now: a week of reports before it is enforced (Playbook 11.2).
-const CSP_HEADER = cspHeaderName("report-only");
+// Enforced since 1.52 after the Report-Only week (Playbook 11.2): the browser
+// blocks what the policy does not allow and still reports it.
+const CSP_HEADER = cspHeaderName("enforce");
 
 // What WeGrocery adds to the kit's base policy:
 // - img-src https: the group's logo may live on its own host;
 // - font-src data: and worker-src blob: for inlined fonts and the PWA;
 // - form-action: card payments leave through Stripe Checkout, Google sign-in
-//   through Google's page.
-const CSP_EXTRA = {
-  "img-src": ["https:"],
-  "font-src": ["data:"],
-  "worker-src": ["blob:"],
-  "form-action": ["https://checkout.stripe.com", "https://accounts.google.com"],
-} as const;
+//   through Google's page;
+// - frame-src https://vercel.live on preview deploys only (staging): the
+//   Vercel Toolbar for comments. Production and other hosts keep 'none'.
+function cspExtra(): Partial<Record<ExtensibleDirective, readonly string[]>> {
+  return {
+    "img-src": ["https:"],
+    "font-src": ["data:"],
+    "worker-src": ["blob:"],
+    "form-action": ["https://checkout.stripe.com", "https://accounts.google.com"],
+    ...(process.env.VERCEL_ENV === "preview" ? { "frame-src": ["https://vercel.live"] } : {}),
+  };
+}
 
 function withCsp(request: NextRequest): NextResponse {
   const csp = buildCsp({
     nonce: generateNonce(),
     dev: process.env.NODE_ENV === "development",
     reportUri: CSP_REPORT_PATH,
-    extra: CSP_EXTRA,
+    extra: cspExtra(),
   });
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(CSP_HEADER.toLowerCase(), csp);

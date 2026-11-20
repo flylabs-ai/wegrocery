@@ -1,4 +1,5 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
+import { timingSafeEqualString } from "@/lib/security/secrets";
 
 // Requests to /api/instance-stats are signed by the FlyLabs Console
 // (Playbook 7.10, flylabs-kit registry/console, the scheme of WeGrocery's):
@@ -45,8 +46,7 @@ export function verifyRequest(input: VerifyInput): boolean {
   if (!input.timestamp || !/^\d{1,12}$/.test(input.timestamp)) return false;
   if (Math.abs(input.nowSeconds - Number(input.timestamp)) > MAX_SKEW_SECONDS) return false;
   if (!input.signature || !/^[0-9a-f]{64}$/.test(input.signature)) return false;
-  const expected = Buffer.from(signRequest(secret, input.timestamp, input.method, input.path), "hex");
-  return timingSafeEqual(expected, Buffer.from(input.signature, "hex"));
+  return timingSafeEqualString(input.signature, signRequest(secret, input.timestamp, input.method, input.path));
 }
 
 export function verifiedContract(headers: { get(name: string): string | null }, base: Omit<VerifyInput, "timestamp" | "signature">): StatsContract | null {

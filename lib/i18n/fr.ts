@@ -2044,6 +2044,7 @@ export const fr: Strings = {
       emojiNotAuto: "pas auto",
       emptyName: "vide",
       autoCategory: "auto",
+      ignoredCategory: (value: string) => `(${value} : ignoré)`,
       selectedCount: (selected: number, total: number) => `${selected} / ${total} produits sélectionnés.`,
       fileInfo: (name: string) => `Fichier : ${name}`,
       back: "← Retour",

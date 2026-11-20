@@ -25,6 +25,17 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.52.0] - 2026-11-20
+
+*Content Security Policy vincolante e importazione del listino più pulita.*
+
+### Modificato
+- 🛡️ **Content Security Policy vincolante** [tecnico]: dopo la settimana in Report-Only la policy blocca ciò che non permette (`Content-Security-Policy`) e continua a segnalarlo a `/api/csp-report`. Stesse origini di prima; sui deploy di anteprima può aprirsi anche la Vercel Toolbar.
+- 🔐 **Un solo confronto a tempo costante** [tecnico]: il link di disiscrizione, le statistiche di istanza e la firma Stripe usano `timingSafeEqualString` di `lib/security`, come le route dei cron. Stesso comportamento; dichiarato in `flylabs-kit.json`.
+
+### Risolto
+- 🏷️ **Importa listino: categorie più pulite**: una colonna Categoria con codici articolo (1503, 1504...) viene ignorata e l'anteprima lo segnala. Semi, mais da pop corn, lievito, ceci e lenticchie secchi non finiscono più in Verdura o Bevande per il nome.
+
 ## [1.51.0] - 2026-11-18
 
 *Strumenti per chi gestisce le installazioni: verifica automatica di staging e migrazioni della flotta dalla Console.*
@@ -968,6 +979,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0
 [1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0
 [1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0
 [1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0

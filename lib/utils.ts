@@ -145,7 +145,10 @@ export function getProductEmojiOrNull(name: string): string | null {
 // null when nothing matches so the import wizard leaves the category blank
 // rather than guessing wrong. Keep the category strings in sync with
 // components/ui/category-select.tsx.
-const CATEGORY_MAP: [RegExp, string][] = [
+// A `null` category stops the search: the name alone is not enough to
+// place the product (seeds, popcorn maize, yeast, dried pulses), so the
+// supplier's own category column is used instead of a wrong preset.
+const CATEGORY_MAP: [RegExp, string | null][] = [
   // Pesce before Carne so "polpo/seppia" etc. don't fall into meat.
   [/pesce|salmone|tonno|merluzzo|orata|branzino|alici|acciug|sgombro|gamber|cozze|vongole|calamar|seppia|polpo|baccal/i, "Pesce"],
   // `\bpoll` (word boundary) so "cipollotto" falls through to Verdura instead
@@ -155,6 +158,10 @@ const CATEGORY_MAP: [RegExp, string][] = [
   [/latte|yogurt|kefir|formagg|ricotta|mozzarella|pecorino|parmigian|stracchino|caciotta|burro|panna|mascarpone|gorgonzola/i, "Latticini"],
   [/pasta|spaghett|penne|rigatoni|fusilli|maccheron|tagliatell|gnocch|lasagn|riso\b|risotto/i, "Pasta e riso"],
   [/pane|focacc|pizza|grano|farro|orzo|avena|farina|cereal|crusca|cracker|grissin|fett[ae] biscott/i, "Pane e cereali"],
+  // After Pane e cereali so "Farina di semi di lino" / "Farina di ceci" stay
+  // there; before Bevande and Verdura so "Lievito di birra", "Semi di zucca",
+  // "Mais per pop corn" and dried "Ceci" / "Lenticchie" are not misplaced.
+  [/\bsemi\b|\bsemini\b|pop ?corn|lievit|lenticchi|\bceci\b|\bcece\b|cicerchi/i, null],
   [/olio|aceto/i, "Olio e aceto"],
   [/vino|birra|succo|spremitura|bibita|acqua\b|tisana|infuso/i, "Bevande"],
   [/miele|marmellat|confettur|biscott|torta|dolce|cioccolat|cacao|nutella|crostata|merendin|zucchero/i, "Dolci"],
@@ -210,6 +217,18 @@ const GENERIC_CATEGORY_LABELS = new Set([
   "generica",
 ]);
 
+// A value made only of digits and separators ("1503", "15.03", "A-12" is
+// not) is an article or group code a supplier keeps next to the product,
+// not a category a member could read.
+const CODE_LIKE_CATEGORY = /^[\d\s.,/_-]+$/;
+
+export function isCodeLikeCategoryLabel(value: string | null | undefined): boolean {
+  const v = (value ?? "").trim();
+  return v !== "" && CODE_LIKE_CATEGORY.test(v);
+}
+
+// True for a file value that must not become a category: a catch-all
+// ("Altro", "Varie") or a code ("1503").
 export function isGenericCategoryLabel(value: string | null | undefined): boolean {
-  return GENERIC_CATEGORY_LABELS.has(normalizeCategory(value));
+  return GENERIC_CATEGORY_LABELS.has(normalizeCategory(value)) || isCodeLikeCategoryLabel(value);
 }

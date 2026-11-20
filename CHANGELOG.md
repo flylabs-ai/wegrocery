@@ -24,6 +24,17 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.52.0] - 2026-11-20
+
+*Content Security Policy enforced, and a cleaner listing import.*
+
+### Changed
+- 🛡️ **Content Security Policy enforced** [tech]: after the Report-Only week the policy now blocks what it does not allow (`Content-Security-Policy`), and still reports it to `/api/csp-report`. Same sources as before; preview deploys also let the Vercel Toolbar frame in.
+- 🔐 **One constant-time comparison** [tech]: the unsubscribe link, the instance stats and the Stripe signature checks use `timingSafeEqualString` from `lib/security`, like the cron routes. Same behaviour; declared in `flylabs-kit.json`.
+
+### Fixed
+- 🏷️ **Listing import: cleaner categories**: a category column holding article codes (1503, 1504...) is ignored, and the preview says so. Seeds, popcorn maize, yeast and dried chickpeas or lentils no longer land in Vegetables or Drinks by name.
+
 ## [1.51.0] - 2026-11-18
 
 *Tools for whoever runs the installations: an automated staging check and fleet migrations from the Console.*
@@ -966,6 +977,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0
 [1.51.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.51.0
 [1.50.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.50.0
 [1.49.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.49.0
