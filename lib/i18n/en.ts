@@ -957,7 +957,7 @@ export const en: Strings = {
         membership: "Membership card check (WallyFor)",
         sentry: "Error reporting (Sentry)",
         dbRole: "Database access with a restricted role",
-        fleet: "Anonymous stats for the console (WeGrocery Console)",
+        fleet: "Anonymous stats for the console (FlyLabs Console)",
         autoOpen: "Planned cycles opening by themselves",
       } as Record<string, string>,
       notes: {
@@ -1040,7 +1040,7 @@ export const en: Strings = {
         ],
         fleet: [
           "Only for whoever runs several groups: their console reads anonymous counts (members, cycles, orders, version) without touching the database. Nothing changes for the group.",
-          "Generate a secret (openssl rand -hex 32), set it as INSTANCE_STATS_SECRET and paste the same value in the console under Add existing instance. Use a different secret for each installation.",
+          "Generate a secret (openssl rand -hex 32), set it as INSTANCE_STATS_SECRET and paste the same value in the console under Add instance. Use a different secret for each installation.",
         ],
         autoOpen: [
           "Planned cycles open their orders by themselves on the morning of the planned day, unless their dates are tentative. Without it, an admin opens them with Open the orders.",

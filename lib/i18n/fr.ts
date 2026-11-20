@@ -957,7 +957,7 @@ export const fr: Strings = {
         membership: "Vérification de la carte de membre (WallyFor)",
         sentry: "Signalement des erreurs (Sentry)",
         dbRole: "Accès à la base de données avec un rôle restreint",
-        fleet: "Statistiques anonymes pour la console (WeGrocery Console)",
+        fleet: "Statistiques anonymes pour la console (FlyLabs Console)",
         autoOpen: "Ouverture automatique des cycles programmés",
       } as Record<string, string>,
       notes: {
@@ -1040,7 +1040,7 @@ export const fr: Strings = {
         ],
         fleet: [
           "Uniquement pour qui gère plusieurs groupes : sa console lit des décomptes anonymes (membres, cycles, commandes, version) sans toucher à la base de données. Rien ne change pour le groupe.",
-          "Générez un secret (openssl rand -hex 32), définissez-le comme INSTANCE_STATS_SECRET et collez la même valeur dans la console, sous Ajouter une instance existante. Utilisez un secret différent pour chaque installation.",
+          "Générez un secret (openssl rand -hex 32), définissez-le comme INSTANCE_STATS_SECRET et collez la même valeur dans la console, sous Ajouter une instance. Utilisez un secret différent pour chaque installation.",
         ],
         autoOpen: [
           "Les cycles programmés ouvrent leurs commandes seuls le matin du jour prévu, si leurs dates ne sont pas indicatives. Sinon, un admin les ouvre avec Ouvrir les commandes.",

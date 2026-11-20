@@ -141,7 +141,7 @@ jobs:
           echo "::error::the fresh database never answered"
           exit 1
 
-      # As the console installs a group: the restricted role exists before
+      # As the FlyLabs Console installs a group: the restricted role exists before
       # any table, the migrations run as the owner, the app uses the role.
       - name: Create the restricted role before any migration
         if: steps.neon.outputs.available == 'true' && matrix.shard == 3
