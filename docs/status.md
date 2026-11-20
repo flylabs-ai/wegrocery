@@ -17,7 +17,7 @@ FlyLabs Kit 0.23, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## Waiting on `staging` for the next release
 
-Nothing: `staging` and `main` point at the same commit.
+- FlyLabs signature 1.1, with the updated brand colours and the product’s existing signature setting.
 
 ## Recent releases
 

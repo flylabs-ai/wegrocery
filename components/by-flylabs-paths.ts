@@ -1,6 +1,4 @@
-// FlyLabs Kit registry module `firma`. Generated from the flylabs.ai logo kit 2.0
-// (flylabs-brain 03_Resources/materials/brand/logo/by-flylabs/source/badge.py): do not edit by hand.
-// Outlined paths, so the font is not needed.
+// Drawn from brand/flylabs-ai/by-flylabs/svg/by-flylabs-color-light.svg.
 
 export const BY_FLYLABS_VIEWBOX = "2.92 13.45 281.53 44.56";
 
