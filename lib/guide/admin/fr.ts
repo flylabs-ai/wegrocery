@@ -23,7 +23,7 @@ export const adminGuideFr: GuideContent = {
       title: "Comment l'espace Admin est organisé",
       intro: "Seuls les admins voient **Admin**. À l'intérieur, il y a quatre sections principales et deux secondaires.",
       steps: [
-        "**Cycle** : **À faire maintenant** en haut, puis la liste des cycles. Touchez un cycle pour trouver **Vue d'ensemble**, **Produits**, **Commandes**, **Fournisseur** et **Comptes**.",
+        "**Cycle** : sur téléphone, touchez **Changer de cycle**. Vous pouvez rechercher par cycle ou fournisseur et filtrer par statut. Ouvrez **À faire maintenant** pour voir les tâches en attente.",
         "**Trésorerie** : les soldes des membres, les recharges, les mouvements sortants et les corrections.",
         "**Membres** : qui fait partie du groupe, son rôle, ses commandes et ses mouvements.",
         "**Catalogue** : les **Produits** et les **Fournisseurs** chez qui vous achetez.",
@@ -37,7 +37,7 @@ export const adminGuideFr: GuideContent = {
       slug: "da-fare-ora",
       topic: "inizio",
       title: "« À faire maintenant » : par où commencer",
-      intro: "En haut de **Cycle**, l'app vous indique la prochaine étape de chaque cycle, la plus urgente d'abord. En cas de doute, commencez toujours ici.",
+      intro: "Dans **Cycle**, touchez **À faire maintenant** pour voir la prochaine étape de chaque cycle, en commençant par la plus urgente.",
       steps: [
         "**Vérifier les commandes** : la date limite de commande est passée. Ajoutez les personnes manquantes, envoyez la commande au fournisseur, puis clôturez le cycle : il ne se clôture pas tout seul.",
         "**Envoyer la commande au fournisseur** : le cycle est clôturé mais le bon de commande n'est pas encore sorti de l'app.",

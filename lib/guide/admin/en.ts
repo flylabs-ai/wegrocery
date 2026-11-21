@@ -23,7 +23,7 @@ export const adminGuideEn: GuideContent = {
       title: "How the Admin area is laid out",
       intro: "Only admins see **Admin**. Inside there are four main sections and two secondary ones.",
       steps: [
-        "**Cycle**: **To do now** at the top, then the list of cycles. Tap a cycle to find **Overview**, **Products**, **Orders**, **Supplier** and **Accounts**.",
+        "**Cycle**: on a phone, tap **Switch cycle**. You can search by cycle or supplier and filter by status. Open **To do now** to see what needs attention.",
         "**Treasury**: members' balances, top-ups, outgoing movements and corrections.",
         "**Members**: who belongs to the group, their role, their orders and their movements.",
         "**Catalogue**: the **Products** and the **Suppliers** you buy from.",
@@ -37,7 +37,7 @@ export const adminGuideEn: GuideContent = {
       slug: "da-fare-ora",
       topic: "inizio",
       title: "\"To do now\": where to start",
-      intro: "At the top of **Cycle** the app tells you the next step of each cycle, the most urgent first. When in doubt, always start here.",
+      intro: "In **Cycle**, tap **To do now** to see the next step for each cycle, starting with the most urgent.",
       steps: [
         "**Check the orders**: the order deadline has passed. Add anyone missing, send the order to the supplier, then close the cycle: it does not close by itself.",
         "**Send the order to the supplier**: the cycle is closed but the order sheet has not left the app yet.",

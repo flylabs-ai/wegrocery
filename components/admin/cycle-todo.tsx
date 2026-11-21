@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ArrowRight, ChevronRight, ListTodo } from "lucide-react";
 import { t } from "@/lib/i18n";
 import { formatLongDay } from "@/lib/i18n/deadline";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Sheet } from "@/components/app-ui/sheet";
 import { adminHref } from "@/lib/admin/nav";
 import { currentStep, doneKey, type CycleStep, type CycleTask } from "@/lib/admin/cycle-phase";
 import type { CycleView } from "@/lib/admin/cycle-views";
 
 const STORAGE_KEY = "wg.admin.todoDone";
-/** Tasks shown: two on a phone or tablet (the cycle stays in view), three side by side from lg. */
-const SHOWN = 3;
-const SHOWN_SMALL = 2;
 
 function readDone(): Set<string> {
   try {
@@ -43,14 +43,8 @@ const VIEW: Record<CycleStep, CycleView> = {
   to_settle: "conti",
 };
 
-// Admin → Ciclo, on top: the next step of each cycle that needs one (at most
-// three on a computer, two on a phone, the most urgent first), then what waits elsewhere (refunds to retry
-// in Cassa, possible duplicates in Soci). Replaces the three count tiles,
-// which linked back to this page and never showed an open cycle past its
-// deadline. "Già inviato" / "Consegnato come ordinato" are remembered on this
-// device only: other admins still see the step. Calm on purpose: white cards
-// and outline buttons, red only as the "In ritardo" badge, so the cycle's own
-// main action (Chiudi ciclo) stays the one filled button on the page.
+// Show the next step for each cycle. Steps done outside the app can be marked
+// on this device without hiding them for other admins.
 export function CycleTodo({
   tasks,
   refunds,
@@ -60,6 +54,7 @@ export function CycleTodo({
   refunds: number;
   duplicates: number;
 }) {
+  const [open, setOpen] = useState(false);
   const [done, setDone] = useState<Set<string>>(() => new Set());
   useEffect(() => setDone(readDone()), []);
   const d = t.admin.workspace.todo;
@@ -68,7 +63,7 @@ export function CycleTodo({
     const step = currentStep(task, done);
     return step ? [{ task, step }] : [];
   });
-  const shown = visible.slice(0, SHOWN);
+  const count = visible.length + Number(refunds > 0) + Number(duplicates > 0);
 
   function markDone(cycleId: string, step: CycleStep) {
     const next = new Set(done);
@@ -77,66 +72,82 @@ export function CycleTodo({
     writeDone(next);
   }
 
+  if (count === 0 && !open) return null;
+
   return (
-    <section aria-labelledby="todo-title" className="mb-4 rounded-2xl border border-border bg-card p-3 lg:p-4">
-      <h2 id="todo-title" className="px-1 text-label font-bold uppercase tracking-wide text-muted-foreground">
-        {d.title}
-      </h2>
-      {shown.length === 0 ? (
-        <p className="px-1 pt-2 text-[13px] text-secondary-foreground">{d.nothing}</p>
-      ) : (
-        <ul className="mt-2 space-y-2 lg:grid lg:grid-cols-3 lg:gap-3 lg:space-y-0">
-          {shown.map(({ task, step }, i) => (
-            <li
-              key={task.cycleId}
-              className={`${i >= SHOWN_SMALL ? "hidden lg:flex" : "flex"} flex-col rounded-xl border border-border bg-background p-3`}
-            >
-              <span className="flex items-center gap-2">
-                <span className="min-w-0 flex-1 truncate text-label font-semibold text-secondary-foreground">{task.title}</span>
-                {step === "overdue" && <Badge variant="destructive">{d.lateBadge}</Badge>}
-              </span>
-              <span className="mt-0.5 text-[13px] text-foreground">{detail(task, step)}</span>
-              <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 lg:mt-auto lg:pt-2">
-                <Link
-                  href={adminHref("ciclo", VIEW[step], { cycle: task.cycleId })}
-                  className="flex min-h-11 items-center rounded-xl border border-border bg-card px-3 text-[13px] font-bold text-foreground hover:bg-tint/[0.04]"
-                >
-                  {cta(step)} →
-                </Link>
-                {(step === "to_send" || step === "to_adjust") && (
-                  <button
-                    type="button"
-                    onClick={() => markDone(task.cycleId, step)}
-                    title={d.markHint}
-                    className="min-h-11 px-1 text-[13px] font-semibold text-secondary-foreground underline-offset-2 hover:underline"
+    <div className="mb-4">
+      <Button
+        variant="outline"
+        block
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        className="min-h-11 cursor-pointer justify-start bg-card px-3 py-2"
+      >
+        <ListTodo aria-hidden className="size-4 shrink-0 text-secondary-foreground" />
+        <span className="min-w-0 flex-1 text-left">{d.title}</span>
+        {visible[0]?.step === "overdue" && <Badge variant="destructive">{d.lateBadge}</Badge>}
+        <span className="rounded-full bg-tint/5 px-2 py-0.5 text-label tabular-nums">{count}</span>
+        <ChevronRight aria-hidden className="size-4 shrink-0 text-secondary-foreground" />
+      </Button>
+      <Sheet open={open} onRequestClose={() => setOpen(false)} title={d.title}>
+        {count === 0 && <p className="text-sm text-secondary-foreground">{d.nothing}</p>}
+        {visible.length > 0 && (
+          <ul className="space-y-2">
+            {visible.map(({ task, step }) => (
+              <li key={task.cycleId} className="rounded-xl border border-border bg-card p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="min-w-0 flex-1 font-semibold wrap-anywhere">{task.title}</p>
+                  {step === "overdue" && <Badge variant="destructive">{d.lateBadge}</Badge>}
+                </div>
+                <p className="mt-1 text-sm text-secondary-foreground">{detail(task, step)}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-4">
+                  <Link
+                    href={adminHref("ciclo", VIEW[step], { cycle: task.cycleId })}
+                    onNavigate={() => setOpen(false)}
+                    className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary-text hover:underline"
                   >
-                    {step === "to_send" ? d.markSent : d.markDelivered}
-                  </button>
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-      {visible.length > SHOWN_SMALL && (
-        <p className="px-1 pt-2 text-label text-muted-foreground lg:hidden">{d.more(visible.length - SHOWN_SMALL)}</p>
-      )}
-      {visible.length > SHOWN && <p className="hidden px-1 pt-2 text-label text-muted-foreground lg:block">{d.more(visible.length - SHOWN)}</p>}
-      {(refunds > 0 || duplicates > 0) && (
-        <p className="flex flex-wrap gap-x-4 gap-y-1 px-1 pt-2 text-[13px]">
-          {refunds > 0 && (
-            <Link href={adminHref("cassa", null)} className="flex min-h-(--control-h) items-center font-semibold text-primary-text">
-              {d.refunds(refunds)} →
-            </Link>
-          )}
-          {duplicates > 0 && (
-            <Link href={adminHref("soci", null)} className="flex min-h-(--control-h) items-center font-semibold text-primary-text">
-              {d.duplicates(duplicates)} →
-            </Link>
-          )}
-        </p>
-      )}
-    </section>
+                    {cta(step)}
+                    <ArrowRight aria-hidden className="size-4 shrink-0" />
+                  </Link>
+                  {(step === "to_send" || step === "to_adjust") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => markDone(task.cycleId, step)}
+                      title={d.markHint}
+                      className="min-h-11 text-secondary-foreground"
+                    >
+                      {step === "to_send" ? d.markSent : d.markDelivered}
+                    </Button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        {(refunds > 0 || duplicates > 0) && (
+          <ul className="divide-y divide-border">
+            {refunds > 0 && (
+              <li>
+                <Link href={adminHref("cassa", null)} onNavigate={() => setOpen(false)} className="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary-text">
+                  {d.refunds(refunds)}
+                  <ArrowRight aria-hidden className="size-4 shrink-0" />
+                </Link>
+              </li>
+            )}
+            {duplicates > 0 && (
+              <li>
+                <Link href={adminHref("soci", null)} onNavigate={() => setOpen(false)} className="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary-text">
+                  {d.duplicates(duplicates)}
+                  <ArrowRight aria-hidden className="size-4 shrink-0" />
+                </Link>
+              </li>
+            )}
+          </ul>
+        )}
+      </Sheet>
+    </div>
   );
 }
 
