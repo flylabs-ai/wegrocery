@@ -83,13 +83,16 @@ export function defaultCycleId(cycles: IndexedCycle[], asked?: string): string |
 
 export type CycleFilter = "all" | "open" | "planned" | "closed" | "cancelled";
 
-/** The list's filter and search: title words, accents and case ignored. */
-export function filterCycles<T extends { title: string; status: string }>(cycles: T[], filter: CycleFilter, query: string): T[] {
+/** Match words across the title and supplier, ignoring accents and case. */
+export function filterCycles<T extends { title: string; status: string; supplierName: string | null }>(cycles: T[], filter: CycleFilter, query: string): T[] {
   const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const words = norm(query).split(/\s+/).filter(Boolean);
-  return cycles.filter(
-    (c) => (filter === "all" || c.status === filter) && words.every((w) => norm(c.title).includes(w)),
-  );
+  return cycles.filter((cycle) => {
+    if (filter !== "all" && cycle.status !== filter) return false;
+    if (words.length === 0) return true;
+    const searchable = norm(`${cycle.title} ${cycle.supplierName ?? ""}`);
+    return words.every((word) => searchable.includes(word));
+  });
 }
 
 /** How long after its settlement a card cycle is still checked for money left to settle. */

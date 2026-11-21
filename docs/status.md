@@ -17,6 +17,7 @@ FlyLabs Kit 0.23, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## Waiting on `staging` for the next release
 
+- Admin → Cycle: a compact activity row and a cycle picker with supplier search and status filters. No migration.
 - FlyLabs signature 1.1, with the updated brand colours and the product’s existing signature setting.
 
 ## Recent releases

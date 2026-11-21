@@ -23,7 +23,7 @@ export const adminGuideEs: GuideContent = {
       title: "Cómo está organizada el área Admin",
       intro: "Solo los admins ven **Admin**. Dentro hay cuatro secciones principales y dos secundarias.",
       steps: [
-        "**Ciclo**: **Qué hacer ahora** arriba, luego la lista de ciclos. Toca un ciclo para encontrar **Resumen**, **Productos**, **Pedidos**, **Proveedor** y **Cuentas**.",
+        "**Ciclo**: en el móvil, toca **Cambiar de ciclo**. Puedes buscar por ciclo o proveedor y filtrar por estado. Abre **Qué hacer ahora** para ver las tareas pendientes.",
         "**Tesorería**: los saldos de los socios, recargas, movimientos de salida y correcciones.",
         "**Socios**: quién forma parte del grupo, su rol, sus pedidos y sus movimientos.",
         "**Catálogo**: los **Productos** y los **Proveedores** a los que compráis.",
@@ -37,7 +37,7 @@ export const adminGuideEs: GuideContent = {
       slug: "da-fare-ora",
       topic: "inizio",
       title: "\"Qué hacer ahora\": por dónde empezar",
-      intro: "Arriba en **Ciclo** la app te indica el siguiente paso de cada ciclo, el más urgente primero. En caso de duda, empieza siempre por aquí.",
+      intro: "En **Ciclo**, toca **Qué hacer ahora** para ver el siguiente paso de cada ciclo, empezando por el más urgente.",
       steps: [
         "**Revisar los pedidos**: la fecha límite del pedido ha pasado. Añade a quien falte, envía el pedido al proveedor y luego cierra el ciclo: no se cierra solo.",
         "**Enviar el pedido al proveedor**: el ciclo está cerrado pero la hoja del pedido aún no ha salido de la app.",

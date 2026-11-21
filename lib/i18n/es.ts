@@ -798,9 +798,10 @@ export const es: Strings = {
   },
   admin: {
     workspace: {
-      groups: { toSettle: "Cuentas por ajustar", open: "Abiertos", planned: "Programados", others: "Los demás" },
+      groups: { toSettle: "Cuentas por ajustar", open: "Abiertos", planned: "Programados", others: "Archivo" },
       settleHints: { to_settle: "cuentas por ajustar", needs_update: "cuentas por actualizar", refund_failed: "reembolso fallido" },
-      allCycles: "Todos los ciclos",
+      switchCycle: "Cambiar de ciclo",
+      chooseCycle: "Elegir un ciclo",
       views: {
         panoramica: "Resumen",
         prodotti: "Productos",
@@ -811,7 +812,9 @@ export const es: Strings = {
       },
       listTitle: "Ciclos",
       newCycle: "+ Nuevo ciclo",
-      search: "Buscar un ciclo",
+      search: "Buscar por ciclo o proveedor",
+      searchPlaceholder: "Ciclo o proveedor",
+      filtersLabel: "Filtrar por estado",
       showMore: "Ver más",
       noMatch: "Ningún ciclo encontrado.",
       filters: { all: "Todos", open: "Abiertos", planned: "Programados", closed: "Cerrados", cancelled: "Cancelados" },
@@ -858,7 +861,6 @@ export const es: Strings = {
         markSent: "Ya enviado",
         markDelivered: "Entregado tal como se pidió",
         markHint: "Solo en este dispositivo.",
-        more: (n: number) => (n === 1 ? "y un ciclo más, en la lista" : `y ${n} ciclos más, en la lista`),
         refunds: (n: number) => (n === 1 ? "1 reembolso por reintentar" : `${n} reembolsos por reintentar`),
         duplicates: (n: number) => (n === 1 ? "1 posible socio duplicado" : `${n} posibles socios duplicados`),
       },

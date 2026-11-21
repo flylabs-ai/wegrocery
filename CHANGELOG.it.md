@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Modificato
+- 📋 **Trova prima il ciclo in Admin.** Cerca per nome del ciclo o del fornitore e filtra per stato. **Da fare ora** occupa una riga e apre l’elenco completo delle attività.
+
 ## [1.52.2] - 2026-11-20
 
 *Firma FlyLabs aggiornata.*

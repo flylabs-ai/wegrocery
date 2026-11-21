@@ -25,7 +25,7 @@ export const adminGuideIt: GuideContent = {
       title: "Com'è fatta l'area Admin",
       intro: "La voce **Admin** la vedono solo gli amministratori. Dentro ci sono quattro sezioni principali e due secondarie.",
       steps: [
-        "**Ciclo**: in cima **Da fare ora**, poi l'elenco dei cicli. Toccando un ciclo trovi **Panoramica**, **Prodotti**, **Ordini**, **Fornitore** e **Conti**.",
+        "**Ciclo**: su telefono tocca **Cambia ciclo**. Puoi cercare per nome del ciclo o del fornitore e filtrare per stato. Apri **Da fare ora** per vedere le attività in sospeso.",
         "**Cassa**: i saldi dei soci, le ricariche, i movimenti in uscita e le correzioni.",
         "**Soci**: chi fa parte del gruppo, il suo ruolo, i suoi ordini e i suoi movimenti.",
         "**Catalogo**: i **Prodotti** e i **Fornitori** da cui si compra.",
@@ -39,7 +39,7 @@ export const adminGuideIt: GuideContent = {
       slug: "da-fare-ora",
       topic: "inizio",
       title: "\"Da fare ora\": da dove partire",
-      intro: "In cima a **Ciclo** l'app ti dice il prossimo passo di ogni ciclo, il più urgente per primo. Se non sai cosa fare, parti sempre da qui.",
+      intro: "In **Ciclo**, tocca **Da fare ora** per vedere il prossimo passo di ogni ciclo, a partire dal più urgente.",
       steps: [
         "**Controlla gli ordini**: la scadenza degli ordini è passata. Aggiungi chi manca, manda l'ordine al fornitore e poi chiudi il ciclo: non si chiude da solo.",
         "**Invia l'ordine al fornitore**: il ciclo è chiuso ma la distinta non è ancora partita dall'app.",

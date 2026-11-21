@@ -798,9 +798,10 @@ export const fr: Strings = {
   },
   admin: {
     workspace: {
-      groups: { toSettle: "Comptes à solder", open: "Ouverts", planned: "Programmés", others: "Les autres" },
+      groups: { toSettle: "Comptes à solder", open: "Ouverts", planned: "Programmés", others: "Archives" },
       settleHints: { to_settle: "comptes à solder", needs_update: "comptes à mettre à jour", refund_failed: "remboursement échoué" },
-      allCycles: "Tous les cycles",
+      switchCycle: "Changer de cycle",
+      chooseCycle: "Choisir un cycle",
       views: {
         panoramica: "Vue d'ensemble",
         prodotti: "Produits",
@@ -811,7 +812,9 @@ export const fr: Strings = {
       },
       listTitle: "Cycles",
       newCycle: "+ Nouveau cycle",
-      search: "Rechercher un cycle",
+      search: "Rechercher par cycle ou fournisseur",
+      searchPlaceholder: "Cycle ou fournisseur",
+      filtersLabel: "Filtrer par statut",
       showMore: "Voir plus",
       noMatch: "Aucun cycle trouvé.",
       filters: { all: "Tous", open: "Ouverts", planned: "Programmés", closed: "Clôturés", cancelled: "Annulés" },
@@ -858,7 +861,6 @@ export const fr: Strings = {
         markSent: "Déjà envoyée",
         markDelivered: "Livrée comme commandée",
         markHint: "Sur cet appareil uniquement.",
-        more: (n: number) => (n === 1 ? "et un autre cycle, dans la liste" : `et ${n} autres cycles, dans la liste`),
         refunds: (n: number) => (n === 1 ? "1 remboursement à relancer" : `${n} remboursements à relancer`),
         duplicates: (n: number) => (n === 1 ? "1 membre peut-être en double" : `${n} membres peut-être en double`),
       },
