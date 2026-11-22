@@ -24,6 +24,13 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.52.3] - 2026-11-22
+
+*Find cycles faster on mobile.*
+
+### Changed
+- 📋 **Find a cycle faster in Admin.** Search by cycle or supplier and filter by status. **To do now** takes one row and opens the full list of activities.
+
 ## [1.52.2] - 2026-11-20
 
 *Updated FlyLabs signature.*

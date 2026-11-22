@@ -42,7 +42,7 @@ import {
 } from "./ciclo-forms";
 import { CycleAccountsView } from "./cycle-accounts-view";
 import { SupplierSteps } from "./supplier-steps";
-import { CycleList, CyclePicker, type CycleListItem, type SettleState } from "./cycle-list";
+import { CycleList, CyclePicker, NewCycleLink, type CycleListItem, type SettleState } from "./cycle-list";
 import { CycleOrdersView } from "./cycle-orders-view";
 import { CycleDraftsSummary } from "./cycle-drafts-card";
 import { CyclePickupsView } from "./cycle-pickups-view";
@@ -96,6 +96,7 @@ export async function CycleWorkspace({ cycleId: asked, view: askedView, creating
     return {
       cycleId: c.cycleId,
       title: c.title,
+      supplierName: c.supplierName,
       status: c.status,
       perOrder: c.paymentMode === "per_order",
       toSettle: settle != null,
@@ -152,24 +153,20 @@ export async function CycleWorkspace({ cycleId: asked, view: askedView, creating
   return (
     <AccessLevelsProvider levels={accessLevels}>
     <div>
-      <div className="mb-3 flex gap-2 lg:hidden">
-        <div className="min-w-0 flex-1">
-          <CyclePicker cycles={listItems} selectedId={selectedId} view={view} />
+      {listItems.length > 0 && (
+        <div className="mb-3 flex flex-wrap items-stretch gap-2 lg:hidden">
+          <div className="min-w-36 flex-1">
+            <CyclePicker cycles={listItems} selectedId={selectedId} view={view} />
+          </div>
+          {!creating && <NewCycleLink />}
         </div>
-        <Link
-          href={adminHref("ciclo", null, { new: "1" })}
-          className="flex min-h-11 shrink-0 items-center rounded-xl bg-primary px-4 text-[13px] font-bold text-primary-foreground"
-        >
-          {t.admin.workspace.newCycle}
-        </Link>
-      </div>
-      {/* While creating, the form comes right under the top row: on a phone "+ Nuovo ciclo" must show it in view. */}
-      {!creating && <CycleTodo tasks={tasks} refunds={refunds} duplicates={duplicates} />}
+      )}
       <div className="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-5">
         <aside aria-label={t.admin.workspace.listTitle} className="hidden lg:block">
           <CycleList cycles={listItems} selectedId={selectedId} view={view} />
         </aside>
         <div className="min-w-0">
+          {!creating && <CycleTodo tasks={tasks} refunds={refunds} duplicates={duplicates} />}
           {cycle && view ? (
             <SelectedCycle cycle={cycle} view={view} suppliers={suppliers} access={access} />
           ) : (
@@ -327,7 +324,7 @@ async function SelectedCycle({
               </Link>
             )}
           </div>
-          <h2 id="cycle-title" className="text-[18px] font-black text-foreground">
+          <h2 id="cycle-title" className="text-[18px] font-black wrap-anywhere text-foreground">
             {c.title}
           </h2>
           <p className="mt-0.5 text-[13px] text-secondary-foreground">

@@ -60,14 +60,20 @@ describe("defaultCycleId", () => {
 
 describe("filterCycles", () => {
   const list = [
-    { title: "Ciclo di Ottobre", status: "open" },
-    { title: "Settembre verdure", status: "closed" },
-    { title: "Prova annullata", status: "cancelled" },
+    { title: "Ciclo di Ottobre", status: "open", supplierName: "Caffè di Montagna" },
+    { title: "Settembre verdure", status: "closed", supplierName: "Fattoria del Sole" },
+    { title: "Prova annullata", status: "cancelled", supplierName: null },
   ];
   it("filters by status and title words", () => {
     expect(filterCycles(list, "closed", "")).toHaveLength(1);
     expect(filterCycles(list, "all", "OTTO")).toEqual([list[0]]);
     expect(filterCycles(list, "all", "prova settembre")).toEqual([]);
+  });
+
+  it("matches title and supplier together within the selected status", () => {
+    expect(filterCycles(list, "open", "ottobre CAFFE")).toEqual([list[0]]);
+    expect(filterCycles(list, "closed", "CAFFE")).toEqual([]);
+    expect(filterCycles(list, "all", "prova")).toEqual([list[2]]);
   });
 });
 

@@ -800,9 +800,10 @@ export const it = {
   },
   admin: {
     workspace: {
-      groups: { toSettle: "Conti da chiudere", open: "Aperti", planned: "In programma", others: "Gli altri" },
+      groups: { toSettle: "Conti da chiudere", open: "Aperti", planned: "In programma", others: "Archivio" },
       settleHints: { to_settle: "conti da chiudere", needs_update: "conti da aggiornare", refund_failed: "rimborso non riuscito" },
-      allCycles: "Tutti i cicli",
+      switchCycle: "Cambia ciclo",
+      chooseCycle: "Scegli un ciclo",
       views: {
         panoramica: "Panoramica",
         prodotti: "Prodotti",
@@ -813,7 +814,9 @@ export const it = {
       },
       listTitle: "Cicli",
       newCycle: "+ Nuovo ciclo",
-      search: "Cerca un ciclo",
+      search: "Cerca per ciclo o fornitore",
+      searchPlaceholder: "Ciclo o fornitore",
+      filtersLabel: "Filtra per stato",
       showMore: "Mostra altri",
       noMatch: "Nessun ciclo trovato.",
       filters: { all: "Tutti", open: "Aperti", planned: "In programma", closed: "Chiusi", cancelled: "Annullati" },
@@ -860,7 +863,6 @@ export const it = {
         markSent: "Già inviato",
         markDelivered: "Consegnato come ordinato",
         markHint: "Vale solo su questo dispositivo.",
-        more: (n: number) => (n === 1 ? "e un altro ciclo, nell'elenco" : `e altri ${n} cicli, nell'elenco`),
         refunds: (n: number) => (n === 1 ? "1 rimborso da ritentare" : `${n} rimborsi da ritentare`),
         duplicates: (n: number) => (n === 1 ? "1 possibile doppione tra i soci" : `${n} possibili doppioni tra i soci`),
       },

@@ -16,7 +16,6 @@ Promotes staging to production: <!-- the PRs included, one line each -->
 - [ ] Production backup from the last night is green
 - [ ] Migration applied to production **before** the merge, by hand through the Neon connector after the backup (Drizzle inserts name every column)
 - [ ] Stripe events added to the live endpoint, if any
-- [ ] Not a Saturday or a Sunday
 
 ## The merge
 - [ ] Merge commit (not squash), then fast-forward `staging` to `main`

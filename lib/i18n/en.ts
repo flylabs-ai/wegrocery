@@ -798,9 +798,10 @@ export const en: Strings = {
   },
   admin: {
     workspace: {
-      groups: { toSettle: "Accounts to settle", open: "Open", planned: "Planned", others: "The others" },
+      groups: { toSettle: "Accounts to settle", open: "Open", planned: "Planned", others: "Archive" },
       settleHints: { to_settle: "accounts to settle", needs_update: "accounts to update", refund_failed: "refund failed" },
-      allCycles: "All cycles",
+      switchCycle: "Switch cycle",
+      chooseCycle: "Choose a cycle",
       views: {
         panoramica: "Overview",
         prodotti: "Products",
@@ -811,7 +812,9 @@ export const en: Strings = {
       },
       listTitle: "Cycles",
       newCycle: "+ New cycle",
-      search: "Search a cycle",
+      search: "Search by cycle or supplier",
+      searchPlaceholder: "Cycle or supplier",
+      filtersLabel: "Filter by status",
       showMore: "Show more",
       noMatch: "No cycle found.",
       filters: { all: "All", open: "Open", planned: "Planned", closed: "Closed", cancelled: "Cancelled" },
@@ -858,7 +861,6 @@ export const en: Strings = {
         markSent: "Already sent",
         markDelivered: "Delivered as ordered",
         markHint: "Only on this device.",
-        more: (n: number) => (n === 1 ? "and one more cycle, in the list" : `and ${n} more cycles, in the list`),
         refunds: (n: number) => (n === 1 ? "1 refund to retry" : `${n} refunds to retry`),
         duplicates: (n: number) => (n === 1 ? "1 possible duplicate member" : `${n} possible duplicate members`),
       },
