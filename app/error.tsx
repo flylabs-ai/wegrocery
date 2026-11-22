@@ -16,6 +16,7 @@ export default function Error({
 
   return (
     <div
+      data-app-render-error
       className="flex min-h-dvh flex-col items-center justify-center p-6 text-center"
       style={{ background: "var(--frame)" }}
     >
