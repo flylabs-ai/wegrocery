@@ -14,7 +14,6 @@ A managed instance's fee promises backups, a nightly check of the money and upda
 - **This repository stays clean.** No list of customer instances, no per-customer secret. Anything per customer lives in the private repository of WP2 or in the Console's database.
 - **Least privilege.** A job sees one instance at a time, with a read-only role.
 - **The first production group goes last** in every round, and only after the maintainer's explicit ok for anything touching production.
-- **No releases or rollouts on Saturday or Sunday.**
 - **Money**: the ledger is append-only; every new money rule needs an invariant in `lib/invariants.ts`. This phase adds no money rule: everything here only reads.
 - **How to work**, as in `AGENTS.md`:
   - one branch per WP from an up-to-date `origin/staging`, and a PR to `staging` (squash);
@@ -308,7 +307,7 @@ An admin of the demo downloads the file, the round trip test passes, and the gui
   - `rollouts (id, release_tag, commit_sha, status CHECK IN ('running','waiting_confirm','paused','failed','done'), created_at, created_by, observe_until timestamptz)`;
   - `rollout_items (rollout_id, instance_id, wave int, status CHECK IN ('pending','deploying','checking','done','failed'), deployment_id, started_at, finished_at, error)`;
   - with a unique index on `(rollout_id, instance_id)`.
-- Keep the pure state machine in `console/lib/fleet/rollout.ts`. Extend `nextRolloutAction` with waves, the observation pause, the confirm gate and the weekend rule (no step on Saturday or Sunday, Europe/Rome). Unit tests cover every transition.
+- Keep the pure state machine in `console/lib/fleet/rollout.ts`. Extend `nextRolloutAction` with waves, the observation pause and the confirm gate. Unit tests cover every transition.
 - Waves, from `rollout_order` and `hosting_model`:
   1. demo and example brand;
   2. observation pause, **[default]** 2 hours, during which health and the WP1 invariants are checked every tick;
