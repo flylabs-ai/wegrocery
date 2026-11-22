@@ -17,8 +17,6 @@ import { getPaymentSettings } from "@/lib/payments/get-settings";
 import { getSettlementStatus } from "@/lib/payments/settlement-store";
 import { DEFAULT_HANDLING_FEE } from "@/lib/payments/order-payment";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { t } from "@/lib/i18n";
 import { formatDate } from "@/lib/i18n/format";
@@ -44,7 +42,7 @@ import {
 } from "./ciclo-forms";
 import { CycleAccountsView } from "./cycle-accounts-view";
 import { SupplierSteps } from "./supplier-steps";
-import { CycleList, CyclePicker, type CycleListItem, type SettleState } from "./cycle-list";
+import { CycleList, CyclePicker, NewCycleLink, type CycleListItem, type SettleState } from "./cycle-list";
 import { CycleOrdersView } from "./cycle-orders-view";
 import { CycleDraftsSummary } from "./cycle-drafts-card";
 import { CyclePickupsView } from "./cycle-pickups-view";
@@ -160,14 +158,7 @@ export async function CycleWorkspace({ cycleId: asked, view: askedView, creating
           <div className="min-w-36 flex-1">
             <CyclePicker cycles={listItems} selectedId={selectedId} view={view} />
           </div>
-          {!creating && (
-            <Link
-              href={adminHref("ciclo", null, { new: "1" })}
-              className={cn(buttonVariants({ size: "sm" }), "min-h-11")}
-            >
-              {t.admin.workspace.newCycle}
-            </Link>
-          )}
+          {!creating && <NewCycleLink />}
         </div>
       )}
       <div className="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-5">

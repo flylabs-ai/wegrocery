@@ -98,6 +98,10 @@ async function shoot(page, path, file) {
     failures.push(`${file}: sent back to the sign-in page`);
     return;
   }
+  if (await page.locator("[data-app-render-error]").isVisible()) {
+    failures.push(`${file}: the app rendered its error boundary`);
+    return;
+  }
   if (OUT) await page.screenshot({ path: join(OUT, `${file}.png`), fullPage: true });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   if (overflow) failures.push(`${file}: the page scrolls horizontally`);

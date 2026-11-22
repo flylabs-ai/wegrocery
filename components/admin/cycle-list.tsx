@@ -68,14 +68,7 @@ export function CycleList({
 
   return (
     <div>
-      {!onNavigate && (
-        <Link
-          href={adminHref("ciclo", null, { new: "1" })}
-          className={cn(buttonVariants({ size: "sm", block: true }), "mb-3 min-h-11")}
-        >
-          {w.newCycle}
-        </Link>
-      )}
+      {!onNavigate && <NewCycleLink block className="mb-3" />}
       <div className="relative">
         <label className="sr-only" htmlFor={`${id}-search`}>{w.search}</label>
         <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-secondary-foreground" />
@@ -186,6 +179,17 @@ function CycleGroupSection({
         })}
       </ul>
     </section>
+  );
+}
+
+export function NewCycleLink({ block, className }: { block?: boolean; className?: string }) {
+  return (
+    <Link
+      href={adminHref("ciclo", null, { new: "1" })}
+      className={cn(buttonVariants({ size: "sm", block }), "min-h-11", className)}
+    >
+      {t.admin.workspace.newCycle}
+    </Link>
   );
 }
 
