@@ -356,7 +356,7 @@ export function SociList({
             ) : (
               // Stacked on phones, one row from sm. Emails show only in the
               // edit form: a long address cannot wrap and ran under the buttons.
-              // Ordini and Modifica are always in view; the other actions sit
+              // The member profile and edit actions are always in view; others sit
               // beside them from lg and behind ⋯ (a sheet) below it, so the
               // actions never wrap to a second line.
               <div
@@ -406,10 +406,10 @@ export function SociList({
                 <div className="flex shrink-0 items-center gap-2">
                   <Link
                     href={adminHref("soci", null, { member: m.memberId })}
-                    aria-label={t.admin.members.ordersAria(m.fullName)}
+                    aria-label={t.admin.members.memberProfileAria(m.fullName)}
                     className="hit-44 inline-flex min-h-(--control-h) whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-label font-semibold items-center text-foreground"
                   >
-                    {t.admin.members.ordersLink}
+                    {t.admin.members.memberProfileLink}
                   </Link>
                   <button onClick={() => setEditingId(m.memberId)} className="hit-44 min-h-(--control-h) whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-label font-semibold text-foreground">
                     {t.admin.common.edit}

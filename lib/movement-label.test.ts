@@ -37,6 +37,7 @@ describe("movementLabel", () => {
   it("names the manual movements recorded from Cassa", () => {
     expect(label("payout", "-12.00")).toBe("Restituzione saldo");
     expect(label("manual_charge", "-4.00")).toBe("Addebito");
+    expect(label("manual_credit", "4.00")).toBe("Accredito");
     expect(label("membership_fee", "-15.00")).toBe("Quota associativa");
   });
 

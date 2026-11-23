@@ -403,10 +403,10 @@ export const adminGuideEn: GuideContent = {
       topic: "cassa",
       title: "Recording a top-up paid by bank transfer or cash",
       steps: [
-        "Open **Treasury** and tap **New top-up**.",
+        "Open **Treasury** and tap **Record top-up**.",
         "Search the **Member** by name or email.",
         "Write the **Amount**, choose the **Method** and, for a bank transfer, the **Reference** from the bank statement.",
-        "Tap **Continue**, check the summary and **Confirm top-up**.",
+        "Tap **Review top-up**, check the new balance and confirm.",
       ],
       notes: [
         "If an identical top-up already exists the app warns you: check it is not a duplicate. The same reference cannot be recorded twice.",
@@ -420,16 +420,15 @@ export const adminGuideEn: GuideContent = {
     {
       slug: "movimento-uscita",
       topic: "cassa",
-      title: "Returning money, charging a fee or an expense",
+      title: "Crediting or charging a member’s balance",
       steps: [
-        "In **Treasury** tap **Outgoing movement**.",
-        "Choose the **Type**: **Payout** (money given back to the member, at most their balance), **Charge** (an expense) or **Fee** (membership fee).",
-        "Choose the member, the amount and write the **Reason**: the member sees it.",
-        "Check and confirm.",
+        "In **Treasury**, go to **Credits and charges**. Choose **Credit the balance** to increase it or **Charge the balance** to decrease it.",
+        "Choose the member, enter the amount and date, and give a **Reason** the member can see.",
+        "Check the preview and confirm. For example, a credit of 10 takes the balance from −5 to 5.",
       ],
-      notes: ["For a payout, **Whole balance** fills in the amount, minus the open orders."],
+      notes: ["If the member paid money to the group, use **Record top-up**. For a fee, go to **Members → Member profile → Membership fee**."],
       when: { mode: "wallet" },
-      keywords: ["payout", "membership fee", "manual charge", "withdrawal", "outgoing"],
+      keywords: ["credit", "charge", "reason", "membership fee", "balance"],
     },
     {
       slug: "leggere-movimenti",
