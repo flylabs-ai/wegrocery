@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { getAdminMemberOrders, getAllMembers } from "@/lib/db/queries";
+import { getAdminMemberOrders, getMemberById, getMemberBalance } from "@/lib/db/queries";
 import { formatDate, formatEur, getProductEmoji } from "@/lib/utils";
 import { Card, CardHeader } from "@/components/ui/card";
 import { t } from "@/lib/i18n";
 import { adminHref } from "@/lib/admin/nav";
+import { MovementForm } from "./cassa-movement-form";
 
-// Admin → Soci → a member's orders, every cycle, newest first (it was the
-// member filter of the old Ordini tab), with a way to their movements in Cassa.
+// Admin → Soci → the member profile, with their fee, orders and movements.
 export async function MemberOrders({ memberId }: { memberId: string }) {
-  const [members, orders] = await Promise.all([getAllMembers(), getAdminMemberOrders(memberId)]);
-  const member = members.find((m) => m.memberId === memberId);
+  const [member, orders, balance] = await Promise.all([
+    getMemberById(memberId),
+    getAdminMemberOrders(memberId),
+    getMemberBalance(memberId),
+  ]);
 
   return (
     <div className="space-y-4">
@@ -37,6 +40,16 @@ export async function MemberOrders({ memberId }: { memberId: string }) {
             {t.admin.orders.memberSummary(orders.length, formatEur(orders.reduce((s, o) => s + o.total, 0)))}
           </div>
         </div>
+      )}
+      {member && !member.mergedInto && (
+        member.householdOf ? (
+          <p className="text-sm text-secondary-foreground">{t.admin.treasury.inFamily(member.fullName)}</p>
+        ) : (
+          <MovementForm
+            kind="membership_fee"
+            fixedMember={{ memberId, fullName: member.fullName, email: member.email, active: member.active, balance }}
+          />
+        )
       )}
 
       {orders.length === 0 ? (

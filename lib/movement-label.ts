@@ -5,8 +5,8 @@ import type { Strings } from "@/lib/i18n";
 
 type MovementLabels = Strings["history"];
 
-// Every `ledger_entries.type` the database can hold (migrations 0000-0042):
-// the types the app writes plus the legacy `adjustment`. A new one is added
+// Ledger types used by the app, including older rows such as `adjustment`.
+// A new type is added
 // here, in `movementKind` and in the Cassa badges (`lib/ledger-badge.ts`).
 export const LEDGER_TYPES = [
   "topup",
@@ -16,6 +16,7 @@ export const LEDGER_TYPES = [
   "correction",
   "adjustment",
   "payout",
+  "manual_credit",
   "manual_charge",
   "membership_fee",
   "refund_failed",
@@ -53,6 +54,7 @@ export type MovementKind =
   | "reversal"
   | "adjustment"
   | "payout"
+  | "manual_credit"
   | "manual_charge"
   | "membership_fee"
   | "other";
@@ -95,6 +97,7 @@ export function movementKind(entry: LedgerMovement): MovementKind {
       // Legacy type of unknown intent (opening balances included): neutral.
       return "adjustment";
     case "payout":
+    case "manual_credit":
     case "manual_charge":
     case "membership_fee":
       return entry.type;
@@ -125,6 +128,7 @@ export function movementKindLabel(kind: MovementKind, labels: MovementLabels): s
     reversal: labels.reversal,
     adjustment: labels.correction,
     payout: labels.payout,
+    manual_credit: labels.manualCredit,
     manual_charge: labels.manualCharge,
     membership_fee: labels.membershipFee,
     other: labels.otherMovement,

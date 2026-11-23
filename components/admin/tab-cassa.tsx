@@ -4,7 +4,7 @@ import { t } from "@/lib/i18n";
 import { getPaymentSettings } from "@/lib/payments/get-settings";
 import { isAboveMaxBalance } from "@/lib/payments/settings";
 import { CassaInlineList, CassaSummaryCards, type BalanceFilter } from "./cassa-forms";
-import { OutgoingMovementForm, TopupForm } from "./cassa-movement-form";
+import { MovementForm } from "./cassa-movement-form";
 import { PendingRefundsNotice } from "./pending-refunds-notice";
 
 type Props = {
@@ -35,13 +35,15 @@ export async function TabCassa({ balanceFilter, memberId }: Props) {
     });
 
   // Disabled members stay pickable, flagged: a member who left may still pay
-  // off a debt or get the balance back. Enabled ones come first; the query
+  // off a debt or need a balance adjustment. Enabled ones come first; the query
   // already sorts by name.
   const pickable = membersWithBalances.filter((m) => !m.householdOf);
   const pickerMembers = [
     ...pickable.filter((m) => m.active),
     ...pickable.filter((m) => !m.active),
-  ].map(({ memberId, fullName, email, active, balance }) => ({ memberId, fullName, email, active, balance }));
+  ].map(({ memberId, fullName, email, active, balance }) => ({
+    memberId, fullName, email, active, balance,
+  }));
 
   // Aggregate only across active members so a dormant socio with €0 doesn't
   // skew the average. Negative-balance count uses the same population.
@@ -72,8 +74,12 @@ export async function TabCassa({ balanceFilter, memberId }: Props) {
       {/* Desktop: movement forms on the left, balances and history on the right. */}
       <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
         <div className="space-y-4">
-          <TopupForm members={pickerMembers} />
-          <OutgoingMovementForm members={pickerMembers} />
+          <MovementForm kind="topup" members={pickerMembers} />
+          <section className="space-y-2" aria-labelledby="balance-movements-title">
+            <h3 id="balance-movements-title" className="text-sm font-bold text-foreground">{t.admin.treasury.balanceMovementsTitle}</h3>
+            <MovementForm kind="manual_credit" members={pickerMembers} />
+            <MovementForm kind="manual_charge" members={pickerMembers} />
+          </section>
         </div>
 
         <Card className="mb-3.5 mb-3.5">

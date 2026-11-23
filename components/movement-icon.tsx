@@ -120,6 +120,8 @@ const PATHS: Record<MovementKind, ReactNode> = {
       <line x1="21" y1="12" x2="9" y2="12" />
     </>
   ),
+  // Manual credit: plus on the balance.
+  manual_credit: <path d="M12 5v14M5 12h14" />,
   // Manual charge: receipt.
   manual_charge: (
     <>

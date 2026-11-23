@@ -27,6 +27,16 @@ const closeFeeCents = handlingFeeCentsSql(
 
 export const INVARIANT_CHECKS: InvariantCheck[] = [
   {
+    name: "manual_credit_balance_only",
+    description: "manual credits increase the balance, carry a reason and do not represent a payment",
+    query: sql`
+      SELECT entry_id AS id FROM ledger_entries
+      WHERE type = 'manual_credit' AND reversed_by IS NULL
+        AND (amount <= 0 OR nullif(btrim(note), '') IS NULL
+          OR method IS NOT NULL OR external_ref IS NOT NULL OR cycle_id IS NOT NULL
+          OR payment_id IS NOT NULL OR refund_id IS NOT NULL)`,
+  },
+  {
     name: "payment_refunded_cents",
     description: "payments.refunded_cents equals the sum of its pending or succeeded refunds",
     query: sql`

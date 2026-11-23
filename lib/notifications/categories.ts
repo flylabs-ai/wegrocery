@@ -59,9 +59,9 @@ const TYPE_TO_CATEGORY: Record<string, NotificationCategory> = {
   cycle_opened: "cycle_opened",
   cycle_cancelled: "order_updates",
   // Manual Cassa movements (lib/actions/admin.ts) reuse existing categories,
-  // so no new toggle: a payout is the other side of a top-up, a manual charge
-  // or a membership fee is a debit on the balance like an order.
+  // Manual credits are balance increases; manual charges and fees are debits.
   payout_sent: "wallet_topup",
+  manual_credit_recorded: "wallet_topup",
   manual_charge_recorded: "order_charge",
   membership_fee_charged: "order_charge",
   // A Stripe refund that failed after being accepted: the money is back on

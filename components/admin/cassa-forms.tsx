@@ -5,6 +5,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@/components/app-ui/toast";
 import { adminDeleteLedgerEntry, adminUpdateLedgerEntry } from "@/lib/actions/admin";
+import { brand } from "@/lib/brand";
 import { formatDate, formatEur } from "@/lib/utils";
 import { DEFAULT_ROLE, normalizeRole, type Role } from "@/lib/roles";
 import { t } from "@/lib/i18n";
@@ -13,7 +14,7 @@ import {
   MANUAL_PAYMENT_METHODS,
   applyOriginalSign,
   isAdminEditableLedgerType,
-  isOutgoingLedgerType,
+  manualMovementRequiresReason,
 } from "@/lib/ledger";
 import type { LedgerEntryItem, MemberWithBalance } from "@/lib/db/queries";
 import { ledgerBadge } from "@/lib/ledger-badge";
@@ -239,6 +240,7 @@ export function LedgerEntryRow({
   const movement = { ...entry, paymentId: entry.paymentId ?? null };
   const badge = ledgerBadge(movement, t.admin.treasury);
   const kindLabel = badge.label.charAt(0).toUpperCase() + badge.label.slice(1);
+  const noteLabel = manualMovementRequiresReason(entry.type) ? t.admin.treasury.reasonLabel : t.admin.treasury.noteLabel;
   // The cycle names the row when there is one; otherwise the note, else the
   // kind. In its cycle's group the kind does, and the cycle is in the header.
   const title = inGroup ? kindLabel : (entry.cycleTitle ?? entry.note ?? kindLabel);
@@ -260,16 +262,15 @@ export function LedgerEntryRow({
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            aria-label={t.admin.treasury.amountLabel}
+            aria-label={t.admin.treasury.amountLabel(brand.currency)}
             className="min-h-11 w-28 shrink-0 px-2 py-1 tabular-nums"
           />
           <Input
             type="text"
-            aria-label={isOutgoingLedgerType(entry.type) ? t.admin.treasury.reasonLabel : t.admin.treasury.noteLabel}
+            aria-label={noteLabel}
             value={draftNote}
             onChange={(e) => setDraftNote(e.target.value)}
-            // An outgoing movement's causale is required (the member sees it).
-            placeholder={isOutgoingLedgerType(entry.type) ? t.admin.treasury.reasonLabel : t.admin.treasury.noteLabel}
+            placeholder={noteLabel}
             className="min-h-11 min-w-0 flex-1 px-2 py-1"
           />
         </div>

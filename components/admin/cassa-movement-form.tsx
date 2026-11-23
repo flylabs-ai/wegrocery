@@ -1,23 +1,26 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { toast } from "@/components/app-ui/toast";
-import { adminRecordOutgoingMovement, adminRecordTopup, type CassaMovementResult } from "@/lib/actions/admin";
+import { adminRecordManualCredit, adminRecordOutgoingMovement, adminRecordTopup, type CassaMovementResult } from "@/lib/actions/admin";
+import { brand } from "@/lib/brand";
 import { t } from "@/lib/i18n";
-import { formatDecimalInput, formatMoney, formatSignedMoney } from "@/lib/i18n/format";
+import { formatMoney, formatSignedMoney } from "@/lib/i18n/format";
 import { utcToZonedLocalInput } from "@/lib/i18n/zoned-time";
 import {
   MANUAL_PAYMENT_METHODS,
-  OUTGOING_LEDGER_TYPES,
+  manualMovementBalance,
   parseAmountInput,
-  validatePayoutAmount,
+  validateTopupAmount,
   type ManualPaymentMethod,
-  type OutgoingLedgerType,
+  type ManualLedgerType,
 } from "@/lib/ledger";
 import { formatDate } from "@/lib/utils";
 import { MemberCombobox, type PickerMember } from "./member-combobox";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label, labelClass } from "@/components/app-ui/label";
+import { Label } from "@/components/app-ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 
 function todayInput(): string {
@@ -63,7 +66,7 @@ function MethodSelect({
   );
 }
 
-export type RecapLine = { label: string; value: string };
+type RecapLine = { label: string; value: string };
 
 type Review = { warning: string | null; error: string | null };
 
@@ -72,6 +75,8 @@ type Review = { warning: string | null; error: string | null };
 function Recap({
   title,
   lines,
+  hint,
+  balance,
   review,
   confirmLabel,
   isPending,
@@ -80,6 +85,8 @@ function Recap({
 }: {
   title: string;
   lines: RecapLine[];
+  hint: string;
+  balance: React.ReactNode;
   review: Review;
   confirmLabel: string;
   isPending: boolean;
@@ -93,9 +100,10 @@ function Recap({
 
   return (
     <div>
-      <p ref={headingRef} tabIndex={-1} className="mb-3 text-[13px] font-bold text-foreground">
+      <p ref={headingRef} tabIndex={-1} className="text-sm font-bold text-foreground">
         {title}
       </p>
+      <p className="mb-3 text-sm text-secondary-foreground">{hint}</p>
       <dl className="divide-y divide-border rounded-lg border border-border">
         {lines.map((line) => (
           <div key={line.label} className="flex items-baseline justify-between gap-3 px-3 py-2">
@@ -104,6 +112,7 @@ function Recap({
           </div>
         ))}
       </dl>
+      {balance}
       {review.warning && (
         <p role="alert" className="mt-3 rounded-lg border border-primary/40 bg-primary-bg px-3 py-2 text-[12px] text-foreground">
           {review.warning}
@@ -114,27 +123,26 @@ function Recap({
           {review.error}
         </p>
       )}
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <button
-          type="button"
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button
+          variant="outline"
           onClick={onBack}
           disabled={isPending}
-          className="min-h-12 rounded-xl border border-border py-2 text-[13px] font-semibold text-foreground disabled:opacity-60"
+          className="min-h-12 grow"
         >
           {t.admin.treasury.backToEdit}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           onClick={() => onConfirm(review.warning !== null)}
           disabled={isPending}
-          className="min-h-12 rounded-xl bg-accent py-2 text-[13px] font-bold text-accent-foreground disabled:opacity-60"
+          className="min-h-12 grow whitespace-normal text-center"
         >
           {isPending
             ? t.admin.treasury.registeringTopup
             : review.warning
               ? t.admin.treasury.recordAnyway
               : confirmLabel}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -189,12 +197,10 @@ function FoldableCard({
         className="flex min-h-11 w-full items-center justify-between gap-3 text-left"
       >
         <span>
-          <span className="block text-[13px] font-bold text-foreground">{title}</span>
-          <span className="block text-label text-secondary-foreground">{hint}</span>
+          <span className="block text-sm font-bold text-foreground">{title}</span>
+          <span className="mt-0.5 block text-sm text-secondary-foreground">{hint}</span>
         </span>
-        <span aria-hidden className="text-label text-muted-foreground">
-          {open ? "▲" : "▼"}
-        </span>
+        <ChevronDown aria-hidden className={`size-4 shrink-0 text-muted-foreground ${open ? "rotate-180" : ""}`} />
       </button>
       <div id={panelId} hidden={!open} className="mt-4">
         {children}
@@ -203,183 +209,46 @@ function FoldableCard({
   );
 }
 
-// ── Top-up ────────────────────────────────────────────────────────────────────
-
-export function TopupForm({ members }: { members: PickerMember[] }) {
-  const [open, setOpen] = useState(false);
-  const [member, setMember] = useState<PickerMember | null>(null);
-  const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<ManualPaymentMethod>("bonifico");
-  const [externalRef, setExternalRef] = useState("");
-  const [entryDate, setEntryDate] = useState(todayInput);
-  const [note, setNote] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-
-  const parsedAmount = parseAmountInput(amount);
-  const { isPending, review, setReview, submit } = useMovementSubmit((memberName, notice) => {
-    toast.success(t.admin.treasury.topupRegistered(formatMoney(parsedAmount), memberName));
-    // Recorded anyway, the money arrived: the admin decides on a payout.
-    if (notice) toast.warning(notice, { duration: 12000 });
-    setMember(null);
-    setAmount("");
-    setMethod("bonifico");
-    setExternalRef("");
-    setEntryDate(todayInput());
-    setNote("");
-  });
-
-  function handleReview(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!member || !(Math.round(parsedAmount * 100) > 0)) {
-      setFormError(t.admin.treasury.invalidTopup);
-      return;
-    }
-    setFormError(null);
-    setReview({ warning: null, error: null });
-  }
-
-  function confirm(confirmDuplicate: boolean) {
-    if (!member) return;
-    submit(() =>
-      adminRecordTopup({
-        memberId: member.memberId,
-        amount: parsedAmount,
-        method,
-        externalRef,
-        note,
-        entryDate,
-        confirmDuplicate,
-      }),
-    );
-  }
-
-  let body: React.ReactNode = null;
-  if (open && review && member) {
-    const lines: RecapLine[] = [
-      { label: t.admin.treasury.recapMember, value: `${member.fullName} (${member.email})` },
-      { label: t.admin.treasury.recapAmount, value: formatSignedMoney(parsedAmount) },
-      { label: t.admin.treasury.recapMethod, value: t.admin.treasury.methods[method] },
-      ...(externalRef.trim() ? [{ label: t.admin.treasury.recapRef, value: externalRef.trim() }] : []),
-      { label: t.admin.treasury.recapDate, value: entryDate ? formatDate(entryDate) : formatDate(new Date()) },
-      ...(note.trim() ? [{ label: t.admin.treasury.recapNote, value: note.trim() }] : []),
-      {
-        label: t.admin.treasury.recapBalance,
-        value: `${formatMoney(member.balance)} → ${formatMoney(member.balance + parsedAmount)}`,
-      },
-    ];
-    body = (
-      <Recap
-        title={t.admin.treasury.recapTitle}
-        lines={lines}
-        review={review}
-        confirmLabel={t.admin.treasury.registerTopup}
-        isPending={isPending}
-        onBack={() => setReview(null)}
-        onConfirm={confirm}
-      />
-    );
-  } else if (open) {
-    body = (
-      <form onSubmit={handleReview} noValidate>
-        <div className="space-y-3">
-          <MemberCombobox
-            members={members}
-            value={member}
-            onChange={setMember}
-            label={t.admin.treasury.memberLabel}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={t.admin.treasury.amountLabel}>
-              {(id) => (
-                <Input
-                  id={id}
-                  type="text"
-                  inputMode="decimal"
-                  autoComplete="off"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder={t.admin.treasury.amountPlaceholder}
-                  className="min-h-11"
-                />
-              )}
-            </Field>
-            <Field label={t.admin.treasury.dateLabel}>
-              {(id) => (
-                <Input
-                  id={id}
-                  type="date"
-                  value={entryDate}
-                  onChange={(e) => setEntryDate(e.target.value)}
-                  className="min-h-11"
-                />
-              )}
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={t.admin.treasury.methodLabel}>
-              {(id) => <MethodSelect id={id} value={method} onChange={setMethod} />}
-            </Field>
-            <Field label={t.admin.treasury.externalRefLabel}>
-              {(id) => (
-                <Input
-                  id={id}
-                  type="text"
-                  autoComplete="off"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  value={externalRef}
-                  onChange={(e) => setExternalRef(e.target.value)}
-                  placeholder={t.admin.treasury.externalRefPlaceholder}
-                  className="min-h-11"
-                />
-              )}
-            </Field>
-          </div>
-          <Field label={t.admin.treasury.noteLabel}>
-            {(id) => (
-              <Input
-                id={id}
-                type="text"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder={t.admin.treasury.notePlaceholder}
-                className="min-h-11"
-              />
-            )}
-          </Field>
-        </div>
-        {formError && (
-          <p role="alert" className="mt-3 text-[12px] text-destructive">
-            {formError}
-          </p>
-        )}
-        <button type="submit" className="mt-4 min-h-12 w-full rounded-xl bg-accent py-2 text-[13px] font-bold text-accent-foreground">
-          {t.admin.treasury.review}
-        </button>
-      </form>
-    );
-  }
-
+// The ledger rounds the typed amount to cents before applying its sign.
+function BalancePreview({ change, after, balance }: { change: number; after: number; balance: number }) {
+  const tr = t.admin.treasury;
   return (
-    <FoldableCard
-      title={t.admin.treasury.newTopup}
-      hint={t.admin.treasury.topupHint}
-      open={open}
-      onToggle={() => setOpen((o) => !o)}
-    >
-      {body}
-    </FoldableCard>
+    <div className="mt-3 rounded-lg border border-border bg-secondary p-3">
+      <dl className="flex flex-wrap gap-x-6 gap-y-2 tabular-nums">
+        <div>
+          <dt className="text-label text-secondary-foreground">{tr.balanceBefore}</dt>
+          <dd className="text-sm font-semibold text-foreground">{formatMoney(balance)}</dd>
+        </div>
+        <div>
+          <dt className="text-label text-secondary-foreground">{tr.balanceChange}</dt>
+          <dd className="text-sm font-semibold text-foreground">{formatSignedMoney(change)}</dd>
+        </div>
+        <div>
+          <dt className="text-label text-secondary-foreground">{tr.balanceAfter}</dt>
+          <dd className={`text-sm font-bold ${after < 0 ? "text-destructive" : "text-foreground"}`}>{formatMoney(after)}</dd>
+        </div>
+      </dl>
+      {after < 0 && (
+        <p className="mt-2 text-sm font-medium text-destructive">{tr.balanceOwed(formatMoney(-after))}</p>
+      )}
+    </div>
   );
 }
 
-// ── Outgoing movements ────────────────────────────────────────────────────────
-
-// Payout, manual charge or membership fee, folded like the top-up form.
-export function OutgoingMovementForm({ members }: { members: PickerMember[] }) {
-  const panelId = useId();
+export function MovementForm({
+  kind,
+  members = [],
+  fixedMember,
+}: {
+  kind: Exclude<ManualLedgerType, "payout">;
+  members?: PickerMember[];
+  fixedMember?: PickerMember;
+}) {
+  const tr = t.admin.treasury;
+  const copy = tr.movementActions[kind];
+  const reasonHintId = useId();
   const [open, setOpen] = useState(false);
-  const [kind, setKind] = useState<OutgoingLedgerType>("payout");
-  const [member, setMember] = useState<PickerMember | null>(null);
+  const [memberId, setMemberId] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<ManualPaymentMethod>("bonifico");
   const [externalRef, setExternalRef] = useState("");
@@ -387,11 +256,20 @@ export function OutgoingMovementForm({ members }: { members: PickerMember[] }) {
   const [note, setNote] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  const isPayout = kind === "payout";
+  const member = fixedMember ?? members.find((candidate) => candidate.memberId === memberId) ?? null;
+  const isTopup = kind === "topup";
   const parsedAmount = parseAmountInput(amount);
-  const { isPending, review, setReview, submit } = useMovementSubmit((memberName) => {
-    toast.success(t.admin.treasury.outgoingRegistered[kind](formatMoney(parsedAmount), memberName));
-    setMember(null);
+  const hasAmount = validateTopupAmount(parsedAmount) === null;
+  const preview = member && hasAmount ? manualMovementBalance(kind, parsedAmount, member.balance) : null;
+  const balancePreview = member && preview ? (
+    <BalancePreview {...preview} balance={member.balance} />
+  ) : null;
+
+  const { isPending, review, setReview, submit } = useMovementSubmit((memberName, notice) => {
+    const recorded = isTopup ? tr.topupRegistered : tr.balanceMovementRegistered[kind];
+    toast.success(recorded(formatMoney(Math.abs(preview?.change ?? parsedAmount)), memberName));
+    if (notice) toast.warning(notice, { duration: 12000 });
+    setMemberId(null);
     setAmount("");
     setMethod("bonifico");
     setExternalRef("");
@@ -401,57 +279,58 @@ export function OutgoingMovementForm({ members }: { members: PickerMember[] }) {
 
   function handleReview(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!member || !(Math.round(parsedAmount * 100) > 0) || !note.trim()) {
-      setFormError(t.admin.treasury.invalidOutgoing);
-      return;
+    if (!member) {
+      setFormError(tr.chooseMember);
+    } else if (!hasAmount) {
+      setFormError(tr.enterPositiveAmount);
+    } else if (!isTopup && !note.trim()) {
+      setFormError(tr.movementErrors.noteRequired);
+    } else {
+      setFormError(null);
+      setReview({ warning: null, error: null });
     }
-    // The server checks again against the balance at write time.
-    const excess = isPayout ? validatePayoutAmount(parsedAmount, member.balance) : null;
-    if (excess) {
-      setFormError(t.admin.treasury.movementErrors.payoutExceedsBalance(formatMoney(excess.limit)));
-      return;
-    }
-    setFormError(null);
-    setReview({ warning: null, error: null });
   }
 
   function confirm(confirmDuplicate: boolean) {
-    if (!member) return;
-    submit(() =>
-      adminRecordOutgoingMovement({
-        memberId: member.memberId,
-        type: kind,
-        amount: parsedAmount,
-        note,
-        method: isPayout ? method : undefined,
-        externalRef: isPayout ? externalRef : undefined,
-        entryDate,
-        confirmDuplicate,
-      }),
-    );
+    if (!member || !preview) return;
+    const input = {
+      memberId: member.memberId,
+      amount: Math.abs(preview.change),
+      note,
+      entryDate,
+      confirmDuplicate,
+    };
+    if (isTopup) {
+      submit(() => adminRecordTopup({ ...input, method, externalRef }));
+    } else if (kind === "manual_credit") {
+      submit(() => adminRecordManualCredit(input));
+    } else {
+      submit(() => adminRecordOutgoingMovement({ ...input, type: kind }));
+    }
+  }
+
+  function toggle() {
+    if (isPending) return;
+    setOpen((value) => !value);
   }
 
   let body: React.ReactNode = null;
-  if (open && review && member) {
+  if (open && review && member && preview) {
     const lines: RecapLine[] = [
-      { label: t.admin.treasury.recapKind, value: t.admin.treasury.kinds[kind] },
-      { label: t.admin.treasury.recapMember, value: `${member.fullName} (${member.email})` },
-      { label: t.admin.treasury.recapAmount, value: formatSignedMoney(-parsedAmount) },
-      ...(isPayout ? [{ label: t.admin.treasury.recapMethod, value: t.admin.treasury.methods[method] }] : []),
-      ...(isPayout && externalRef.trim() ? [{ label: t.admin.treasury.recapRef, value: externalRef.trim() }] : []),
-      { label: t.admin.treasury.recapDate, value: entryDate ? formatDate(entryDate) : formatDate(new Date()) },
-      { label: t.admin.treasury.recapReason, value: note.trim() },
-      {
-        label: t.admin.treasury.recapBalance,
-        value: `${formatMoney(member.balance)} → ${formatMoney(member.balance - parsedAmount)}`,
-      },
+      { label: tr.recapMember, value: `${member.fullName} (${member.email})` },
+      ...(isTopup ? [{ label: tr.recapMethod, value: tr.methods[method] }] : []),
+      ...(isTopup && externalRef.trim() ? [{ label: tr.recapRef, value: externalRef.trim() }] : []),
+      { label: tr.recapDate, value: entryDate ? formatDate(entryDate) : formatDate(new Date()) },
+      ...(note.trim() ? [{ label: isTopup ? tr.recapNote : tr.recapReason, value: note.trim() }] : []),
     ];
     body = (
       <Recap
-        title={t.admin.treasury.recapTitle}
+        title={copy.title}
+        hint={copy.hint}
         lines={lines}
+        balance={balancePreview}
         review={review}
-        confirmLabel={t.admin.treasury.confirmOutgoing[kind]}
+        confirmLabel={copy.confirm(formatMoney(Math.abs(preview.change)))}
         isPending={isPending}
         onBack={() => setReview(null)}
         onConfirm={confirm}
@@ -460,65 +339,35 @@ export function OutgoingMovementForm({ members }: { members: PickerMember[] }) {
   } else if (open) {
     body = (
       <form onSubmit={handleReview} noValidate className="space-y-3">
-        <fieldset>
-          <legend className={labelClass}>{t.admin.treasury.kindLabel}</legend>
-          <div className="grid grid-cols-3 gap-2">
-            {OUTGOING_LEDGER_TYPES.map((k) => (
-              <label
-                key={k}
-                className={`flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-1 text-center text-[12px] font-semibold ${
-                  kind === k
-                    ? "border-accent bg-accent-bg text-accent-text"
-                    : "border-border text-foreground"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name={`${panelId}-kind`}
-                  value={k}
-                  checked={kind === k}
-                  onChange={() => setKind(k)}
-                  className="sr-only"
-                />
-                {t.admin.treasury.kinds[k]}
-              </label>
-            ))}
-          </div>
-          <p className="mt-1 text-label text-secondary-foreground">{t.admin.treasury.kindHints[kind]}</p>
-        </fieldset>
-        <MemberCombobox
-          members={members}
-          value={member}
-          onChange={setMember}
-          label={t.admin.treasury.memberLabel}
-        />
+        {fixedMember ? (
+          <p className="text-sm font-semibold text-foreground">{fixedMember.fullName}</p>
+        ) : (
+          <MemberCombobox
+            members={members}
+            value={member}
+            onChange={(selected) => {
+              setMemberId(selected?.memberId ?? null);
+              setFormError(null);
+            }}
+            label={tr.memberLabel}
+          />
+        )}
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t.admin.treasury.amountLabel}>
+          <Field label={tr.amountLabel(brand.currency)}>
             {(id) => (
-              <>
-                <Input
-                  id={id}
-                  type="text"
-                  inputMode="decimal"
-                  autoComplete="off"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder={t.admin.treasury.amountPlaceholder}
-                  className="min-h-11"
-                />
-                {isPayout && member && member.balance > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setAmount(formatDecimalInput(member.balance.toFixed(2)))}
-                    className="mt-1 text-left text-label font-semibold text-accent-text underline"
-                  >
-                    {t.admin.treasury.payoutAll} ({formatMoney(member.balance)})
-                  </button>
-                )}
-              </>
+              <Input
+                id={id}
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder={tr.amountPlaceholder}
+                className="min-h-11"
+              />
             )}
           </Field>
-          <Field label={t.admin.treasury.dateLabel}>
+          <Field label={tr.dateLabel}>
             {(id) => (
               <Input
                 id={id}
@@ -530,12 +379,13 @@ export function OutgoingMovementForm({ members }: { members: PickerMember[] }) {
             )}
           </Field>
         </div>
-        {isPayout && (
+        {balancePreview}
+        {isTopup && (
           <div className="grid grid-cols-2 gap-3">
-            <Field label={t.admin.treasury.methodLabel}>
+            <Field label={tr.methodLabel}>
               {(id) => <MethodSelect id={id} value={method} onChange={setMethod} />}
             </Field>
-            <Field label={t.admin.treasury.externalRefLabel}>
+            <Field label={tr.externalRefLabel}>
               {(id) => (
                 <Input
                   id={id}
@@ -545,43 +395,43 @@ export function OutgoingMovementForm({ members }: { members: PickerMember[] }) {
                   spellCheck={false}
                   value={externalRef}
                   onChange={(e) => setExternalRef(e.target.value)}
-                  placeholder={t.admin.treasury.externalRefPlaceholder}
+                  placeholder={tr.externalRefPlaceholder}
                   className="min-h-11"
                 />
               )}
             </Field>
           </div>
         )}
-        <Field label={t.admin.treasury.reasonLabel}>
+        <Field label={isTopup ? tr.noteLabel : tr.reasonLabel}>
           {(id) => (
-            <Input
-              id={id}
-              type="text"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder={t.admin.treasury.reasonPlaceholder}
-              className="min-h-11"
-            />
+            <>
+              <Input
+                id={id}
+                type="text"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={isTopup ? tr.notePlaceholder : undefined}
+                aria-describedby={isTopup ? undefined : reasonHintId}
+                className="min-h-11"
+              />
+              {!isTopup && <p id={reasonHintId} className="mt-1 text-label text-secondary-foreground">{tr.reasonHint}</p>}
+            </>
           )}
         </Field>
-        {formError && (
-          <p role="alert" className="text-[12px] text-destructive">
-            {formError}
-          </p>
-        )}
-        <button type="submit" className="min-h-12 w-full rounded-xl bg-primary py-2 text-[13px] font-bold text-primary-foreground">
-          {t.admin.treasury.review}
-        </button>
+        {formError && <p role="alert" className="text-sm text-destructive">{formError}</p>}
+        <Button type="submit" block className="min-h-12 whitespace-normal text-center">
+          {copy.review}
+        </Button>
       </form>
     );
   }
 
   return (
     <FoldableCard
-      title={t.admin.treasury.outgoingTitle}
-      hint={t.admin.treasury.outgoingHint}
+      title={copy.title}
+      hint={copy.hint}
       open={open}
-      onToggle={() => setOpen((o) => !o)}
+      onToggle={toggle}
     >
       {body}
     </FoldableCard>

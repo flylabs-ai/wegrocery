@@ -25,6 +25,13 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.53.0] - 23 novembre 2026
+
+*Accredita o addebita un importo con il saldo in anteprima.*
+
+### Modificato
+- 💶 **Accrediti e addebiti in Cassa.** Modifica il saldo di un socio con una causale e vedi il nuovo saldo prima di confermare. Le ricariche registrano i versamenti ricevuti. La quota associativa si addebita dalla scheda del socio.
+
 ## [1.52.3] - 2026-11-22
 
 *Trova più in fretta i cicli da telefono.*
@@ -1001,6 +1008,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2
 [1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1
 [1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0
