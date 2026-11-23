@@ -66,6 +66,15 @@ describeDb("money invariants", () => {
     expect(found.closed_cycle_charge).toEqual([`${cycleId}:${scope.memberId}`]);
   });
 
+  it("flags a manual credit that debits the balance or records a payment method", async () => {
+    const valid = scope.id("valid_manual_credit");
+    const invalid = scope.id("invalid_manual_credit");
+    await sql`INSERT INTO ledger_entries (entry_id, member_id, entry_date, type, amount, note, method, created_by, created_at)
+      VALUES (${valid}, ${scope.memberId}, now(), 'manual_credit', 5, 'Spesa anticipata', NULL, 'int-test', now()),
+        (${invalid}, ${scope.memberId}, now(), 'manual_credit', -5, 'Spesa anticipata', 'bonifico', 'int-test', now())`;
+    expect((await breaks()).manual_credit_balance_only).toEqual([invalid]);
+  });
+
   it("checks balance payments and settled pay-per-order cycles", async () => {
     const { cycleId } = await scope.createCycle("settled", { paymentMode: "per_order" });
     await scope.createPaidOrderPayment("set", cycleId, 1000);

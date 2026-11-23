@@ -24,6 +24,13 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.53.0] - 2026-11-23
+
+*Credit or charge a member’s balance with a clear preview.*
+
+### Changed
+- 💶 **Credits and charges in Treasury.** Adjust a member’s balance with a reason and preview the new balance before confirming. Record payments received as top-ups and charge membership fees from the member profile.
+
 ## [1.52.3] - 2026-11-22
 
 *Find cycles faster on mobile.*
@@ -999,6 +1006,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2
 [1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1
 [1.52.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.0

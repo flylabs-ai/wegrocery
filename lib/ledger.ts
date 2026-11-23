@@ -85,10 +85,23 @@ export type ManualPaymentMethod = (typeof MANUAL_PAYMENT_METHODS)[number];
 export const OUTGOING_LEDGER_TYPES = ["payout", "manual_charge", "membership_fee"] as const;
 export type OutgoingLedgerType = (typeof OUTGOING_LEDGER_TYPES)[number];
 
-export type ManualLedgerType = "topup" | OutgoingLedgerType;
+export type ManualLedgerType = "topup" | "manual_credit" | OutgoingLedgerType;
+
+function signedManualMovementCents(type: ManualLedgerType, amountCents: number): number {
+  return isOutgoingLedgerType(type) ? -amountCents : amountCents;
+}
+
+export function manualMovementBalance(type: ManualLedgerType, amount: number, balance: number) {
+  const signedCents = signedManualMovementCents(type, toCents(amount));
+  return { change: signedCents / 100, after: (toCents(balance) + signedCents) / 100 };
+}
 
 export function isOutgoingLedgerType(type: string): type is OutgoingLedgerType {
   return (OUTGOING_LEDGER_TYPES as readonly string[]).includes(type);
+}
+
+export function manualMovementRequiresReason(type: string): boolean {
+  return type === "manual_credit" || isOutgoingLedgerType(type);
 }
 
 // Bank references (CRO/TRN) are 11-35 characters; the cap only stops pastes
@@ -133,7 +146,8 @@ export type ManualMovementPlan = {
 // commas. Blank or garbage is NaN, never 0, so it fails validation as invalid.
 export function parseAmountInput(input: string): number {
   const trimmed = input.trim();
-  return trimmed === "" ? NaN : Number(trimmed.replace(",", "."));
+  if (!/^\+?(?:\d+(?:[.,]\d*)?|[.,]\d+)$/.test(trimmed)) return NaN;
+  return Number(trimmed.replace(",", "."));
 }
 
 function isManualPaymentMethod(value: unknown): value is ManualPaymentMethod {
@@ -155,15 +169,15 @@ function blankToNull(value: string | null | undefined): string | null {
 
 // Validates and normalises a movement typed in the Cassa forms. The server
 // action runs it on the raw payload, so nothing from the client is written
-// unchecked. Top-ups need a method; a payout may name one; charges and fees
-// move no money, so a method or reference sent for them is dropped. Outgoing
-// movements need a causale, which the member sees.
+// unchecked. Top-ups need a method; a payout may name one. Balance-only
+// movements have no method or reference. Every kind except top-up needs a
+// reason visible to the member.
 export function planManualMovement(
   input: ManualMovementInput,
   now: Date,
 ): { plan: ManualMovementPlan } | { error: ManualMovementError } {
   const type = input.type;
-  if (type !== "topup" && !isOutgoingLedgerType(type)) return { error: "invalidType" };
+  if (type !== "topup" && type !== "manual_credit" && !isOutgoingLedgerType(type)) return { error: "invalidType" };
 
   const amountError = validateTopupAmount(input.amount);
   if (amountError) return { error: amountError };
@@ -180,13 +194,13 @@ export function planManualMovement(
   if (externalRef !== null && externalRef.length > EXTERNAL_REF_MAX_LENGTH) return { error: "refTooLong" };
 
   const note = blankToNull(input.note);
-  if (note === null && type !== "topup") return { error: "noteRequired" };
+  if (note === null && manualMovementRequiresReason(type)) return { error: "noteRequired" };
 
   const rawDate = blankToNull(input.entryDate);
   const entryDate = rawDate === null ? now : parseDateInput(rawDate);
   if (entryDate === null) return { error: "invalidDate" };
 
-  const signedCents = type === "topup" ? amountCents : -amountCents;
+  const signedCents = signedManualMovementCents(type, amountCents);
   return {
     plan: {
       type,

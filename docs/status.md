@@ -2,25 +2,26 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-22 (1.52.3 prepared for promotion).
+Last updated: 2026-11-23 (1.53.0 prepared for promotion).
 
 ## Versions and migrations
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.52.2 (2026-11-20) | up to `0056` |
-| Public demo (`main`) | 1.52.2 | up to `0056` |
+| Production (`main`) | 1.52.3 (2026-11-22) | up to `0056` |
+| Public demo (`main`) | 1.52.3 | up to `0056` |
 | Example brand installation | 1.52.1 | up to `0056` (migrates on build) |
-| Staging (`staging`) | 1.52.3 prepared | up to `0056` (Neon branch `staging`) |
+| Staging (`staging`) | 1.53.0 prepared | up to `0056` (Neon branch `staging`) |
 
 FlyLabs Kit 0.23, profile `white-label` (`flylabs-kit.json`): modules auth, changelog, console, email, firma, guida, i18n, ics, migrazioni, pagamenti, pwa, shell, sicurezza, tema and ui adopted.
 
 ## Waiting on `staging` for the next release
 
-- Version 1.52.3: Admin → Cycle has a compact activity row and a cycle picker with supplier search and status filters (PRs #468 and #469). No migration or configuration change.
+- Version 1.53.0: Treasury records manual credits and charges with a reason and a balance preview. Top-ups record payments received and membership fees move to the member profile. No migration or configuration change.
 
 ## Recent releases
 
+- **1.52.3** (2026-11-22): compact Admin cycle activity and a searchable cycle picker (PRs #468, #469 and #471).
 - **1.52.2** (2026-11-20): updated FlyLabs signature and post-transfer release workflow fixes.
 - **1.52.1** (2026-11-20): the WeGrocery Console (`console/`) is removed; the FlyLabs Console (https://console.flylabs.ai) reads all instances and runs the fleet work for white-label apps (redeploy, rollout, *Migrazioni*, new group wizard). Production migrations stay manual (rollout order 1000). The maintainer deletes the old `wegrocery-console` Vercel project and its database.
 - **1.52.0** (2026-11-20): Content Security Policy enforced (Report-Only since 1.47.2; no `csp-report` on production from 2026-11-17 to 2026-11-20). Violations are `csp-report` lines in the Vercel runtime logs.

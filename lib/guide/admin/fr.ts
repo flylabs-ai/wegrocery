@@ -403,10 +403,10 @@ export const adminGuideFr: GuideContent = {
       topic: "cassa",
       title: "Enregistrer une recharge payée par virement ou en espèces",
       steps: [
-        "Ouvrez **Trésorerie** et touchez **Nouvelle recharge**.",
+        "Ouvrez **Trésorerie** et touchez **Enregistrer une recharge**.",
         "Cherchez le **Membre** par nom ou email.",
         "Écrivez le **Montant**, choisissez le **Moyen** et, pour un virement, la **Référence** du relevé bancaire.",
-        "Touchez **Continuer**, vérifiez le récapitulatif et **Confirmer la recharge**.",
+        "Touchez **Vérifier la recharge**, vérifiez le nouveau solde et confirmez.",
       ],
       notes: [
         "Si une recharge identique existe déjà, l'app vous prévient : vérifiez que ce n'est pas un doublon. La même référence ne peut pas être enregistrée deux fois.",
@@ -420,16 +420,15 @@ export const adminGuideFr: GuideContent = {
     {
       slug: "movimento-uscita",
       topic: "cassa",
-      title: "Rendre de l'argent, prélever une cotisation ou une dépense",
+      title: "Créditer ou débiter le solde d’un membre",
       steps: [
-        "Dans **Trésorerie**, touchez **Mouvement sortant**.",
-        "Choisissez le **Type** : **Restitution** (argent rendu au membre, au plus son solde), **Débit** (une dépense) ou **Cotisation** (cotisation d'adhésion).",
-        "Choisissez le membre, le montant et écrivez le **Motif** : le membre le voit.",
-        "Vérifiez et confirmez.",
+        "Dans **Trésorerie**, ouvrez **Crédits et débits**. Choisissez **Créditer le solde** pour l’augmenter ou **Débiter le solde** pour le réduire.",
+        "Choisissez le membre, saisissez le montant et la date, puis indiquez le **Motif** que le membre verra.",
+        "Vérifiez l’aperçu et confirmez. Par exemple, un crédit de 10 fait passer le solde de −5 à 5.",
       ],
-      notes: ["Pour une restitution, **Tout le solde** remplit le montant, moins les commandes ouvertes."],
+      notes: ["Si le membre a versé de l’argent, utilisez **Enregistrer une recharge**. Pour la cotisation, allez dans **Membres → Fiche du membre → Cotisation**."],
       when: { mode: "wallet" },
-      keywords: ["restitution", "cotisation", "débit manuel", "retrait", "sortie"],
+      keywords: ["crédit", "débit", "motif", "cotisation", "solde"],
     },
     {
       slug: "leggere-movimenti",

@@ -163,6 +163,7 @@ describe("full type to category map", () => {
       cycle_cancelled: "order_updates",
       topup_received: "wallet_topup",
       payout_sent: "wallet_topup",
+      manual_credit_recorded: "wallet_topup",
       order_refund_sent: "wallet_topup",
       refund_failed: "wallet_topup",
     };

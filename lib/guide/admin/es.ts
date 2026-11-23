@@ -403,10 +403,10 @@ export const adminGuideEs: GuideContent = {
       topic: "cassa",
       title: "Registrar una recarga pagada por transferencia o en efectivo",
       steps: [
-        "Abre **Tesorería** y toca **Nueva recarga**.",
+        "Abre **Tesorería** y toca **Registrar recarga**.",
         "Busca el **Socio** por nombre o email.",
         "Escribe el **Importe**, elige el **Método** y, para una transferencia, la **Referencia** del extracto bancario.",
-        "Toca **Continuar**, revisa el resumen y **Confirmar recarga**.",
+        "Toca **Revisar recarga**, comprueba el nuevo saldo y confirma.",
       ],
       notes: [
         "Si ya existe una recarga idéntica, la app te avisa: comprueba que no sea un duplicado. La misma referencia no se puede registrar dos veces.",
@@ -420,16 +420,15 @@ export const adminGuideEs: GuideContent = {
     {
       slug: "movimento-uscita",
       topic: "cassa",
-      title: "Devolver dinero, cobrar una cuota o un gasto",
+      title: "Abonar o cargar un importe al saldo",
       steps: [
-        "En **Tesorería** toca **Movimiento de salida**.",
-        "Elige el **Tipo**: **Devolución** (dinero devuelto al socio, como máximo su saldo), **Cargo** (un gasto) o **Cuota** (cuota de socio).",
-        "Elige el socio, el importe y escribe el **Motivo**: el socio lo ve.",
-        "Revisa y confirma.",
+        "En **Tesorería**, entra en **Abonos y cargos**. Elige **Abonar al saldo** para aumentarlo o **Cargar al saldo** para reducirlo.",
+        "Elige al socio, indica el importe y la fecha y escribe un **Motivo** que el socio pueda ver.",
+        "Revisa la vista previa y confirma. Por ejemplo, un abono de 10 lleva el saldo de −5 a 5.",
       ],
-      notes: ["Para una devolución, **Todo el saldo** rellena el importe, menos los pedidos abiertos."],
+      notes: ["Si el socio ha ingresado dinero, usa **Registrar recarga**. Para la cuota, ve a **Socios → Ficha del socio → Cuota de socio**."],
       when: { mode: "wallet" },
-      keywords: ["devolución", "cuota de socio", "cargo manual", "retirada", "salida"],
+      keywords: ["abono", "cargo", "motivo", "cuota", "saldo"],
     },
     {
       slug: "leggere-movimenti",

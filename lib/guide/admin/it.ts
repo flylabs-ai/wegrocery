@@ -405,10 +405,10 @@ export const adminGuideIt: GuideContent = {
       topic: "cassa",
       title: "Registrare una ricarica arrivata con bonifico o contanti",
       steps: [
-        "Apri **Cassa** e tocca **Nuova ricarica**.",
+        "Apri **Cassa** e tocca **Registra ricarica**.",
         "Cerca il **Socio** per nome o email.",
         "Scrivi l'**Importo**, scegli il **Metodo** e, per un bonifico, il **Riferimento** (CRO o TRN) dall'estratto conto.",
-        "Tocca **Continua**, controlla il riepilogo e **Conferma ricarica**.",
+        "Tocca **Controlla ricarica**, verifica il nuovo saldo e conferma.",
       ],
       notes: [
         "Se esiste già una ricarica uguale l'app te lo segnala: controlla che non sia un doppione. Lo stesso riferimento non si registra due volte.",
@@ -422,16 +422,15 @@ export const adminGuideIt: GuideContent = {
     {
       slug: "movimento-uscita",
       topic: "cassa",
-      title: "Restituire soldi, addebitare una quota o una spesa",
+      title: "Accreditare o addebitare un importo sul saldo",
       steps: [
-        "In **Cassa** tocca **Movimento in uscita**.",
-        "Scegli il **Tipo**: **Restituzione** (soldi resi al socio, al massimo il suo saldo), **Addebito** (una spesa) o **Quota** (quota associativa).",
-        "Scegli il socio, l'importo e scrivi la **Causale**: il socio la vede.",
-        "Controlla e conferma.",
+        "In **Cassa**, vai su **Accrediti e addebiti**. Scegli **Accredita sul saldo** per aumentare il saldo del socio o **Addebita sul saldo** per diminuirlo.",
+        "Scegli il socio, indica importo e data e scrivi la **Causale**, che il socio vedrà.",
+        "Controlla l’anteprima e conferma. Per esempio, accreditando 10 € su un saldo di −5 €, il saldo passa a 5 €.",
       ],
-      notes: ["Per una restituzione **Tutto il saldo** compila l'importo da solo, al netto degli ordini aperti."],
+      notes: ["Se il socio ha versato denaro, usa **Registra ricarica**. Per la quota, vai in **Soci → Scheda socio → Quota associativa**."],
       when: { mode: "wallet" },
-      keywords: ["restituzione", "quota associativa", "addebito manuale", "prelievo", "uscita"],
+      keywords: ["accredito", "addebito", "causale", "quota associativa", "saldo"],
     },
     {
       slug: "leggere-movimenti",

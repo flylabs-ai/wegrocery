@@ -55,6 +55,7 @@ import {
   findPossibleDuplicate,
   isAdminEditableLedgerType,
   isOutgoingLedgerType,
+  manualMovementRequiresReason,
   planManualMovement,
   validateLedgerEntryEdit,
   validatePayoutAmount,
@@ -1182,7 +1183,7 @@ async function memberPayoutBase(db: ReturnType<typeof getDb>, memberId: string):
       .innerJoin(orderCycles, eq(orderCycles.cycleId, orders.cycleId))
       .where(and(eq(orders.memberId, memberId), eq(orderCycles.status, "open"))),
   ]);
-  return balance - parseFloat(open?.total ?? "0");
+  return balance - Number(open?.total ?? 0);
 }
 
 // A readable refusal when `ref` is already on a ledger row, compared like the
@@ -1246,6 +1247,8 @@ function manualMovementNotification(
       return { type: "topup_received", title: n.topupReceivedTitle, body: n.topupReceivedBody(amount, balance) };
     case "payout":
       return { type: "payout_sent", title: n.payoutSentTitle, body: n.payoutSentBody(amount, reason, balance) };
+    case "manual_credit":
+      return { type: "manual_credit_recorded", title: n.manualCreditTitle, body: n.manualCreditBody(amount, reason, balance) };
     case "manual_charge":
       return {
         type: "manual_charge_recorded",
@@ -1270,9 +1273,8 @@ export type CassaMovementResult = { error?: string; warning?: string; memberName
 
 type ManualMovementRequest = ManualMovementInput & { memberId: string; confirmDuplicate?: boolean };
 
-// A manual top-up is never refused for the group's maximum balance: the money
-// has already arrived. The admin is told instead, with the way to return the
-// excess.
+// Record the money already received even above the group's maximum balance,
+// and let the admin know that the new balance is above the maximum.
 async function aboveMaxBalanceNotice(plan: ManualMovementPlan, newBalance: number): Promise<string | undefined> {
   if (plan.type !== "topup") return undefined;
   const { maxBalance } = await getPaymentSettings();
@@ -1415,6 +1417,17 @@ export type OutgoingMovementInput = {
   entryDate?: string;
   confirmDuplicate?: boolean;
 };
+
+export async function adminRecordManualCredit(
+  input: Pick<OutgoingMovementInput, "memberId" | "amount" | "note" | "entryDate" | "confirmDuplicate">,
+): Promise<CassaMovementResult> {
+  try {
+    const admin = await requireAdmin();
+    return await recordManualMovement(admin, { ...input, type: "manual_credit" });
+  } catch (error) {
+    return { error: actionErrorMessage(error, t.errors.genericError, "adminRecordManualCredit") };
+  }
+}
 
 // Payout (balance returned to the member, never beyond the balance), manual
 // charge or membership fee.
@@ -2360,7 +2373,7 @@ export async function adminUpdateLedgerEntry(
     const amountError = validateLedgerEntryEdit(before, data.amount);
     if (amountError) return { error: ledgerAmountErrorMessage(amountError) };
     // The member was told why the money left: the causale stays.
-    if (isOutgoingLedgerType(before.type) && !data.note?.trim()) {
+    if (manualMovementRequiresReason(before.type) && !data.note?.trim()) {
       return { error: t.admin.treasury.movementErrors.noteRequired };
     }
     // Growing a payout returns more money: it may not exceed the balance.
