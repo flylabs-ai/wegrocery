@@ -69,9 +69,9 @@ describeDb("money invariants", () => {
   it("flags a manual credit that debits the balance or records a payment method", async () => {
     const valid = scope.id("valid_manual_credit");
     const invalid = scope.id("invalid_manual_credit");
-    await sql`INSERT INTO ledger_entries (entry_id, member_id, entry_date, type, amount, note, method)
-      VALUES (${valid}, ${scope.memberId}, now(), 'manual_credit', 5, 'Spesa anticipata', NULL),
-        (${invalid}, ${scope.memberId}, now(), 'manual_credit', -5, 'Spesa anticipata', 'bonifico')`;
+    await sql`INSERT INTO ledger_entries (entry_id, member_id, entry_date, type, amount, note, method, created_by, created_at)
+      VALUES (${valid}, ${scope.memberId}, now(), 'manual_credit', 5, 'Spesa anticipata', NULL, 'int-test', now()),
+        (${invalid}, ${scope.memberId}, now(), 'manual_credit', -5, 'Spesa anticipata', 'bonifico', 'int-test', now())`;
     expect((await breaks()).manual_credit_balance_only).toEqual([invalid]);
   });
 
