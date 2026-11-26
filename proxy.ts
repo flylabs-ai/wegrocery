@@ -88,10 +88,10 @@ function loginUrl(request: NextRequest): URL {
 // api/csp-report takes the browser's CSP reports (lib/security/csp.ts), which
 // come without a session. The uploaded logo
 // (/brand/logo-*.png|jpg|webp) passes by its extension. mail/ holds the email
-// logo (lib/email/layout.ts), which a mail client fetches with no session. The web app manifest is fetched by the browser without
-// cookies: behind the redirect the app could not be installed.
+// logo (lib/email/layout.ts), which a mail client fetches with no session.
+// Browsers can also request the app manifest and service worker without one.
 export const config = {
   matcher: [
-    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/unsubscribe$|api/csp-report$|mail/|manifest.webmanifest$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/unsubscribe$|api/csp-report$|mail/|manifest.webmanifest$|sw\\.js$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

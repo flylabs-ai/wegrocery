@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { resolvePalette } from "@/lib/brand";
 import { getBrand } from "@/lib/brand/get-brand";
-import { iconPath, MANIFEST_ICONS } from "@/lib/pwa/icons";
+import { pwaIcons } from "@/lib/pwa-icons";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const brand = await getBrand();
@@ -15,12 +15,6 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     display: "standalone",
     background_color: brand.theme.background ?? "#faf8f5",
     theme_color: resolvePalette(brand.theme).primary,
-    orientation: "portrait",
-    icons: MANIFEST_ICONS.map((icon) => ({
-      src: iconPath(icon),
-      sizes: `${icon.size}x${icon.size}`,
-      type: "image/png",
-      purpose: icon.purpose,
-    })),
+    icons: pwaIcons.manifest,
   };
 }
