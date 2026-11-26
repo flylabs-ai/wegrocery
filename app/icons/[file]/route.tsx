@@ -5,10 +5,11 @@ import { ImageResponse } from "next/og";
 import { resolvePalette, type BrandConfig } from "@/lib/brand";
 import { getBrand, getLogoBytes } from "@/lib/brand/get-brand";
 import { reportError } from "@/lib/observability";
+import { pwaIcons } from "@/lib/pwa-icons";
 import { fallbackInitial, findIcon, localLogoPath, logoMimeType } from "@/lib/pwa/icons";
 
 // The installable app's icons, drawn from the group's logo on the app
-// background (lib/pwa/icons.ts lists them). Drawn on request, since the admins
+// background. Drawn on request, since the admins
 // can change the logo and colours in the app, and cached for an hour.
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ async function logoDataUri(brand: BrandConfig): Promise<string | null> {
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ file: string }> }) {
-  const icon = findIcon((await params).file);
+  const icon = findIcon((await params).file, pwaIcons.all);
   if (!icon) notFound();
   const brand = await getBrand();
   const logo = await logoDataUri(brand);

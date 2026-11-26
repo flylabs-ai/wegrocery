@@ -13,11 +13,15 @@ Last updated: 2026-11-26 (1.54.0 prepared for promotion).
 | Example brand installation | 1.52.1 | up to `0056` (migrates on build) |
 | Staging (`staging`) | 1.54.0 prepared | up to `0056` (Neon branch `staging`) |
 
-FlyLabs Kit 0.23, profile `white-label` (`flylabs-kit.json`): modules auth, changelog, console, email, firma, guida, i18n, ics, migrazioni, pagamenti, pwa, shell, sicurezza, tema and ui adopted.
+FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, changelog, console, email, firma, guida, i18n, ics, migrazioni, pagamenti, shell, sicurezza, tema and ui adopted.
 
 ## Waiting on `staging` for the next release
 
 - Version 1.54.0: members read the same deadline and pickups everywhere (`formatDeadlineLong`, `formatPickupsLong`), and moving the close of an open cycle sends `cycle_deadline_changed` (PR #475). No migration or configuration change.
+
+## In review
+
+- W1a adopts FlyLabs Kit `pwa` 1.0, removes the installed app's portrait lock, and opens the future service worker path to anonymous requests. No migration or configuration is required. [PWA rollout note](./2026-11-26-pwa-base.md)
 
 ## Recent releases
 

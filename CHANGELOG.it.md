@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Risolto
+- 📱 **App installata anche in orizzontale.** L'app segue l'orientamento del dispositivo quando il sistema aggiorna le informazioni di installazione.
+
 ## [1.54.0] - 26 novembre 2026
 
 *La scadenza si legge uguale ovunque, e i soci sanno quando cambia.*
