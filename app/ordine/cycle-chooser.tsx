@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { t } from "@/lib/i18n";
-import { formatDeadline } from "@/lib/i18n/deadline";
+import { formatDeadlineLong } from "@/lib/i18n/deadline";
 
 type Props = {
   cycles: {
@@ -33,7 +33,7 @@ export function CycleChooser({ cycles }: Props) {
                 {c.title}
               </div>
               <div className="mt-0.75 tabular-nums text-label text-secondary-foreground">
-                {[c.supplierName, c.orderCloseAt ? t.cycle.closes(formatDeadline(c.orderCloseAt)) : null]
+                {[c.supplierName, c.orderCloseAt ? t.cycle.closes(formatDeadlineLong(c.orderCloseAt)) : null]
                   .filter(Boolean)
                   .join(" · ")}
               </div>

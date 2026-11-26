@@ -71,7 +71,9 @@ import {
   getMemberEmails,
   getResolvedPreferences,
 } from "@/lib/notifications/dispatch";
-import { notifyCycleOpened, openPlannedCycle } from "@/lib/cycles/open-planned";
+import { notifyCycleAudience, notifyCycleOpened, openPlannedCycle } from "@/lib/cycles/open-planned";
+import { deadlineNotice } from "@/lib/notifications/deadline-change";
+import { reportError } from "@/lib/observability";
 import { pickupNotice, type CyclePickup } from "@/lib/notifications/pickup";
 import { getPaymentSettings } from "@/lib/payments/get-settings";
 import { parseWeighingDeposit, resolveCycleFee, type HandlingFee } from "@/lib/payments/order-payment";
@@ -888,7 +890,7 @@ export async function adminUpdateCycle(
     /** "Ritiro da confermare"; cleared with no pickup date. */
     pickupTentative?: boolean;
   },
-): Promise<{ error?: string; adjustedMembers?: number; pickupNotified?: number }> {
+): Promise<{ error?: string; adjustedMembers?: number; pickupNotified?: number; deadlineNotified?: number }> {
   try {
     const admin = await requireCycleManager(cycleId);
     const db = getDb();
@@ -910,6 +912,7 @@ export async function adminUpdateCycle(
         shippingCostPerMember: orderCycles.shippingCostPerMember,
         shippingTotal: orderCycles.shippingTotal,
         paymentMode: orderCycles.paymentMode,
+        accessLevel: orderCycles.accessLevel,
       })
       .from(orderCycles)
       .where(eq(orderCycles.cycleId, cycleId))
@@ -1053,10 +1056,32 @@ export async function adminUpdateCycle(
       if (pickupNotified > 0) revalidatePath("/notifiche");
     }
 
+    // The members who can order hear a moved close while the orders are open:
+    // the cycle_opened notice keeps the time it was sent with. A delivery
+    // failure must not report the (already saved) cycle as failed.
+    let deadlineNotified = 0;
+    if (before.status === "open" && data.orderCloseAt !== undefined) {
+      const now = new Date();
+      const notice = deadlineNotice(data.title?.trim() || before.title, before.orderCloseAt, dates.orderCloseAt ?? null, now);
+      if (notice) {
+        try {
+          deadlineNotified = await notifyCycleAudience(
+            db,
+            accessLevel ?? before.accessLevel,
+            { type: "cycle_deadline_changed", ...notice, href: `/ordine?cycleId=${encodeURIComponent(cycleId)}` },
+            now,
+          );
+          revalidatePath("/notifiche");
+        } catch (notifyError) {
+          reportError("cycle_deadline_changed", notifyError);
+        }
+      }
+    }
+
     revalidatePath("/admin");
     revalidatePath("/");
     revalidatePath("/calendario");
-    return { adjustedMembers, pickupNotified };
+    return { adjustedMembers, pickupNotified, deadlineNotified };
   } catch (e) {
     return { error: actionErrorMessage(e, t.errors.cycleUpdateError, "adminUpdateCycle") };
   }

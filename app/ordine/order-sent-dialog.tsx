@@ -5,7 +5,7 @@ import { t } from "@/lib/i18n";
 import { formatEur } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/app-ui/sheet";
-import { formatDeadline } from "@/lib/i18n/deadline";
+import { formatDeadlineLong } from "@/lib/i18n/deadline";
 
 type Props = {
   open: boolean;
@@ -54,7 +54,7 @@ export function OrderSentDialog({
           </p>
         )}
         <p className="mt-3 text-label leading-[1.45] text-muted-foreground">
-          {orderCloseAt ? t.order.editableUntil(formatDeadline(orderCloseAt)) : t.order.editableUntilClose}
+          {orderCloseAt ? t.order.editableUntil(formatDeadlineLong(orderCloseAt)) : t.order.editableUntilClose}
         </p>
       </div>
     </Sheet>

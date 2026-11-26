@@ -6,7 +6,7 @@ import { formatSignedMoney } from "@/lib/i18n/format";
 import { formatEur } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { paidDifference, type OrderAmount } from "@/lib/payments/order-payment";
-import { formatDeadline } from "@/lib/i18n/deadline";
+import { formatDeadlineLong } from "@/lib/i18n/deadline";
 
 export type ConfirmedLine = {
   productId: string;
@@ -130,7 +130,7 @@ export function OrderSummary({
 
       <p className="mt-3 text-center text-[12px] leading-[1.5] text-secondary-foreground">
         {orderCloseAt
-          ? t.order.editableUntil(formatDeadline(orderCloseAt))
+          ? t.order.editableUntil(formatDeadlineLong(orderCloseAt))
           : t.order.editableUntilClose}
       </p>
 

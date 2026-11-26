@@ -10,7 +10,7 @@ import { dayOf } from "@/lib/calendar";
 import type { getDb } from "@/lib/db/client";
 import { auditLog, members, orderCycles } from "@/lib/db/schema";
 import { t } from "@/lib/i18n";
-import { formatDeadline } from "@/lib/i18n/deadline";
+import { formatDeadlineLong } from "@/lib/i18n/deadline";
 import { zonedLocalToUtc } from "@/lib/i18n/zoned-time";
 import { dispatchToMembers } from "@/lib/notifications/dispatch";
 import { sendOpenAlerts } from "@/lib/notifications/open-alerts";
@@ -40,24 +40,13 @@ export async function notifyCycleOpened(
   now: Date,
 ): Promise<void> {
   try {
-    const allMembers = await db
-      .select({
-        memberId: members.memberId,
-        email: members.email,
-        role: members.role,
-        active: members.active,
-      })
-      .from(members)
-      // A person in a family sees the account's notifications: one each.
-      .where(isNull(members.householdOf));
-    const recipients = selectCycleAccessMembers(allMembers, cycle.accessLevel);
-    await dispatchToMembers(
+    await notifyCycleAudience(
       db,
-      recipients.map((m) => ({ memberId: m.memberId, email: m.email })),
+      cycle.accessLevel,
       {
         type: "cycle_opened",
         title: t.notificationsServer.cycleOpenedTitle,
-        body: t.notificationsServer.cycleOpenedBody(cycle.title, cycle.orderCloseAt ? formatDeadline(cycle.orderCloseAt) : ""),
+        body: t.notificationsServer.cycleOpenedBody(cycle.title, cycle.orderCloseAt ? formatDeadlineLong(cycle.orderCloseAt) : ""),
         href: "/ordine",
       },
       now,
@@ -65,6 +54,36 @@ export async function notifyCycleOpened(
   } catch (notifyError) {
     console.error("[cycle_opened] dispatch failed:", notifyError);
   }
+}
+
+/**
+ * Sends one notice to everyone who can see a cycle: the account of a family,
+ * once. cycle_opened and cycle_deadline_changed (adminUpdateCycle) share it.
+ */
+export async function notifyCycleAudience(
+  db: Db,
+  accessLevel: string,
+  notice: { type: string; title: string; body: string; href: string },
+  now: Date,
+): Promise<number> {
+  const allMembers = await db
+    .select({
+      memberId: members.memberId,
+      email: members.email,
+      role: members.role,
+      active: members.active,
+    })
+    .from(members)
+    // A person in a family sees the account's notifications: one each.
+    .where(isNull(members.householdOf));
+  const recipients = selectCycleAccessMembers(allMembers, accessLevel);
+  await dispatchToMembers(
+    db,
+    recipients.map((m) => ({ memberId: m.memberId, email: m.email })),
+    notice,
+    now,
+  );
+  return recipients.length;
 }
 
 /** Why a planned cycle did not open. */

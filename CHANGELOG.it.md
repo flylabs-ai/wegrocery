@@ -25,6 +25,16 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.54.0] - 26 novembre 2026
+
+*La scadenza si legge uguale ovunque, e i soci sanno quando cambia.*
+
+### Modificato
+- 🕒 **Scadenza scritta allo stesso modo ovunque.** Home, calendario, pagina ordine, notifiche ed email scrivono la scadenza nello stesso modo ("sabato 28 nov, ore 12:00"), e due ritiri con gli stessi orari stanno su una riga.
+
+### Risolto
+- 🔔 **I soci sanno quando la chiusura cambia.** Se un admin cambia la chiusura di un ciclo aperto, chi può ordinare riceve l'avviso "Chiusura anticipata" o "Chiusura posticipata" col nuovo orario; prima la notifica "Nuovo ciclo aperto" restava con quello vecchio.
+
 ## [1.53.0] - 23 novembre 2026
 
 *Accredita o addebita un importo con il saldo in anteprima.*
@@ -1008,6 +1018,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.54.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.54.0
 [1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2
 [1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1

@@ -795,6 +795,7 @@ export function EditCycleForm({
         defaultCloseAt={closeAtLocal}
         tentative={tentative}
         onTentativeChange={setTentative}
+        closeNotice={cycle.status === "open"}
       />
 
       {/* The dates as one timeline, then the money. */}
@@ -918,9 +919,12 @@ function CycleDateFields({
   defaultCloseAt,
   tentative,
   onTentativeChange,
+  closeNotice = false,
 }: {
   planned: boolean;
   showClose?: boolean;
+  /** An open cycle: moving the close tells the members (cycle_deadline_changed). */
+  closeNotice?: boolean;
   defaultOpenAt?: string;
   defaultCloseAt?: string;
   tentative: boolean;
@@ -944,6 +948,7 @@ function CycleDateFields({
           </label>
         )}
       </div>
+      {showClose && closeNotice && <p className="text-label text-secondary-foreground">{c.closeChangeNotice}</p>}
       {planned && (
         <label className="flex min-h-11 items-start gap-2.5 text-[13px] text-foreground">
           <Checkbox name="datesTentative" checked={tentative} onCheckedChange={(checked) => onTentativeChange(checked)} />

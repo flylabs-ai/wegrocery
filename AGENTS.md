@@ -357,6 +357,7 @@ User interaction → Server Action ("use server") → auth check → DB mutation
   - `order_corrected` — admin edits a member's order via `adminEditClosedOrder` (closed cycle, with a correction) or `adminSaveOpenOrder` (open cycle, deadline passed or not: only the lines change, the close charges them; `lib/admin/open-order-store.ts`)
   - `order_adjusted` — closed-cycle shipping recompute (only members whose share moved) OR per-line "actual delivered" rectification
   - `cycle_opened` — a cycle opens: created open (`adminCreateCycle`) or a planned one opened (`adminOpenPlannedCycle`), both through `notifyCycleOpened`; a cycle created as planned sends nothing
+  - `cycle_deadline_changed` (category `cycle_opened`) - `adminUpdateCycle` moved the close of an open cycle as members read it (`deadlineNotice`, `lib/notifications/deadline-change.ts`): the same audience as `cycle_opened` (`notifyCycleAudience`), "Chiusura anticipata" or "Chiusura posticipata" with the new and the old deadline; nothing when the new close has already passed. A notice's body is text written when it is sent, so this is how a member learns a time that changed
   - `pickup_changed` (category `pickup`) — `adminUpdateCycle` set, moved or cleared the pickup as members read it (`pickupNotice`, `lib/notifications/pickup.ts`, compares the formatted slots): every active member with an order on the cycle (the account, for a family), never on a cancelled cycle; also when an admin confirms a pickup that was "Ritiro da confermare" (`order_cycles.pickup_tentative`, migration 0050) and the date stays: "Ritiro confermato"; while it stays to be confirmed, a closed cycle shows the step `to_confirm_pickup` ("Conferma il ritiro") in Da fare ora (`lib/admin/cycle-phase.ts`), in the window after the close or later while the pickup is ahead
   - `order_draft_reminder` (category `draft_reminder`) - once per cycle and account with a resumable draft, 1 to 30 hours before the deadline; asks to confirm a new order or changes, with card payment instructions unless the member pays offline
   - `order_picked_up` (category `picked_up`) — an admin first marked the member's order as collected (`adminMarkPickup`, `lib/actions/admin-pickups.ts`); editing or clearing the mark sends nothing
@@ -810,6 +811,7 @@ Key patterns:
 - Every page that renders `AppShell` must pass `memberId={session.user.memberId!}`.
 - All Server Actions use `requireUserSession()` / `requireAdmin()` / the manager guards of `lib/auth/manager.ts` — never trust client payloads for auth.
 - `revalidatePath()` must be called after mutations so Server Components re-fetch fresh data.
+- A cycle's deadline and pickups are written only through `lib/i18n/deadline.ts`: `formatDeadlineLong` and `formatPickupsLong` wherever a member reads them (Home, calendar, order page, notifications, emails), `formatDeadline` and `formatPickupSlot` for compact admin cards. Never build a date string by hand, or Home and a notice will disagree.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -24,6 +24,16 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.54.0] - 2026-11-26
+
+*The deadline reads the same everywhere, and members hear when it moves.*
+
+### Changed
+- 🕒 **Same deadline wording everywhere.** Home, calendar, order page, notifications and emails write the deadline the same way ("Saturday 28 Nov, 12:00"), and two pickups with the same hours fit on one line.
+
+### Fixed
+- 🔔 **Members hear when the deadline moves.** When an admin changes the close of an open cycle, everyone who can order gets an "Earlier deadline" or "Later deadline" notice with the new time; before, the "New cycle opened" notice kept the old one.
+
 ## [1.53.0] - 2026-11-23
 
 *Credit or charge a member’s balance with a clear preview.*
@@ -1006,6 +1016,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.54.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.54.0
 [1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2
 [1.52.1]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.52.1

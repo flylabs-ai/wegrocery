@@ -41,7 +41,7 @@ export const fr: Strings = {
     sectionToCollect: "À retirer",
     sectionComingUp: "Bientôt",
     fullCalendar: "Calendrier complet",
-    orderBy: (day: string, time: string) => `Commandez avant ${day}, ${time}`,
+    orderBy: (when: string) => `Commandez avant ${when}`,
     lastDay: "Dernier jour",
     today: "aujourd'hui",
     tomorrow: "demain",
@@ -186,6 +186,8 @@ export const fr: Strings = {
   },
   cycle: {
     pickupDays: (a: string, b: string) => `${a} et ${b}`,
+    /** A deadline in a sentence: formatDeadlineLong (lib/i18n/deadline.ts). */
+    deadline: (day: string, time: string) => `${day} à ${time}`,
     closes: (date: string) => `Clôture : ${date}`,
     pickup1: (date: string) => `Retrait 1 : ${date}`,
     pickup2: (date: string) => `Retrait 2 : ${date}`,
@@ -533,7 +535,7 @@ export const fr: Strings = {
       categories: {
         cycle_opened: {
           label: "Nouveau cycle ouvert",
-          hint: "Quand un cycle de commande auquel vous pouvez participer s'ouvre.",
+          hint: "Quand un cycle de commande auquel vous pouvez participer s'ouvre, ou que sa clôture change.",
         },
         order_charge: {
           label: "Débits et paiements",
@@ -1141,6 +1143,7 @@ export const fr: Strings = {
       ],
       orderCloseAt: "Clôture des commandes",
       orderCloseAtLabel: "Clôture des commandes *",
+      closeChangeNotice: "Le cycle est ouvert : si vous changez la clôture, tous ceux qui peuvent commander reçoivent un avis.",
       pickup1Label: "Retrait 1",
       pickup2Label: "Retrait 2",
       pickupSingle: "Retrait :",
@@ -2571,7 +2574,11 @@ export const fr: Strings = {
     pesataRegistrataTitle: "Pesée du fournisseur enregistrée",
     cycleOpenedTitle: "Nouveau cycle ouvert",
     cycleOpenedBody: (title: string, closeAt: string) =>
-      `Un nouveau cycle de commande est ouvert : « ${title} ». Il se clôture le ${closeAt}.`,
+      `Un nouveau cycle de commande est ouvert : « ${title} ». Vous pouvez commander jusqu'au ${closeAt}.`,
+    deadlineEarlierTitle: (title: string) => `Clôture avancée : ${title}`,
+    deadlineLaterTitle: (title: string) => `Clôture repoussée : ${title}`,
+    deadlineChangedBody: (title: string, now: string, before: string) =>
+      `La clôture de « ${title} » a changé : vous pouvez maintenant commander jusqu'au ${now} (avant : ${before}).`,
     orderLineAdjustedTitle: (cycleTitle: string) => `Commande « ${cycleTitle} » ajustée`,
     orderLineAdjustedNoteReceived: (product: string, ordered: string, received: string) =>
       `${product} : ${ordered} commandé, ${received} reçu`,

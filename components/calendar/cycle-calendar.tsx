@@ -21,7 +21,7 @@ import {
 } from "@/lib/calendar-view";
 import { daysFrom, relativeDay } from "@/lib/home";
 import { t } from "@/lib/i18n";
-import { deadlineParts, formatLongDay, formatPickupLong } from "@/lib/i18n/deadline";
+import { formatDeadlineLong, formatLongDay, formatPickupsLong } from "@/lib/i18n/deadline";
 import { formatDate, formatMoney, formatTime } from "@/lib/i18n/format";
 import { cn } from "@/lib/utils";
 
@@ -480,7 +480,12 @@ function CycleDetail({ entry, span, today, alerted }: { entry: CalendarEntry; sp
   const closeDays = span.close ? daysFrom(today, span.close) : null;
   const closeTone: DateTileTone =
     entry.state === "open" ? (closeDays !== null && closeDays <= 0 ? "urgent" : "open") : "neutral";
-  const deadline = closes ? deadlineParts(closes.at) : null;
+  const deadline = closes ? formatDeadlineLong(closes.at) : null;
+  // Two pickups with the same hours read as one line, under the first day's tile.
+  const pickupLines = formatPickupsLong(
+    pickups[0] ? { date: pickups[0].at, endTime: pickups[0].endTime } : null,
+    pickups[1] ? { date: pickups[1].at, endTime: pickups[1].endTime } : null,
+  );
   const orderHref = `/ordine?cycleId=${encodeURIComponent(entry.cycleId)}`;
 
   const row = (key: string, day: string | null, tone: DateTileTone, Icon: LucideIcon, text: string, note?: string | null) => (
@@ -518,10 +523,10 @@ function CycleDetail({ entry, span, today, alerted }: { entry: CalendarEntry; sp
               span.close,
               closeTone,
               KIND_ICON.closes,
-              h.orderBy(deadline.day, deadline.time),
+              h.orderBy(deadline),
               entry.state === "open" && closeDays !== null ? (closeDays <= 0 ? h.lastDay : relativeDay(closeDays)) : null,
             )}
-          {pickups.map((p) => row(p.at, p.day, "neutral", KIND_ICON.pickup, (entry.pickupTentative ? h.pickupExpected : h.pickupOn)(formatPickupLong(p.at, p.endTime))))}
+          {pickupLines.map((when, i) => row(`pickup-${i}`, pickups[i]?.day ?? null, "neutral", KIND_ICON.pickup, (entry.pickupTentative ? h.pickupExpected : h.pickupOn)(when)))}
         </ul>
         {(entry.state === "planned" || entry.state === "open" || entry.state === "closed") && (
           <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
