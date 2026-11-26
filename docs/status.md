@@ -22,6 +22,8 @@ FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## In review
 
+- W4 server (DEV-02/03/04/06): `lib/push/` validates subscriptions (same rules as Stellar S2) and stores a person's devices by `personId`, never the family account; `lib/actions/push-devices.ts` exposes save, status (`mine`/`other`/`none`, deleting another person's row), unbind and list without endpoints. No UI yet (W4 UI next). Needs `0057` applied before it is deployed with a UI.
+
 - W3 (WGR-01) adds migration `0057_push_subscriptions.sql`. It is pending and has not been applied to any installation. Apply it before W4.
 
 - W1a adopts FlyLabs Kit `pwa` 1.0, removes the installed app's portrait lock, and opens the future service worker path to anonymous requests. No migration or configuration is required. [PWA rollout note](./2026-11-26-pwa-base.md)
