@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Added
+- [tech] 🗄️ **Database preparation for push notifications.** Apply migration `0057` before deploying the code that enables device subscriptions.
+
 ### Changed
 - 🔗 **Links land where they point, after signing in.** Opening a link to a page of the app (an order, a notification) without being signed in now returns to that page after the email link, the code or Google, instead of the home.
 

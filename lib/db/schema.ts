@@ -11,6 +11,7 @@ import {
   numeric,
   pgTable,
   primaryKey,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -886,3 +887,65 @@ export const stripeEvents = pgTable("stripe_events", {
   processedAt: timestamp("processed_at", { withTimezone: true }),
   error: text("error"),
 });
+
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    subscriptionId: text("subscription_id").primaryKey(),
+    personId: text("person_id")
+      .notNull()
+      .references(() => members.memberId, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull().unique(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    deviceLabel: text("device_label"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("push_subscriptions_person_idx").on(table.personId),
+    check("push_subscriptions_endpoint_check", sql`${table.endpoint} LIKE 'https://%' AND char_length(${table.endpoint}) <= 2048`),
+    check("push_subscriptions_p256dh_check", sql`char_length(${table.p256dh}) BETWEEN 80 AND 100`),
+    check("push_subscriptions_auth_check", sql`char_length(${table.auth}) BETWEEN 16 AND 30`),
+    check("push_subscriptions_device_label_check", sql`char_length(${table.deviceLabel}) <= 80`),
+  ],
+);
+
+export const pushConsents = pgTable(
+  "push_consents",
+  {
+    personId: text("person_id")
+      .notNull()
+      .references(() => members.memberId, { onDelete: "cascade" }),
+    category: text("category").notNull(),
+    enabled: boolean("enabled").notNull().default(false),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ name: "push_consents_pkey", columns: [table.personId, table.category] })],
+);
+
+export const pushDeliveries = pgTable(
+  "push_deliveries",
+  {
+    eventKey: text("event_key").notNull(),
+    subscriptionId: text("subscription_id")
+      .notNull()
+      .references(() => pushSubscriptions.subscriptionId, { onDelete: "cascade" }),
+    status: text("status").notNull().default("pending"),
+    attempts: smallint("attempts").notNull().default(0),
+    notBefore: timestamp("not_before", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
+    lastCode: smallint("last_code"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ name: "push_deliveries_pkey", columns: [table.eventKey, table.subscriptionId] }),
+    index("push_deliveries_due_idx").on(table.status, table.notBefore),
+    check("push_deliveries_status_check", sql`${table.status} IN (
+      'pending', 'sending', 'accepted', 'expired', 'rejected', 'config_error',
+      'skipped', 'simulated', 'failed'
+    )`),
+  ],
+);

@@ -22,6 +22,8 @@ FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## In review
 
+- W3 (WGR-01) adds migration `0057_push_subscriptions.sql`. It is pending and has not been applied to any installation. Apply it before W4.
+
 - W1a adopts FlyLabs Kit `pwa` 1.0, removes the installed app's portrait lock, and opens the future service worker path to anonymous requests. No migration or configuration is required. [PWA rollout note](./2026-11-26-pwa-base.md)
 
 ## Recent releases

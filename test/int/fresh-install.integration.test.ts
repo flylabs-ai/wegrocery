@@ -57,6 +57,18 @@ describeFresh("a new installation", () => {
     },
   );
 
+  it.runIf(process.env.INT_TEST_FRESH_RESTRICTED === "1")(
+    "grants the restricted app role data access to every push table",
+    async () => {
+      const grants = await sql`SELECT table_name, privilege,
+        has_table_privilege(current_user, 'public.' || table_name, privilege) AS granted
+        FROM unnest(ARRAY['push_subscriptions', 'push_consents', 'push_deliveries']) AS t(table_name)
+        CROSS JOIN unnest(ARRAY['SELECT', 'INSERT', 'UPDATE', 'DELETE']) AS p(privilege)`;
+      expect(grants).toHaveLength(12);
+      expect(grants.filter((row) => !row.granted)).toEqual([]);
+    },
+  );
+
   it("has the guards of the order preparation fee (0026)", async () => {
     const [idx] = await sql`SELECT indexdef FROM pg_indexes
       WHERE indexname = 'ledger_entries_cycle_member_system_charge_live_uniq'`;
