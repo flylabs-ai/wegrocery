@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Changed
+- 🔗 **Links land where they point, after signing in.** Opening a link to a page of the app (an order, a notification) without being signed in now returns to that page after the email link, the code or Google, instead of the home.
+
 ### Fixed
 - 📱 **Use the installed app in landscape.** The app lets your device choose the screen orientation once it refreshes the app's installation information.
 

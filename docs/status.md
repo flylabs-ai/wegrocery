@@ -17,6 +17,7 @@ FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## Waiting on `staging` for the next release
 
+- PWA standard (spec v1.2), WGR-06: sign-in returns to the page asked for. `proxy.ts` redirects a GET of a page without a session to `/login?next=<path+query>` and passes the asked path to the page in `x-wegrocery-path` for an expired session (`requireUserSession`); `safeCallbackPath` is replaced by `safeInternalPath`/`nextAfterLogin` (`lib/auth/hosts.ts`, Stellar's `safeNext` rules, refuses control characters such as `"/\t/evil.example"`). No migration or configuration change.
 - Version 1.54.0: members read the same deadline and pickups everywhere (`formatDeadlineLong`, `formatPickupsLong`), and moving the close of an open cycle sends `cycle_deadline_changed` (PR #475). No migration or configuration change.
 
 ## In review

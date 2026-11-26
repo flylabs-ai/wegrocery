@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Modificato
+- 🔗 **I link portano dove puntano, anche dopo l'accesso.** Chi apre il link a una pagina dell'app (un ordine, una notifica) senza aver fatto l'accesso ci torna dopo il link email, il codice o Google, invece di finire in home.
+
 ### Risolto
 - 📱 **App installata anche in orizzontale.** L'app segue l'orientamento del dispositivo quando il sistema aggiorna le informazioni di installazione.
 

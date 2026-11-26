@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hasSessionCookie } from "@/lib/auth/cookie";
+import { loginPath, REQUEST_PATH_HEADER } from "@/lib/auth/login-url";
 import { buildCsp, cspHeaderName, CSP_REPORT_PATH, generateNonce, type ExtensibleDirective } from "@/lib/security/csp";
 
 // Every page response carries the Content Security Policy with a new nonce
@@ -35,6 +36,9 @@ function withCsp(request: NextRequest): NextResponse {
   });
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(CSP_HEADER.toLowerCase(), csp);
+  // The page asked for, for a session found expired by the page itself
+  // (lib/auth/session.ts): always overwritten here, never the client's own.
+  requestHeaders.set(REQUEST_PATH_HEADER, request.nextUrl.pathname + request.nextUrl.search);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set(CSP_HEADER, csp);
   return response;
@@ -60,7 +64,18 @@ export function proxy(request: NextRequest) {
   }
   // The home without a session: /gruppo, which sends on to /login when the
   // group has no public page (the proxy never reads the database).
-  return NextResponse.redirect(new URL(pathname === "/" ? "/gruppo" : "/login", request.url));
+  if (pathname === "/") return NextResponse.redirect(new URL("/gruppo", request.url));
+  return NextResponse.redirect(loginUrl(request));
+}
+
+// /login?next=<path and query> for a page opened without a session (a link in
+// an email, a tap on a notification), so signing in lands where the member
+// was going (PWA spec v1.2, WGR-06). Only for a GET of a page: an API call or
+// a form post gets the bare /login. The login page validates next again.
+function loginUrl(request: NextRequest): URL {
+  const { pathname, search } = request.nextUrl;
+  const page = request.method === "GET" && !pathname.startsWith("/api/");
+  return new URL(page ? loginPath(pathname + search) : "/login", request.url);
 }
 
 // api/auth is Better Auth (its own allowlist), api/stripe/webhook is called by
