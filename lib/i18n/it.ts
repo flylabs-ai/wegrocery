@@ -41,7 +41,7 @@ export const it = {
     sectionToCollect: "Da ritirare",
     sectionComingUp: "In arrivo",
     fullCalendar: "Calendario completo",
-    orderBy: (day: string, time: string) => `Ordina entro ${day}, ore ${time}`,
+    orderBy: (when: string) => `Ordina entro ${when}`,
     lastDay: "Ultimo giorno",
     today: "oggi",
     tomorrow: "domani",
@@ -186,6 +186,8 @@ export const it = {
   },
   cycle: {
     pickupDays: (a: string, b: string) => `${a} e ${b}`,
+    /** A deadline in a sentence: formatDeadlineLong (lib/i18n/deadline.ts). */
+    deadline: (day: string, time: string) => `${day}, ore ${time}`,
     closes: (date: string) => `Chiude: ${date}`,
     pickup1: (date: string) => `Ritiro 1: ${date}`,
     pickup2: (date: string) => `Ritiro 2: ${date}`,
@@ -303,7 +305,7 @@ export const it = {
     confirmed: "Ordine confermato",
     confirmedSummary: (count: number, total: string) =>
       `${count === 1 ? "1 prodotto" : `${count} prodotti`} · ${total}`,
-    editableUntil: (date: string) => `Puoi modificarlo o cancellarlo fino al ${date}.`,
+    editableUntil: (date: string) => `Puoi modificarlo o cancellarlo fino a ${date}.`,
     editableUntilClose: "Puoi modificarlo o cancellarlo finché il ciclo resta aperto.",
     editOrder: "Modifica ordine",
     cancelOrder: "Cancella ordine",
@@ -533,7 +535,7 @@ export const it = {
       categories: {
         cycle_opened: {
           label: "Nuovo ciclo aperto",
-          hint: "Quando si apre un ciclo d'ordine a cui puoi partecipare.",
+          hint: "Quando si apre un ciclo d'ordine a cui puoi partecipare, o ne cambia la chiusura.",
         },
         order_charge: {
           label: "Addebiti e pagamenti",
@@ -1143,6 +1145,7 @@ export const it = {
       ],
       orderCloseAt: "Chiusura ordini",
       orderCloseAtLabel: "Chiusura ordini *",
+      closeChangeNotice: "Il ciclo è aperto: se cambi la chiusura, chi può ordinare riceve un avviso.",
       pickup1Label: "Ritiro 1",
       pickup2Label: "Ritiro 2",
       pickupSingle: "Ritiro:",
@@ -2579,7 +2582,11 @@ export const it = {
     pesataRegistrataTitle: "Pesata fornitore registrata",
     cycleOpenedTitle: "Nuovo ciclo aperto",
     cycleOpenedBody: (title: string, closeAt: string) =>
-      `È aperto un nuovo ciclo d'ordine: "${title}". Chiude il ${closeAt}.`,
+      `È aperto un nuovo ciclo d'ordine: "${title}". Puoi ordinare fino a ${closeAt}.`,
+    deadlineEarlierTitle: (title: string) => `Chiusura anticipata: ${title}`,
+    deadlineLaterTitle: (title: string) => `Chiusura posticipata: ${title}`,
+    deadlineChangedBody: (title: string, now: string, before: string) =>
+      `È cambiata la chiusura di "${title}": ora puoi ordinare fino a ${now} (prima ${before}).`,
     orderLineAdjustedTitle: (cycleTitle: string) => `Ordine "${cycleTitle}" rettificato`,
     orderLineAdjustedNoteReceived: (product: string, ordered: string, received: string) =>
       `${product}: ${ordered} ordinati, ${received} ricevuti`,

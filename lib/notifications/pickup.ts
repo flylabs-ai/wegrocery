@@ -4,7 +4,7 @@
 // dispatch live in adminUpdateCycle (lib/actions/admin.ts).
 
 import { t } from "@/lib/i18n";
-import { formatPickups } from "@/lib/i18n/deadline";
+import { formatPickupsLong } from "@/lib/i18n/deadline";
 
 export type CyclePickup = {
   pickupDate: Date | null;
@@ -18,10 +18,10 @@ export type CyclePickup = {
 /** "confirmed": the same pickup, no longer "da confermare". */
 export type PickupChange = "added" | "changed" | "removed" | "confirmed";
 
-// A second pickup without a first one is not shown anywhere (formatPickups),
+// A second pickup without a first one is not shown anywhere (formatPickupsLong),
 // so it does not count as a pickup either.
 function slots(p: CyclePickup): string[] {
-  return formatPickups(
+  return formatPickupsLong(
     p.pickupDate ? { date: p.pickupDate, endTime: p.pickupEndTime } : null,
     p.pickup2Date ? { date: p.pickup2Date, endTime: p.pickup2EndTime } : null,
   );
@@ -54,7 +54,7 @@ export function pickupNotice(
   const change = pickupChange(before, after);
   if (!change) return null;
   const s = t.notificationsServer;
-  const now = slots(after).join(", ");
+  const now = slots(after).join("; ");
   switch (change) {
     case "added":
       return { title: s.pickupAddedTitle(cycleTitle), body: s.pickupAddedBody(cycleTitle, now) };
@@ -65,7 +65,7 @@ export function pickupNotice(
     case "changed":
       return {
         title: s.pickupChangedTitle(cycleTitle),
-        body: s.pickupChangedBody(cycleTitle, now, slots(before).join(", ")),
+        body: s.pickupChangedBody(cycleTitle, now, slots(before).join("; ")),
       };
   }
 }

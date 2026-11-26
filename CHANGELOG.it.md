@@ -25,6 +25,12 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Modificato
+- 🕒 **Scadenza scritta allo stesso modo ovunque.** Home, calendario, pagina ordine, notifiche ed email scrivono la scadenza nello stesso modo ("sabato 28 nov, ore 12:00"), e due ritiri con gli stessi orari stanno su una riga.
+
+### Risolto
+- 🔔 **I soci sanno quando la chiusura cambia.** Se un admin cambia la chiusura di un ciclo aperto, chi può ordinare riceve l'avviso "Chiusura anticipata" o "Chiusura posticipata" col nuovo orario; prima la notifica "Nuovo ciclo aperto" restava con quello vecchio.
+
 ## [1.53.0] - 23 novembre 2026
 
 *Accredita o addebita un importo con il saldo in anteprima.*

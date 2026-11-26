@@ -41,7 +41,7 @@ export const en: Strings = {
     sectionToCollect: "To collect",
     sectionComingUp: "Coming up",
     fullCalendar: "Full calendar",
-    orderBy: (day: string, time: string) => `Order by ${day}, ${time}`,
+    orderBy: (when: string) => `Order by ${when}`,
     lastDay: "Last day",
     today: "today",
     tomorrow: "tomorrow",
@@ -186,6 +186,8 @@ export const en: Strings = {
   },
   cycle: {
     pickupDays: (a: string, b: string) => `${a} and ${b}`,
+    /** A deadline in a sentence: formatDeadlineLong (lib/i18n/deadline.ts). */
+    deadline: (day: string, time: string) => `${day}, ${time}`,
     closes: (date: string) => `Closes: ${date}`,
     pickup1: (date: string) => `Pickup 1: ${date}`,
     pickup2: (date: string) => `Pickup 2: ${date}`,
@@ -533,7 +535,7 @@ export const en: Strings = {
       categories: {
         cycle_opened: {
           label: "New cycle opened",
-          hint: "When an order cycle you can take part in opens.",
+          hint: "When an order cycle you can take part in opens, or its deadline changes.",
         },
         order_charge: {
           label: "Charges and payments",
@@ -1141,6 +1143,7 @@ export const en: Strings = {
       ],
       orderCloseAt: "Order closing",
       orderCloseAtLabel: "Order closing *",
+      closeChangeNotice: "The cycle is open: if you change the close, everyone who can order gets a notice.",
       pickup1Label: "Pickup 1",
       pickup2Label: "Pickup 2",
       pickupSingle: "Pickup:",
@@ -2571,7 +2574,11 @@ export const en: Strings = {
     pesataRegistrataTitle: "Supplier weighing recorded",
     cycleOpenedTitle: "New cycle open",
     cycleOpenedBody: (title: string, closeAt: string) =>
-      `A new order cycle is open: "${title}". It closes on ${closeAt}.`,
+      `A new order cycle is open: "${title}". You can order until ${closeAt}.`,
+    deadlineEarlierTitle: (title: string) => `Earlier deadline: ${title}`,
+    deadlineLaterTitle: (title: string) => `Later deadline: ${title}`,
+    deadlineChangedBody: (title: string, now: string, before: string) =>
+      `The deadline for "${title}" has changed: you can now order until ${now} (was ${before}).`,
     orderLineAdjustedTitle: (cycleTitle: string) => `Order "${cycleTitle}" adjusted`,
     orderLineAdjustedNoteReceived: (product: string, ordered: string, received: string) =>
       `${product}: ${ordered} ordered, ${received} received`,

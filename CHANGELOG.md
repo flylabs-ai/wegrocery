@@ -24,6 +24,12 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Changed
+- 🕒 **Same deadline wording everywhere.** Home, calendar, order page, notifications and emails write the deadline the same way ("Saturday 28 Nov, 12:00"), and two pickups with the same hours fit on one line.
+
+### Fixed
+- 🔔 **Members hear when the deadline moves.** When an admin changes the close of an open cycle, everyone who can order gets an "Earlier deadline" or "Later deadline" notice with the new time; before, the "New cycle opened" notice kept the old one.
+
 ## [1.53.0] - 2026-11-23
 
 *Credit or charge a member’s balance with a clear preview.*

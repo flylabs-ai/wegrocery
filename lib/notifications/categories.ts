@@ -57,6 +57,8 @@ const TYPE_TO_CATEGORY: Record<string, NotificationCategory> = {
   order_corrected: "order_updates",
   order_adjusted: "order_updates",
   cycle_opened: "cycle_opened",
+  // An admin moved the close of an open cycle (adminUpdateCycle).
+  cycle_deadline_changed: "cycle_opened",
   cycle_cancelled: "order_updates",
   // Manual Cassa movements (lib/actions/admin.ts) reuse existing categories,
   // Manual credits are balance increases; manual charges and fees are debits.

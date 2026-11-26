@@ -17,6 +17,8 @@ FlyLabs Kit 0.23, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## Waiting on `staging` for the next release
 
+- Deadline wording: members read the same deadline and pickups everywhere (`formatDeadlineLong`, `formatPickupsLong`), and moving the close of an open cycle sends `cycle_deadline_changed`. No migration or configuration change.
+
 - Version 1.53.0: Treasury records manual credits and charges with a reason and a balance preview. Top-ups record payments received and membership fees move to the member profile. No migration or configuration change.
 
 ## Recent releases
