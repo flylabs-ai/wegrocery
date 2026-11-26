@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Aggiunte
+- [tecnico] 🗄️ **Preparazione del database per le notifiche push.** Applicare la migrazione `0057` prima di distribuire il codice che abilita le iscrizioni dei dispositivi.
+
 ### Modificato
 - 🔗 **I link portano dove puntano, anche dopo l'accesso.** Chi apre il link a una pagina dell'app (un ordine, una notifica) senza aver fatto l'accesso ci torna dopo il link email, il codice o Google, invece di finire in home.
 
