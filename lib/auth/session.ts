@@ -1,9 +1,11 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ActionError } from "@/lib/action-error";
 import { t } from "@/lib/i18n";
 import { normalizeRole, type AdminAccess, type Role } from "@/lib/roles";
 import { adminAccess, checkAccess } from "./access";
+import { loginPath, REQUEST_PATH_HEADER } from "./login-url";
 
 export type UserRole = Role | null;
 export type AppSession = {
@@ -25,7 +27,9 @@ export async function requireUserSession(): Promise<AppSession> {
   const email = session?.user?.email;
 
   if (!email) {
-    redirect("/login");
+    // Back to the page asked for after signing in (WGR-06): the proxy put it
+    // in the request; loginPath validates it.
+    redirect(loginPath((await headers()).get(REQUEST_PATH_HEADER)));
   }
 
   // auth() returns no session for a member deactivated or deleted since

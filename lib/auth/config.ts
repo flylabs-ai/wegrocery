@@ -13,7 +13,7 @@ import { AUTH_COOKIE_PREFIX } from "./cookie";
 import { DEFAULT_EMAIL_CAPS, mayEmail, type EmailCaps } from "./email-caps";
 import { authEmailKind, carriesLink, type AuthEmailKind } from "./email-kind";
 import { oauthIdentityRefusal } from "./identity";
-import { safeCallbackPath } from "./hosts";
+import { nextAfterLogin } from "./hosts";
 import { resolveAuthHosts } from "./kit/hosts";
 import { authOptions } from "./kit/options";
 import { resolveAuthPolicy } from "./kit/policy";
@@ -76,7 +76,7 @@ export function confirmationURL(verifyUrl: string, token: string): string {
   const verify = new URL(verifyUrl);
   const confirm = new URL("/login/conferma", verify.origin);
   confirm.searchParams.set("token", token);
-  confirm.searchParams.set("next", safeCallbackPath(verify.searchParams.get("callbackURL")));
+  confirm.searchParams.set("next", nextAfterLogin(verify.searchParams.get("callbackURL")));
   return confirm.toString();
 }
 

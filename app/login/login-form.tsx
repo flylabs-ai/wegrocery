@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { loginErrorUrl } from "@/lib/auth/login-url";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
 
@@ -35,7 +36,7 @@ export function LoginForm({ googleEnabled, next }: { googleEnabled: boolean; nex
       const response = await fetch("/api/auth/sign-in/magic-link", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, callbackURL: next, errorCallbackURL: "/login?error=LinkInvalid" }),
+        body: JSON.stringify({ email, callbackURL: next, errorCallbackURL: loginErrorUrl("LinkInvalid", next) }),
       });
       if (response.ok) setSentTo(email);
       setStatus(response.ok ? "sent" : response.status === 429 ? "rateLimited" : "failed");
@@ -76,7 +77,7 @@ export function LoginForm({ googleEnabled, next }: { googleEnabled: boolean; nex
       const response = await fetch("/api/auth/sign-in/social", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ provider: "google", callbackURL: next, errorCallbackURL: "/login" }),
+        body: JSON.stringify({ provider: "google", callbackURL: next, errorCallbackURL: loginErrorUrl(null, next) }),
       });
       const url = response.ok ? ((await response.json()) as { url?: unknown }).url : null;
       if (typeof url === "string") {
