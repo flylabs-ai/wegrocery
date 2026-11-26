@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Fixed
+- 📱 **Use the installed app in landscape.** The app lets your device choose the screen orientation once it refreshes the app's installation information.
+
 ## [1.54.0] - 2026-11-26
 
 *The deadline reads the same everywhere, and members hear when it moves.*

@@ -12,6 +12,12 @@ describe("proxy matcher", () => {
     expect(matches("/mailbox")).toBe(true);
   });
 
+  it("skips the session check for a browser requesting /sw.js without cookies", () => {
+    expect(matches("/sw.js")).toBe(false);
+    expect(matches("/sw.js?v=1")).toBe(false);
+    expect(matches("/sw.js/extra")).toBe(true);
+  });
+
   it("leaves the public endpoints open and guards the pages", () => {
     for (const url of ["/api/health", "/api/instance-stats", "/api/cron/open-cycles", "/api/unsubscribe", "/api/csp-report", "/manifest.webmanifest"]) {
       expect(matches(url)).toBe(false);

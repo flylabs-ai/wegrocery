@@ -1,56 +1,31 @@
-// The home-screen icons of the installable app, drawn from the brand's logo
-// (app/icons/[file]/route.tsx), so every deployment gets its own without a
-// file in the repository. Served under /icons/*.png: proxy.ts lets .png
-// through, and the browser fetches them without the session cookie.
+import type { MetadataRoute } from "next";
 
-export type PwaIcon = {
-  file: string;
-  size: number;
-  purpose: "any" | "maskable";
-  // Share of the side the logo takes: a maskable icon keeps its content in
-  // the central safe zone (a square inside the 80% circle), Apple adds no
-  // padding of its own.
-  logoScale: number;
-};
+export type IconPaths = { icon192: string; icon512: string; maskable512: string; apple180: string };
+export type PwaIcon = { file: string; src: string; size: number; purpose: "any" | "maskable"; logoScale: number };
 
-export const MANIFEST_ICONS: readonly PwaIcon[] = [
-  { file: "192.png", size: 192, purpose: "any", logoScale: 0.86 },
-  { file: "512.png", size: 512, purpose: "any", logoScale: 0.86 },
-  { file: "maskable-512.png", size: 512, purpose: "maskable", logoScale: 0.56 },
-];
-
-export const APPLE_TOUCH_ICON: PwaIcon = { file: "apple-180.png", size: 180, purpose: "any", logoScale: 0.8 };
-
-export const ALL_ICONS: readonly PwaIcon[] = [...MANIFEST_ICONS, APPLE_TOUCH_ICON];
-
-export const iconPath = (icon: PwaIcon) => `/icons/${icon.file}`;
-
-export function findIcon(file: string): PwaIcon | null {
-  return ALL_ICONS.find((i) => i.file === file) ?? null;
+/** Paths belong to the app; sizes and the maskable safe zone come from WeGrocery. */
+export function buildIcons(paths: IconPaths): {
+  manifest: NonNullable<MetadataRoute.Manifest["icons"]>;
+  appleTouch: { url: string; sizes: string; type: string };
+  all: PwaIcon[];
+} {
+  const all: PwaIcon[] = [
+    { file: "192.png", src: paths.icon192, size: 192, purpose: "any", logoScale: 0.86 },
+    { file: "512.png", src: paths.icon512, size: 512, purpose: "any", logoScale: 0.86 },
+    { file: "maskable-512.png", src: paths.maskable512, size: 512, purpose: "maskable", logoScale: 0.56 },
+    { file: "apple-180.png", src: paths.apple180, size: 180, purpose: "any", logoScale: 0.8 },
+  ];
+  return {
+    manifest: all.slice(0, 3).map((icon) => ({ src: icon.src, sizes: `${icon.size}x${icon.size}`, type: "image/png", purpose: icon.purpose })),
+    appleTouch: { url: paths.apple180, sizes: "180x180", type: "image/png" }, all,
+  };
 }
-
-// A logo under public/ is read from disk; anything else is fetched.
+export function findIcon(file: string, icons: readonly PwaIcon[]): PwaIcon | null { return icons.find((icon) => icon.file === file) ?? null; }
 export function localLogoPath(logoUrl: string): string | null {
   if (!logoUrl.startsWith("/") || logoUrl.startsWith("//")) return null;
   const path = logoUrl.split(/[?#]/)[0];
   return path.split("/").some((part) => part === "..") ? null : path;
 }
-
-const MIME: Record<string, string> = {
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  webp: "image/webp",
-  svg: "image/svg+xml",
-  gif: "image/gif",
-};
-
-export function logoMimeType(path: string): string {
-  const ext = path.split(/[?#]/)[0].split(".").pop()?.toLowerCase() ?? "";
-  return MIME[ext] ?? "image/png";
-}
-
-// The letter drawn when the logo cannot be loaded, so a build never fails on it.
-export function fallbackInitial(shortName: string): string {
-  return (shortName.trim()[0] ?? "?").toUpperCase();
-}
+const MIME: Record<string, string> = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", svg: "image/svg+xml", gif: "image/gif" };
+export function logoMimeType(path: string): string { return MIME[path.split(/[?#]/)[0].split(".").pop()?.toLowerCase() ?? ""] ?? "image/png"; }
+export function fallbackInitial(shortName: string): string { return (shortName.trim()[0] ?? "?").toUpperCase(); }

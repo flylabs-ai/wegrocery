@@ -1,29 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { fallbackInitial, findIcon, iconPath, localLogoPath, logoMimeType, MANIFEST_ICONS } from "./icons";
-
-describe("pwa icons", () => {
-  it("lists the sizes the browsers ask for, with a maskable one", () => {
-    expect(MANIFEST_ICONS.map((i) => `${i.size}:${i.purpose}`)).toEqual(["192:any", "512:any", "512:maskable"]);
-    expect(MANIFEST_ICONS.every((i) => iconPath(i).endsWith(".png"))).toBe(true);
-    expect(findIcon("apple-180.png")?.size).toBe(180);
-    expect(findIcon("nope.png")).toBeNull();
+import { buildIcons, findIcon, localLogoPath, logoMimeType, fallbackInitial } from "./icons";
+const paths = { icon192: "/icons/192.png", icon512: "/icons/512.png", maskable512: "/icons/maskable-512.png", apple180: "/icons/apple-180.png" };
+describe("PWA icons", () => {
+  it("keeps WeGrocery's sizes, purposes and safe logo scales with configured paths", () => {
+    const icons = buildIcons(paths);
+    expect(icons.manifest.map((i) => [i.sizes, i.purpose])).toEqual([["192x192", "any"], ["512x512", "any"], ["512x512", "maskable"]]);
+    expect(icons.appleTouch.sizes).toBe("180x180");
+    expect(findIcon("maskable-512.png", icons.all)?.logoScale).toBeLessThanOrEqual(0.8 / Math.SQRT2);
+    expect(findIcon("missing", icons.all)).toBeNull();
+    expect(buildIcons({ ...paths, icon192: "/custom/small.png" }).manifest[0].src).toBe("/custom/small.png");
+  });
+  it("preserves the app's lookup for local logo filenames with a backslash", () => {
+    const path = "/example\\logo.png";
+    expect(localLogoPath(path)).toBe(path);
   });
 
-  it("keeps the maskable logo inside the safe zone", () => {
-    expect(findIcon("maskable-512.png")!.logoScale).toBeLessThanOrEqual(0.8 / Math.SQRT2);
-  });
-
-  it("reads a logo under public/ from disk and fetches any other", () => {
+  it("preserves local path, MIME and fallback helpers without fetching", () => {
     expect(localLogoPath("/logo.png?v=2")).toBe("/logo.png");
-    expect(localLogoPath("https://example.org/logo.png")).toBeNull();
-    expect(localLogoPath("//cdn.example.org/logo.png")).toBeNull();
-    expect(localLogoPath("/../secret")).toBeNull();
+    for (const path of ["https://example.com/logo.png", "//example.com/logo.png", "/../private"]) expect(localLogoPath(path)).toBeNull();
     expect(logoMimeType("/brand/logo.SVG")).toBe("image/svg+xml");
     expect(logoMimeType("/logo")).toBe("image/png");
-  });
-
-  it("draws a letter when the logo is missing", () => {
-    expect(fallbackInitial("porta moneta")).toBe("P");
-    expect(fallbackInitial(" ")).toBe("?");
+    expect(fallbackInitial("example")).toBe("E"); expect(fallbackInitial(" ")).toBe("?");
   });
 });
