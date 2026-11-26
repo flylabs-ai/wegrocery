@@ -25,7 +25,7 @@ import { CategoryBar, categoryAnchor } from "./category-bar";
 import { ORDER_SEARCH_MIN_PRODUCTS, filterOrderProducts } from "@/lib/order-filter";
 import { CycleNotes } from "@/components/cycle-notes";
 import { HelpLink } from "@/components/guide/help-link";
-import { formatDeadline } from "@/lib/i18n/deadline";
+import { formatDeadlineLong } from "@/lib/i18n/deadline";
 import { Input } from "@/components/ui/input";
 
 type Product = {
@@ -542,7 +542,7 @@ export function OrderForm({
         <p className="tabular-nums text-label text-secondary-foreground mt-0.75">
           {cycleTitle}
           {supplierName ? ` · ${supplierName}` : ""}
-          {orderCloseAt ? ` · ${t.cycle.closes(formatDeadline(orderCloseAt))}` : ""}
+          {orderCloseAt ? ` · ${t.cycle.closes(formatDeadlineLong(orderCloseAt))}` : ""}
         </p>
       </div>
 

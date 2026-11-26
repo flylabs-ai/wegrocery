@@ -11,7 +11,7 @@ import { emailIdempotencyKey } from "@/lib/email/idempotency";
 import { sendMailBatch } from "@/lib/email/resend";
 import { notificationEmail } from "@/lib/email/templates";
 import { t } from "@/lib/i18n";
-import { formatDeadline } from "@/lib/i18n/deadline";
+import { formatDeadlineLong } from "@/lib/i18n/deadline";
 import { channelsForType } from "./categories";
 import { getResolvedPreferences } from "./dispatch";
 
@@ -40,7 +40,7 @@ export async function sendOpenAlerts(
       const { subject, text, heading } = notificationEmail(
         {
           title: n.openAlertTitle(cycle.title),
-          body: n.openAlertBody(cycle.title, cycle.orderCloseAt ? formatDeadline(cycle.orderCloseAt) : ""),
+          body: n.openAlertBody(cycle.title, cycle.orderCloseAt ? formatDeadlineLong(cycle.orderCloseAt) : ""),
           href: "/ordine",
         },
         await getBrand(),

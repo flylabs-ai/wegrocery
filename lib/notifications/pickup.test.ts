@@ -33,12 +33,12 @@ describe("pickupNotice", () => {
   it("names the cycle and the new pickup", () => {
     const notice = pickupNotice("Verdura", NONE, wed());
     expect(notice?.title).toContain("Verdura");
-    expect(notice?.body).toContain("Wed 14 Oct · 18:00–20:00");
+    expect(notice?.body).toContain("Wednesday 14 Oct, 18:00–20:00");
   });
 
   it("shows the new pickup and the old one when it moved", () => {
     const notice = pickupNotice("Verdura", wed(), { ...wed(), pickupDate: THU_18 });
-    expect(notice?.body).toMatch(/Thu 15 Oct · 18:00–20:00.*Wed 14 Oct · 18:00–20:00/);
+    expect(notice?.body).toMatch(/Thursday 15 Oct, 18:00–20:00.*Wednesday 14 Oct, 18:00–20:00/);
   });
 
   it("says when the pickup no longer has a date", () => {

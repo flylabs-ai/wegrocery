@@ -2,7 +2,7 @@ import { and, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import type { getDb } from "@/lib/db/client";
 import { members, orderCycles, orderDrafts, orders, products, type DraftLine } from "@/lib/db/schema";
 import { summarizeCycleDrafts } from "@/lib/admin/cycle-drafts";
-import { formatDeadline } from "@/lib/i18n/deadline";
+import { formatDeadlineLong } from "@/lib/i18n/deadline";
 import { normalizeDraftLines } from "@/lib/order-draft";
 import { canAccessCycle } from "@/lib/roles";
 import { dispatchWithBodies } from "./dispatch";
@@ -74,7 +74,7 @@ export async function sendDraftReminders(db: Db, now: Date): Promise<{ sent: num
         email: owner.email,
         href: `/ordine?cycleId=${encodeURIComponent(cycle.cycleId)}`,
         ...draftReminderMessage({ kind: draft.kind, cardPayment: cycle.paymentMode === "per_order" && !owner.paysOffline,
-          cycleTitle: cycle.title, deadline: formatDeadline(cycle.orderCloseAt!) }),
+          cycleTitle: cycle.title, deadline: formatDeadlineLong(cycle.orderCloseAt!) }),
       };
     });
     await dispatchWithBodies(db, items, "order_draft_reminder", now);

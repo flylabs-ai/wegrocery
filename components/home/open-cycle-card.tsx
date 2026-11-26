@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AlarmClock, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { t } from "@/lib/i18n";
-import { deadlineParts, formatPickupLong } from "@/lib/i18n/deadline";
+import { formatDeadlineLong, formatPickupsLong } from "@/lib/i18n/deadline";
 import type { HomeOrderStatus } from "@/lib/payments/order-payment";
 import { daysFrom, deadlineDay, relativeDay } from "@/lib/home";
 import { cn, formatEur } from "@/lib/utils";
@@ -59,7 +59,6 @@ export function OpenCycleCard({
   const day = deadlineDay(closeAt);
   const days = daysFrom(today, day);
   const lastDay = days <= 0;
-  const deadline = deadlineParts(closeAt);
   const notes = cycle.notes?.trim();
   const toPay = payStatus && payStatus.kind !== "paid" ? payStatus : null;
   const paid = payStatus?.kind === "paid";
@@ -72,15 +71,15 @@ export function OpenCycleCard({
           <h3 className="text-[16px] font-extrabold leading-snug tracking-[-0.01em] text-foreground">{cycle.title}</h3>
           {cycle.supplierName && <p className="text-[14px] text-secondary-foreground">{cycle.supplierName}</p>}
           <p className={cn("mt-1 text-[15px]", lastDay ? "font-bold text-destructive" : "text-foreground")}>
-            {h.orderBy(deadline.day, deadline.time)}
+            {h.orderBy(formatDeadlineLong(closeAt))}
           </p>
           <p className={cn("flex items-center gap-1 text-[14px]", lastDay ? "font-semibold text-destructive" : "text-secondary-foreground")}>
             {lastDay && <AlarmClock aria-hidden className="size-4 shrink-0" strokeWidth={2.25} />}
             {lastDay ? h.lastDay : relativeDay(days)}
           </p>
-          {cycle.pickups.map((p, i) => (
-            <p key={i} className="text-[14px] text-secondary-foreground">
-              {(cycle.pickupTentative ? h.pickupExpected : h.pickupOn)(formatPickupLong(p.date, p.endTime))}
+          {formatPickupsLong(cycle.pickups[0] ?? null, cycle.pickups[1] ?? null).map((when) => (
+            <p key={when} className="text-[14px] text-secondary-foreground">
+              {(cycle.pickupTentative ? h.pickupExpected : h.pickupOn)(when)}
             </p>
           ))}
           {notes && <p className="mt-1.5 line-clamp-3 whitespace-pre-line break-words text-[14px] text-foreground">{notes}</p>}
