@@ -12,7 +12,8 @@ a contact address in `mailto:` or HTTPS form.
 With the variables loaded in the operator's shell, run
 `node scripts/vapid-check.mjs`. It reports coherence and the first eight hex
 digits of the public-key hash. On Vercel, check the push state in
-`/api/health` or the signed instance stats consumed by the Console.
+`/api/health` or the signed instance stats. The FlyLabs signature
+contract also exposes daily totals in the Console's standard counters.
 
 Live delivery requires the exact value `PUSH_TRANSPORT=live` and a
 non-demo Vercel Production deployment, or an explicitly segregated HTTPS
