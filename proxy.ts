@@ -58,6 +58,7 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/login/") ||
     pathname === "/aderisci" ||
     pathname === "/gruppo" ||
+    pathname === "/offline" ||
     hasSessionCookie(request.cookies)
   ) {
     return withCsp(request);

@@ -1,6 +1,7 @@
 import type { Strings } from "./it";
 
 export const en: Strings = {
+  pwa: { notificationReady: "Notification ready to open", openNotification: "Open", offlineTitle: "You are offline", offlineBody: "Reload this page when your connection returns." },
   common: {
     save: "Save",
     cancel: "Cancel",
@@ -964,6 +965,7 @@ export const en: Strings = {
         dbRole: "Database access with a restricted role",
         fleet: "Anonymous stats for the console (FlyLabs Console)",
         autoOpen: "Planned cycles opening by themselves",
+        pwaWorker: "App service worker",
       } as Record<string, string>,
       notes: {
         noAdmin: "No admin yet: set BOOTSTRAP_ADMIN_EMAIL and sign in with that address.",
@@ -1047,6 +1049,7 @@ export const en: Strings = {
           "Only for whoever runs several groups: their console reads anonymous counts (members, cycles, orders, version) without touching the database. Nothing changes for the group.",
           "Generate a secret (openssl rand -hex 32), set it as INSTANCE_STATS_SECRET and paste the same value in the console under Add instance. Use a different secret for each installation.",
         ],
+        pwaWorker: ["The host can enable or remove the app service worker with PWA_SW_ENABLED.", "Leave it unset to keep the browser’s current registration."],
         autoOpen: [
           "Planned cycles open their orders by themselves on the morning of the planned day, unless their dates are tentative. Without it, an admin opens them with Open the orders.",
           "Generate a secret (openssl rand -hex 32) and put it in CRON_SECRET in the Vercel project: Vercel uses it for the check every morning. Then redeploy.",
