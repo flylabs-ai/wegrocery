@@ -132,6 +132,36 @@ test("the real order Server Action reports an offline error and stays unsent on 
   }
 });
 
+// Loaded only by the loopback server. Address the active controller over
+// MessageChannel so a browser process restart during update is harmless.
+const pushFixture = String.raw`
+  self.addEventListener("message", (event) => {
+    if (event.data?.type !== "test:push" || !event.ports[0]) return;
+    const port = event.ports[0];
+    event.waitUntil((async () => {
+      const push = new Event("push");
+      let delivered;
+      let displayed;
+      const showNotification = self.registration.showNotification;
+      self.registration.showNotification = async (title) => { displayed = title; };
+      Object.assign(push, {
+        data: { json: () => event.data.notice },
+        waitUntil: (promise) => { delivered = promise; },
+      });
+      try {
+        self.dispatchEvent(push);
+        await delivered;
+        port.postMessage({ title: displayed });
+      } catch (error) {
+        port.postMessage({ error: String(error) });
+      } finally {
+        self.registration.showNotification = showNotification;
+        port.close();
+      }
+    })());
+  });
+`;
+
 test("worker refresh keeps an open draft, serves offline navigation, preserves HTTP 500 and POST semantics", async () => {
   const worker = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
   const core = await readFile(new URL("../public/sw-core.js", import.meta.url), "utf8");
@@ -142,7 +172,7 @@ test("worker refresh keeps an open draft, serves offline navigation, preserves H
   const server = createServer((req, res) => {
     if (req.url === "/sw.js" || req.url === "/sw-core.js") {
       res.writeHead(200, { "Content-Type": "application/javascript", "Cache-Control": "no-store" });
-      res.end(req.url === "/sw.js" ? worker + "\n// Revision " + version : core);
+      res.end(req.url === "/sw.js" ? worker + "\n// Revision " + version + "\n" + pushFixture : core);
     } else if (req.url === "/offline") {
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }).end(offline);
     } else if (req.url === "/error") {
@@ -190,21 +220,20 @@ test("worker refresh keeps an open draft, serves offline navigation, preserves H
       { title: "Synthetic v0", body: "Test", url: "/draft", tag: "v0" },
       { title: "Synthetic v1", body: "Test", url: "/draft", tag: "v1", schemaVersion: 1, badge: 1 },
     ]) {
-      assert.equal(await active.evaluate(async (notice) => {
-        const event = new Event("push");
-        let delivered;
-        let displayed;
-        const showNotification = self.registration.showNotification;
-        self.registration.showNotification = async (title) => { displayed = title; };
-        Object.assign(event, { data: { json: () => notice }, waitUntil: (promise) => { delivered = promise; } });
-        try {
-          self.dispatchEvent(event);
-          await delivered;
-          return displayed;
-        } finally {
-          self.registration.showNotification = showNotification;
-        }
-      }, message), message.title);
+      const result = await page.evaluate((notice) => new Promise((resolve, reject) => {
+        const { port1, port2 } = new MessageChannel();
+        const timeout = setTimeout(() => {
+          port1.close();
+          reject(new Error("No response from the current worker"));
+        }, 5_000);
+        port1.onmessage = ({ data }) => {
+          clearTimeout(timeout);
+          port1.close();
+          resolve(data);
+        };
+        navigator.serviceWorker.controller.postMessage({ type: "test:push", notice }, [port2]);
+      }), message);
+      assert.deepEqual(result, { title: message.title });
     }
 
     await context.setOffline(true);
