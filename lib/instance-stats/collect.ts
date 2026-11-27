@@ -2,6 +2,8 @@ import { sql } from "drizzle-orm";
 import { getConfigStatus } from "@/lib/config-status-server";
 import { getDb } from "@/lib/db/client";
 import { getPaymentSettings } from "@/lib/payments/get-settings";
+import { pushState, type PushState } from "@/lib/push/config";
+import { getPushTotalsToday } from "@/lib/usage/events";
 import packageJson from "@/package.json";
 import type { ConfigItemStatus } from "./stats";
 
@@ -25,13 +27,15 @@ export type WeGroceryInstanceStats = {
   config: { id: string; status: ConfigItemStatus }[];
   pendingMigrations: string[];
   setupCompleted: boolean;
+  push?: PushState;
+  pushToday?: Awaited<ReturnType<typeof getPushTotalsToday>>;
 };
 
 const iso = (v: unknown) => (v == null ? null : new Date(v as string).toISOString());
 
 export async function collectInstanceStats(now: Date): Promise<WeGroceryInstanceStats> {
   const db = getDb();
-  const [counts, config, payments] = await Promise.all([
+  const [counts, config, payments, pushToday] = await Promise.all([
     db.execute<{
       installed_at: string | null;
       active: number;
@@ -60,6 +64,7 @@ export async function collectInstanceStats(now: Date): Promise<WeGroceryInstance
     `),
     getConfigStatus(),
     getPaymentSettings(),
+    getPushTotalsToday().catch(() => ({})),
   ]);
   const row = counts.rows[0];
   const database = config.find((c) => c.id === "database");
@@ -75,5 +80,7 @@ export async function collectInstanceStats(now: Date): Promise<WeGroceryInstance
     config: config.map((c) => ({ id: c.id, status: c.status })),
     pendingMigrations: database?.note === "pendingMigrations" ? [...(database.detail ?? [])] : [],
     setupCompleted: row.setup_completed,
+    push: pushState(),
+    pushToday,
   };
 }

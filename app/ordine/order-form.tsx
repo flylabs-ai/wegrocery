@@ -1,5 +1,7 @@
 "use client";
 
+import { useUnsavedChanges } from "@/lib/pwa/use-unsaved-changes";
+
 import { RotateCcw } from "lucide-react";
 import { EmptyIcon } from "@/components/ui-icon";
 import { Badge } from "@/components/ui/badge";
@@ -146,6 +148,7 @@ export function OrderForm({
 
   const draftKey = orderLinesKey(toLines(draft));
   const savedKey = orderLinesKey(toLines(savedQty));
+  useUnsavedChanges(draftKey !== savedKey || isPending);
   // What the server holds for this form, as a key: the draft's, or the
   // confirmed order's when there is no draft. A resumed draft that lost
   // products starts out of sync, so its cleaned version is saved at once.

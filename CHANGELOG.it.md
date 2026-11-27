@@ -25,6 +25,25 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.55.0] - 2026-11-27
+
+*Le notifiche sui dispositivi si preparano: l'app installata funziona offline e i link portano dove puntano.*
+
+### Aggiunte
+- [tecnico] 🔔 **Invio push dei promemoria delle bozze.** Il giro dei promemoria ora invia i lavori push che prenota, e la nuova rotta oraria `/api/cron/push-deliveries` ritenta quelli in sospeso. L'invio resta simulato finché il push non è attivo per quella persona (vedi `docs/push.md`). I cron orari richiedono Vercel Pro: le installazioni su Hobby tolgono quella voce da `vercel.json`.
+- [tecnico] 🔔 **Coda push per i promemoria delle bozze.** Il giro dei promemoria prenota un lavoro push per ogni dispositivo del titolare che ha dato il consenso, nella stessa istruzione del promemoria; i familiari non lo ricevono mai. I lavori si elaborano con nuovi tentativi e scadono un'ora prima della chiusura. L'elaborazione viene collegata quando arriva il trasporto push.
+- [tecnico] Aggiunti il trasporto Web Push, il controllo VAPID e i contatori giornalieri anonimi per i futuri promemoria delle bozze.
+- [tecnico] 📱 **Schermata offline per l’app installata.** Con il service worker attivo, se la pagina non raggiunge la rete compare una schermata offline. Aprire una notifica mentre si modifica un ordine o si avvia un pagamento chiede conferma prima di uscire.
+- 📱 **Gestisci le notifiche sui tuoi dispositivi.** Quando sono disponibili, puoi collegare questo dispositivo, scollegare quelli che non usi più e scegliere se ricevere i promemoria delle bozze. L’invio è ancora simulato.
+- [tecnico] 🗄️ **Preparazione del database per le notifiche push.** Applicare la migrazione `0057` prima di distribuire il codice che abilita le iscrizioni dei dispositivi.
+
+### Modificato
+- [tecnico] **Moduli PWA e Web Push condivisi.** WeGrocery usa FlyLabs Kit 0.25 per il worker, la navigazione dalle notifiche e la logica push comune.
+- 🔗 **I link portano dove puntano, anche dopo l'accesso.** Chi apre il link a una pagina dell'app (un ordine, una notifica) senza aver fatto l'accesso ci torna dopo il link email, il codice o Google, invece di finire in home.
+
+### Risolto
+- 📱 **App installata anche in orizzontale.** L'app segue l'orientamento del dispositivo quando il sistema aggiorna le informazioni di installazione.
+
 ## [1.54.0] - 26 novembre 2026
 
 *La scadenza si legge uguale ovunque, e i soci sanno quando cambia.*
@@ -1018,6 +1037,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.55.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.55.0
 [1.54.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.54.0
 [1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2

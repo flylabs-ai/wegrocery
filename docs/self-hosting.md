@@ -200,11 +200,23 @@ Both app and email channels are on by default for this category; members can
 change them in Profile → Notifications. No email is sent without the usual
 email configuration. Without `CRON_SECRET`, the route answers 404.
 
-There are three daily cron entries in total. Vercel supports multiple entries
+There are three daily cron entries in total, plus the hourly push delivery entry (see Web Push). Vercel supports multiple entries
 on the same route, and Hobby allows up to 100 jobs per project, each daily;
 on Hobby each may run at any minute of its scheduled hour. See the official
 [cron configuration](https://vercel.com/docs/schedules/cron-jobs/manage-cron-jobs#reading-the-cron-schedule-header)
 and [limits](https://vercel.com/docs/schedules/cron-jobs/usage-and-pricing).
+
+### Web Push
+
+Push requires the service worker, a VAPID key pair and contact, and a permitted
+deployment. See [Web Push operations](./push.md) for the environment variables
+and pilot controls. The draft reminder run books one push job per consenting
+device of the account holder and sends it right away; `/api/cron/push-deliveries`
+(hourly, `17 * * * *`, same `CRON_SECRET`) retries what is still pending. Hourly
+crons need the Vercel Pro plan: on Hobby, remove that entry from `vercel.json`
+(Vercel refuses the deploy otherwise) and pending jobs are retried on the next
+draft-reminder run, while their deadline allows. Jobs stop one hour before the
+order deadline, and rows older than 30 days are removed.
 
 ### Membership card check (WallyFor)
 

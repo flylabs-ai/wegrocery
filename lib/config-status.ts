@@ -1,3 +1,5 @@
+import { pushState } from "./push/config";
+import { workerMode } from "./pwa/worker-mode";
 import { MIGRATIONS } from "./migrations";
 import { MIN_SECRET_LENGTH } from "./instance-stats/constants";
 import { REQUIRED_STRIPE_EVENTS, resolveStripeKey, stripeModeRefusal } from "./payments/config";
@@ -47,7 +49,9 @@ export type ConfigItemId =
   | "membership"
   | "sentry"
   | "fleet"
-  | "autoOpen";
+  | "autoOpen"
+  | "pwaWorker"
+  | "push";
 
 export type ConfigItem = {
   id: ConfigItemId;
@@ -153,6 +157,7 @@ function brandItem(env: Env, facts: ConfigFacts): ConfigItem {
 
 export function configStatus(env: Env, facts: ConfigFacts): ConfigItem[] {
   const wallyfor = [set(env.WALLYFOR_API_KEY), set(env.WALLYFOR_MERCHANT_ID)];
+  const push = pushState(env);
   return [
     database(env, facts),
     {
@@ -190,6 +195,19 @@ export function configStatus(env: Env, facts: ConfigFacts): ConfigItem[] {
     dbRole(facts),
     fleet(env),
     autoOpen(env),
+    {
+      id: "push",
+      required: false,
+      vars: ["VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY", "VAPID_SUBJECT", "PUSH_TRANSPORT", "PUSH_SEGREGATED_ORIGIN", "PUSH_PILOT_MEMBER_IDS"],
+      status: push === "misconfigured" ? "warning" : push === "off" ? "off" : "ok",
+      note: push === "misconfigured" ? "misconfigured" : push === "simulated" ? "pushSimulated" : push === "live" ? "pushLive" : undefined,
+    },
+    {
+      id: "pwaWorker",
+      required: false,
+      vars: ["PWA_SW_ENABLED"],
+      status: workerMode(env.PWA_SW_ENABLED) === "register" ? "ok" : "off",
+    },
   ];
 }
 

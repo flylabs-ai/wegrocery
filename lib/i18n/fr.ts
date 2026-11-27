@@ -1,6 +1,7 @@
 import type { Strings } from "./it";
 
 export const fr: Strings = {
+  pwa: { draftReminder: (deadline: string) => `Confirmez votre commande avant ${deadline}.`, notificationReady: "Notification prête à ouvrir", openNotification: "Ouvrir", offlineTitle: "Vous êtes hors ligne", offlineBody: "Rechargez la page quand la connexion revient." },
   common: {
     save: "Enregistrer",
     cancel: "Annuler",
@@ -515,6 +516,28 @@ export const fr: Strings = {
     settleDebt: (amount: string) => `Régler ${amount}`,
   },
   notifications: {
+    push: {
+      title: "Sur l’appareil",
+      enable: "Activer sur cet appareil",
+      deviceError: "Impossible de mettre à jour l’appareil. Réessayez.",
+      draftReminder: "Rappels de brouillons",
+      consentError: "Impossible d’enregistrer la préférence. Réessayez.",
+      devices: "Vos appareils",
+      listError: "Impossible de charger vos appareils.",
+      empty: "Aucun appareil associé.",
+      unknown: "Appareil sans nom",
+      current: "Cet appareil",
+      unlink: "Dissocier",
+      states: {
+        checking: "Vérification de cet appareil…",
+        unsupported: "Ce navigateur ne prend pas en charge les notifications push.",
+        ios: "Pour activer les notifications, ouvrez le menu Partager de Safari, choisissez « Sur l’écran d’accueil », puis ouvrez l’application depuis cet écran.",
+        denied: "Pour activer les notifications, autorisez-les dans les réglages du navigateur ou de l’appareil et rouvrez l’application.",
+        off: "Les notifications sont désactivées sur cet appareil.",
+        incomplete: "Activation à terminer",
+        on: "Les notifications sont activées sur cet appareil.",
+      },
+    },
     title: "Notifications",
     markAllRead: "Tout marquer comme lu",
     noNotifications: "Aucune notification",
@@ -964,8 +987,13 @@ export const fr: Strings = {
         dbRole: "Accès à la base de données avec un rôle restreint",
         fleet: "Statistiques anonymes pour la console (FlyLabs Console)",
         autoOpen: "Ouverture automatique des cycles programmés",
+        push: "Notifications push",
+        pwaWorker: "Service worker de l’application",
       } as Record<string, string>,
       notes: {
+        misconfigured: "Les clés VAPID ou le contact sont invalides.",
+        pushSimulated: "Les envois push sont simulés.",
+        pushLive: "Les envois push sont activés.",
         noAdmin: "Pas encore d'admin : définissez BOOTSTRAP_ADMIN_EMAIL et connectez-vous avec cette adresse.",
         bootstrapWaiting: "La première connexion avec cette adresse crée l'admin.",
         bootstrapDone: "Un admin existe : la variable est ignorée et peut être supprimée.",
@@ -1047,6 +1075,7 @@ export const fr: Strings = {
           "Uniquement pour qui gère plusieurs groupes : sa console lit des décomptes anonymes (membres, cycles, commandes, version) sans toucher à la base de données. Rien ne change pour le groupe.",
           "Générez un secret (openssl rand -hex 32), définissez-le comme INSTANCE_STATS_SECRET et collez la même valeur dans la console, sous Ajouter une instance. Utilisez un secret différent pour chaque installation.",
         ],
+        pwaWorker: ["L’hébergeur peut activer ou retirer le service worker avec PWA_SW_ENABLED.", "Laissez-la vide pour conserver l’enregistrement du navigateur."],
         autoOpen: [
           "Les cycles programmés ouvrent leurs commandes seuls le matin du jour prévu, si leurs dates ne sont pas indicatives. Sinon, un admin les ouvre avec Ouvrir les commandes.",
           "Générez un secret (openssl rand -hex 32) et mettez-le dans CRON_SECRET dans le projet Vercel : Vercel s'en sert pour le contrôle de chaque matin. Puis redéployez.",
@@ -1774,6 +1803,16 @@ export const fr: Strings = {
       usageHint: "Décomptes anonymes : aucun membre, aucun texte, aucune donnée de démo.",
       usageEmpty: "Pas encore de données.",
       usageEvents: {
+        pwa_launch_standalone: "Ouvertures en mode application",
+        pwa_launch_browser: "Ouvertures dans le navigateur",
+        push_device_on: "Appareils activés",
+        push_device_off: "Appareils dissociés",
+        push_accepted: "Push acceptées",
+        push_expired: "Abonnements expirés",
+        push_failed: "Push en échec",
+        push_skipped: "Push ignorées",
+        push_simulated: "Push simulées",
+        push_opened: "Push ouvertes",
         login: "Connexions",
         order_saved: "Commandes confirmées",
         order_cancelled: "Commandes annulées",

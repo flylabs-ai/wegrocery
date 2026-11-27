@@ -7,7 +7,16 @@ const nextConfig: NextConfig = {
   // On every path, pages, API routes and static files alike: see
   // lib/security/headers.ts for what each one is for.
   async headers() {
-    return securityHeaderRules();
+    return [
+      ...securityHeaderRules(),
+      ...["/sw.js", "/sw-core.js"].map((source) => ({
+        source,
+        headers: [
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+        ],
+      })),
+    ];
   },
   images: {
     // Only the brand logo's own host, never a wildcard — see image-patterns.ts.

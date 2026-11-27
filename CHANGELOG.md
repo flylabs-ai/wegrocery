@@ -24,6 +24,25 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.55.0] - 2026-11-27
+
+*Device notifications get ready: the installed app works offline and links land where they point.*
+
+### Added
+- [tech] 🔔 **Push delivery for draft reminders.** The reminder run now sends the push jobs it books, and a new hourly `/api/cron/push-deliveries` route retries what is pending. Delivery stays simulated unless push is live for that person (see `docs/push.md`). Hourly crons need Vercel Pro: Hobby installations remove that entry from `vercel.json`.
+- [tech] 🔔 **Push queue for draft reminders.** The reminder run now books one push job per consenting device of the account holder in the same statement as the reminder itself; family members never receive it. Jobs are processed with retries and expire an hour before the deadline. Processing is wired up once the push transport lands.
+- [tech] Added the Web Push transport, VAPID check and anonymous daily counters for the upcoming draft reminders.
+- [tech] 📱 **Offline fallback for the installed app.** When the service worker is enabled, a page that cannot reach the network shows an offline screen. Opening a notification while editing an order or starting checkout asks before leaving.
+- 📱 **Manage notifications on your devices.** When device notifications are available, you can link this device, unlink devices you no longer use and choose whether you want draft reminders. Delivery is still simulated.
+- [tech] 🗄️ **Database preparation for push notifications.** Apply migration `0057` before deploying the code that enables device subscriptions.
+
+### Changed
+- [tech] **Shared PWA and Web Push modules.** WeGrocery now uses FlyLabs Kit 0.25 for the worker, navigation bridge and common push logic.
+- 🔗 **Links land where they point, after signing in.** Opening a link to a page of the app (an order, a notification) without being signed in now returns to that page after the email link, the code or Google, instead of the home.
+
+### Fixed
+- 📱 **Use the installed app in landscape.** The app lets your device choose the screen orientation once it refreshes the app's installation information.
+
 ## [1.54.0] - 2026-11-26
 
 *The deadline reads the same everywhere, and members hear when it moves.*
@@ -1016,6 +1035,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.55.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.55.0
 [1.54.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.54.0
 [1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2

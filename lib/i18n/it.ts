@@ -1,6 +1,7 @@
 // Italian language pack: the source of truth for the Strings type.
 // Group keys by route/feature. Values needing params are functions.
 export const it = {
+  pwa: { draftReminder: (deadline: string) => `Conferma l’ordine entro ${deadline}.`, notificationReady: "Notifica pronta da aprire", openNotification: "Apri", offlineTitle: "Sei offline", offlineBody: "Ricarica la pagina quando torna la connessione." },
   common: {
     save: "Salva",
     cancel: "Annulla",
@@ -515,6 +516,28 @@ export const it = {
     settleDebt: (amount: string) => `Salda ${amount}`,
   },
   notifications: {
+    push: {
+      title: "Sul dispositivo",
+      enable: "Attiva su questo dispositivo",
+      deviceError: "Non è stato possibile aggiornare il dispositivo. Riprova.",
+      draftReminder: "Promemoria delle bozze",
+      consentError: "Non è stato possibile salvare la preferenza. Riprova.",
+      devices: "I tuoi dispositivi",
+      listError: "Non è stato possibile caricare i dispositivi.",
+      empty: "Nessun dispositivo collegato.",
+      unknown: "Dispositivo senza nome",
+      current: "Questo dispositivo",
+      unlink: "Scollega",
+      states: {
+        checking: "Verifica del dispositivo in corso…",
+        unsupported: "Questo browser non supporta le notifiche push.",
+        ios: "Per attivare le notifiche, apri il menu Condividi di Safari, scegli «Aggiungi alla schermata Home» e apri l’app dalla schermata Home.",
+        denied: "Per attivare le notifiche, consenti l’accesso nelle impostazioni del browser o del dispositivo e riapri l’app.",
+        off: "Notifiche disattivate su questo dispositivo.",
+        incomplete: "Attivazione da completare",
+        on: "Notifiche attive su questo dispositivo.",
+      },
+    },
     title: "Notifiche",
     markAllRead: "Segna tutte come lette",
     noNotifications: "Nessuna notifica",
@@ -966,8 +989,13 @@ export const it = {
         dbRole: "Accesso al database con ruolo limitato",
         fleet: "Statistiche anonime per la console (FlyLabs Console)",
         autoOpen: "Apertura automatica dei cicli in programma",
+        push: "Notifiche push",
+        pwaWorker: "Service worker dell’app",
       } as Record<string, string>,
       notes: {
+        misconfigured: "Le chiavi VAPID o il contatto non sono validi.",
+        pushSimulated: "Gli invii push sono simulati.",
+        pushLive: "Gli invii push sono abilitati.",
         noAdmin: "Nessun admin: imposta BOOTSTRAP_ADMIN_EMAIL e accedi con quell'indirizzo.",
         bootstrapWaiting: "Il primo accesso con questo indirizzo crea l'admin.",
         bootstrapDone: "C'è già un admin: la variabile è ignorata e si può togliere.",
@@ -1049,6 +1077,7 @@ export const it = {
           "Serve solo a chi gestisce più gruppi: la sua console legge numeri anonimi (soci, cicli, ordini, versione) senza entrare nel database. Per il gruppo non cambia nulla.",
           "Genera un segreto (openssl rand -hex 32), mettilo in INSTANCE_STATS_SECRET e incollalo uguale nella console, alla voce Aggiungi istanza. Un segreto diverso per ogni installazione.",
         ],
+        pwaWorker: ["Chi ospita l’app può attivare o rimuovere il service worker con PWA_SW_ENABLED.", "Lascia il campo vuoto per mantenere la registrazione del browser."],
         autoOpen: [
           "I cicli in programma aprono gli ordini da soli la mattina del giorno previsto, se le date non sono indicative. Senza, li apre l'admin con Apri gli ordini.",
           "Genera un segreto (openssl rand -hex 32) e mettilo in CRON_SECRET nel progetto Vercel: Vercel lo usa per il controllo di ogni mattina. Poi rifai il deploy.",
@@ -1778,6 +1807,16 @@ export const it = {
       usageHint: "Conteggi anonimi: nessun socio, nessun testo, niente dati della demo.",
       usageEmpty: "Ancora nessun dato.",
       usageEvents: {
+        pwa_launch_standalone: "Avvii come app",
+        pwa_launch_browser: "Avvii nel browser",
+        push_device_on: "Dispositivi attivati",
+        push_device_off: "Dispositivi scollegati",
+        push_accepted: "Push accettate",
+        push_expired: "Iscrizioni scadute",
+        push_failed: "Push fallite",
+        push_skipped: "Push saltate",
+        push_simulated: "Push simulate",
+        push_opened: "Push aperte",
         login: "Accessi",
         order_saved: "Ordini confermati",
         order_cancelled: "Ordini cancellati",

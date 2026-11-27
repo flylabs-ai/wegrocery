@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { useUnsavedChanges } from "@/lib/pwa/use-unsaved-changes";
+import { loginErrorUrl } from "@/lib/auth/login-url";
 import { t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
 
@@ -26,6 +28,8 @@ export function LoginForm({ googleEnabled, next }: { googleEnabled: boolean; nex
   const [status, setStatus] = useState<Status>("idle");
   // The address the link and code went to; null until a request went out.
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [hasEmailInput, setHasEmailInput] = useState(false);
+  useUnsavedChanges(hasEmailInput || sentTo !== null || status === "sending" || status === "google");
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,7 +39,7 @@ export function LoginForm({ googleEnabled, next }: { googleEnabled: boolean; nex
       const response = await fetch("/api/auth/sign-in/magic-link", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, callbackURL: next, errorCallbackURL: "/login?error=LinkInvalid" }),
+        body: JSON.stringify({ email, callbackURL: next, errorCallbackURL: loginErrorUrl("LinkInvalid", next) }),
       });
       if (response.ok) setSentTo(email);
       setStatus(response.ok ? "sent" : response.status === 429 ? "rateLimited" : "failed");
@@ -76,7 +80,7 @@ export function LoginForm({ googleEnabled, next }: { googleEnabled: boolean; nex
       const response = await fetch("/api/auth/sign-in/social", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ provider: "google", callbackURL: next, errorCallbackURL: "/login" }),
+        body: JSON.stringify({ provider: "google", callbackURL: next, errorCallbackURL: loginErrorUrl(null, next) }),
       });
       const url = response.ok ? ((await response.json()) as { url?: unknown }).url : null;
       if (typeof url === "string") {
@@ -137,6 +141,7 @@ export function LoginForm({ googleEnabled, next }: { googleEnabled: boolean; nex
           </label>
           <Input
             id="email"
+            onChange={(event) => setHasEmailInput(event.currentTarget.value.length > 0)}
             name="email"
             type="email"
             autoComplete="email"

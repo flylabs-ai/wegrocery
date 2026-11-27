@@ -1,6 +1,7 @@
 import type { Strings } from "./it";
 
 export const en: Strings = {
+  pwa: { draftReminder: (deadline: string) => `Confirm your order by ${deadline}.`, notificationReady: "Notification ready to open", openNotification: "Open", offlineTitle: "You are offline", offlineBody: "Reload this page when your connection returns." },
   common: {
     save: "Save",
     cancel: "Cancel",
@@ -515,6 +516,28 @@ export const en: Strings = {
     settleDebt: (amount: string) => `Pay off ${amount}`,
   },
   notifications: {
+    push: {
+      title: "On your device",
+      enable: "Enable on this device",
+      deviceError: "Could not update the device. Try again.",
+      draftReminder: "Draft reminders",
+      consentError: "Could not save the preference. Try again.",
+      devices: "Your devices",
+      listError: "Could not load your devices.",
+      empty: "No linked devices.",
+      unknown: "Unnamed device",
+      current: "This device",
+      unlink: "Unlink",
+      states: {
+        checking: "Checking this device…",
+        unsupported: "This browser does not support push notifications.",
+        ios: "To enable notifications, open Safari’s Share menu, choose Add to Home Screen, then open the app from your Home Screen.",
+        denied: "To enable notifications, allow them in your browser or device settings and reopen the app.",
+        off: "Notifications are off on this device.",
+        incomplete: "Activation incomplete",
+        on: "Notifications are on for this device.",
+      },
+    },
     title: "Notifications",
     markAllRead: "Mark all as read",
     noNotifications: "No notifications",
@@ -964,8 +987,13 @@ export const en: Strings = {
         dbRole: "Database access with a restricted role",
         fleet: "Anonymous stats for the console (FlyLabs Console)",
         autoOpen: "Planned cycles opening by themselves",
+        push: "Push notifications",
+        pwaWorker: "App service worker",
       } as Record<string, string>,
       notes: {
+        misconfigured: "The VAPID keys or contact are invalid.",
+        pushSimulated: "Push delivery is simulated.",
+        pushLive: "Push delivery is enabled.",
         noAdmin: "No admin yet: set BOOTSTRAP_ADMIN_EMAIL and sign in with that address.",
         bootstrapWaiting: "The first sign-in with this address creates the admin.",
         bootstrapDone: "An admin exists: the variable is ignored and can be removed.",
@@ -1047,6 +1075,7 @@ export const en: Strings = {
           "Only for whoever runs several groups: their console reads anonymous counts (members, cycles, orders, version) without touching the database. Nothing changes for the group.",
           "Generate a secret (openssl rand -hex 32), set it as INSTANCE_STATS_SECRET and paste the same value in the console under Add instance. Use a different secret for each installation.",
         ],
+        pwaWorker: ["The host can enable or remove the app service worker with PWA_SW_ENABLED.", "Leave it unset to keep the browser’s current registration."],
         autoOpen: [
           "Planned cycles open their orders by themselves on the morning of the planned day, unless their dates are tentative. Without it, an admin opens them with Open the orders.",
           "Generate a secret (openssl rand -hex 32) and put it in CRON_SECRET in the Vercel project: Vercel uses it for the check every morning. Then redeploy.",
@@ -1774,6 +1803,16 @@ export const en: Strings = {
       usageHint: "Anonymous counts: no member, no text, no demo data.",
       usageEmpty: "No data yet.",
       usageEvents: {
+        pwa_launch_standalone: "Standalone launches",
+        pwa_launch_browser: "Browser launches",
+        push_device_on: "Devices enabled",
+        push_device_off: "Devices disconnected",
+        push_accepted: "Push accepted",
+        push_expired: "Subscriptions expired",
+        push_failed: "Push failed",
+        push_skipped: "Push skipped",
+        push_simulated: "Push simulated",
+        push_opened: "Push opened",
         login: "Sign-ins",
         order_saved: "Orders confirmed",
         order_cancelled: "Orders cancelled",

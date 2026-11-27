@@ -8,7 +8,10 @@ import { brand, roleVarsCss } from "@/lib/brand";
 import { brandToTokens, statusBarColors } from "@/lib/brand/tokens";
 import { parseTheme, THEME_COOKIE, type Theme } from "@/lib/theme";
 import { getBrand } from "@/lib/brand/get-brand";
-import { APPLE_TOUCH_ICON, iconPath } from "@/lib/pwa/icons";
+import { pwaIcons } from "@/lib/pwa-icons";
+import { ServiceWorkerBridge } from "@/components/service-worker-bridge";
+import { workerMode } from "@/lib/pwa/worker-mode";
+import { t } from "@/lib/i18n";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -84,12 +87,17 @@ export default async function RootLayout({
     >
       <head>
         <style dangerouslySetInnerHTML={{ __html: roleVarsCss(b.theme) }} />
-        <link rel="apple-touch-icon" sizes="180x180" href={iconPath(APPLE_TOUCH_ICON)} />
+        <link rel="apple-touch-icon" sizes={pwaIcons.appleTouch.sizes} href={pwaIcons.appleTouch.url} />
       </head>
       <body className="text-foreground flex min-h-full flex-col">
         <AppToaster>
           {children}
           <ConfirmDialogProvider />
+          <ServiceWorkerBridge
+            mode={workerMode(process.env.PWA_SW_ENABLED)}
+            title={t.pwa.notificationReady}
+            open={t.pwa.openNotification}
+          />
         </AppToaster>
       </body>
     </html>

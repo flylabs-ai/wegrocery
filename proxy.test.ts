@@ -12,8 +12,16 @@ describe("proxy matcher", () => {
     expect(matches("/mailbox")).toBe(true);
   });
 
+  it("skips the session check for a browser requesting /sw.js without cookies", () => {
+    expect(matches("/sw.js")).toBe(false);
+    expect(matches("/sw.js?v=1")).toBe(false);
+    expect(matches("/sw.js/extra")).toBe(true);
+    expect(matches("/sw-core.js")).toBe(false);
+    expect(matches("/sw-core.js/extra")).toBe(true);
+  });
+
   it("leaves the public endpoints open and guards the pages", () => {
-    for (const url of ["/api/health", "/api/instance-stats", "/api/cron/open-cycles", "/api/unsubscribe", "/api/csp-report", "/manifest.webmanifest"]) {
+    for (const url of ["/api/health", "/api/instance-stats", "/api/cron/open-cycles", "/api/cron/draft-reminders", "/api/cron/push-deliveries", "/api/unsubscribe", "/api/csp-report", "/manifest.webmanifest"]) {
       expect(matches(url)).toBe(false);
     }
     for (const url of ["/", "/ordine", "/admin", "/changelog", "/api/health/x"]) {
@@ -23,13 +31,28 @@ describe("proxy matcher", () => {
 });
 
 describe("proxy redirect", () => {
+  it("lets the standalone offline document through without cookies", async () => {
+    const { proxy } = await import("./proxy");
+    const { NextRequest } = await import("next/server");
+    const { GET } = await import("./app/offline/route");
+    const response = proxy(new NextRequest("https://app.example/offline"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("content-security-policy")).toContain("worker-src 'self'");
+    expect(proxy(new NextRequest("https://app.example/offline/extra")).status).toBe(307);
+    const offline = GET();
+    expect(offline.status).toBe(200);
+    expect(offline.headers.get("content-type")).toBe("text/html; charset=utf-8");
+    expect(await offline.text()).not.toMatch(/<script\b/i);
+  });
+
   it("lets /aderisci through without a session, and nothing under it", async () => {
     const { proxy } = await import("./proxy");
     const { NextRequest } = await import("next/server");
     const open = proxy(new NextRequest("https://app.example/aderisci"));
     expect(open.headers.get("location")).toBeNull();
     const guarded = proxy(new NextRequest("https://app.example/aderisci/x"));
-    expect(guarded.headers.get("location")).toBe("https://app.example/login");
+    expect(guarded.headers.get("location")).toBe("https://app.example/login?next=%2Faderisci%2Fx");
   });
 
   it("sends the home without a session to /gruppo, other pages to /login", async () => {
@@ -37,7 +60,29 @@ describe("proxy redirect", () => {
     const { NextRequest } = await import("next/server");
     expect(proxy(new NextRequest("https://app.example/")).headers.get("location")).toBe("https://app.example/gruppo");
     expect(proxy(new NextRequest("https://app.example/gruppo")).headers.get("location")).toBeNull();
-    expect(proxy(new NextRequest("https://app.example/ordine")).headers.get("location")).toBe("https://app.example/login");
+    expect(proxy(new NextRequest("https://app.example/ordine")).headers.get("location")).toBe("https://app.example/login?next=%2Fordine");
+  });
+
+  it("keeps where the member was going, only for a page asked with GET (WGR-06)", async () => {
+    const { proxy } = await import("./proxy");
+    const { NextRequest } = await import("next/server");
+    const location = (url: string, init?: { method: string }) => proxy(new NextRequest(url, init)).headers.get("location");
+    expect(location("https://app.example/ordine?cycleId=X")).toBe("https://app.example/login?next=%2Fordine%3FcycleId%3DX");
+    expect(location("https://app.example/ordine?cycleId=X", { method: "POST" })).toBe("https://app.example/login");
+    expect(location("https://app.example/api/whatever")).toBe("https://app.example/login");
+    // A doubled slash in the path is not a way out: the browser keeps it on this site.
+    expect(new URL(location("https://app.example//evil.example") ?? "").origin).toBe("https://app.example");
+  });
+
+  it("passes the asked path to the page, overwriting the client's header", async () => {
+    const { proxy } = await import("./proxy");
+    const { NextRequest } = await import("next/server");
+    const response = proxy(
+      new NextRequest("https://app.example/ordine?cycleId=X", {
+        headers: { cookie: "wegrocery.session_token=x", "x-wegrocery-path": "//evil.example" },
+      }),
+    );
+    expect(response.headers.get("x-middleware-request-x-wegrocery-path")).toBe("/ordine?cycleId=X");
   });
 });
 

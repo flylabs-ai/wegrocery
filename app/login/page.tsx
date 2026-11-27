@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { nextAfterLogin } from "@/lib/auth/hosts";
 import { auth } from "@/auth";
 import Link from "next/link";
 import { getBrand } from "@/lib/brand/get-brand";
@@ -26,6 +27,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     settings.signupMode === "open" ? t.login.joinOpen : settings.signupMode === "request" ? t.login.joinRequest : null;
   const params = await searchParams;
   const error = typeof params.error === "string" ? params.error : null;
+  // Where the member was going (proxy.ts adds it, WGR-06): checked again here.
+  const next = nextAfterLogin(params.next);
   const deniedMessage =
     error === "AccessDenied"
       ? t.login.accessDenied
@@ -47,7 +50,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const isDemo = process.env.DEMO_MODE === "true";
 
   if (session?.user?.email) {
-    redirect("/");
+    redirect(next);
   }
 
   return (
@@ -89,7 +92,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         ) : null}
         <div className="mt-6 space-y-3">
-          {isDemo ? null : <LoginForm googleEnabled={hasGoogleAuth} next="/" />}
+          {isDemo ? null : <LoginForm googleEnabled={hasGoogleAuth} next={next} />}
           {isDemo || hasDevLogin ? <ShortcutButtons demo={isDemo} dev={hasDevLogin} /> : null}
         </div>
         {joinLabel && !isDemo ? (

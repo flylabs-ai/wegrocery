@@ -246,6 +246,16 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
 try {
   for (const width of Object.keys(WIDTHS)) {
     const anon = await browser.newContext({ ...WIDTHS[width], locale: "it-IT" });
+    if (width === "phone") {
+      try {
+        const worker = await anon.request.get(BASE + "/sw.js", { maxRedirects: 0 });
+        if (![200, 404].includes(worker.status()) || worker.headers().location !== undefined) {
+          fail(`anonymous /sw.js: expected 200 or 404 without a redirect, got HTTP ${worker.status()}`);
+        }
+      } catch {
+        fail("anonymous /sw.js: request failed");
+      }
+    }
     const login = await anon.newPage();
     if (await visit(login, "/login", `${width} /login`)) await checkPage(login, `${width} /login`);
     await anon.close();

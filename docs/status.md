@@ -2,25 +2,41 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-26 (1.54.0 prepared for promotion).
+Last updated: 2026-11-27 (1.55.0 prepared: PWA and Web Push).
 
 ## Versions and migrations
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.53.0 (2026-11-23) | up to `0056` |
-| Public demo (`main`) | 1.53.0 | up to `0056` |
+| Production (`main`) | 1.54.0 (2026-11-26) | up to `0057` |
+| Public demo (`main`) | 1.54.0 | up to `0056` (`0057` before the 1.55.0 merge, from the Console) |
 | Example brand installation | 1.52.1 | up to `0056` (migrates on build) |
-| Staging (`staging`) | 1.54.0 prepared | up to `0056` (Neon branch `staging`) |
+| Staging (`staging`) | 1.55.0 prepared | up to `0057` (Neon branch `staging`) |
 
-FlyLabs Kit 0.23, profile `white-label` (`flylabs-kit.json`): modules auth, changelog, console, email, firma, guida, i18n, ics, migrazioni, pagamenti, pwa, shell, sicurezza, tema and ui adopted.
+FlyLabs Kit 0.25, profile `white-label` (`flylabs-kit.json`): modules auth, changelog, console, email, firma, guida, i18n, ics, migrazioni, pagamenti, pwa, shell, sicurezza, tema, ui and web-push adopted.
 
 ## Waiting on `staging` for the next release
 
-- Version 1.54.0: members read the same deadline and pickups everywhere (`formatDeadlineLong`, `formatPickupsLong`), and moving the close of an open cycle sends `cycle_deadline_changed` (PR #475). No migration or configuration change.
+- PWA standard (spec v1.2), WGR-06: sign-in returns to the page asked for. `proxy.ts` redirects a GET of a page without a session to `/login?next=<path+query>` and passes the asked path to the page in `x-wegrocery-path` for an expired session (`requireUserSession`); `safeCallbackPath` is replaced by `safeInternalPath`/`nextAfterLogin` (`lib/auth/hosts.ts`, Stellar's `safeNext` rules, refuses control characters such as `"/\t/evil.example"`). No migration or configuration change.
+- Version 1.55.0 (prepared): PWA and Web Push W1 to W7 below plus WGR-06 above. Migration `0057` (applied on staging and production, demo before the merge). Push delivery stays `simulated` everywhere until the pilot (`PUSH_PILOT_MEMBER_IDS`, only in Production).
+
+## In 1.55.0
+
+- W7 adopts Kit 0.25 with PWA 1.1 and Web Push 0.1. The worker URL, scope, offline cache, push payload and queue contracts carry forward. See [PWA and push CI coverage](./pwa-ci-matrix.md).
+
+- W6 provides the Web Push transport, VAPID diagnostics and anonymous daily counters. W5 connects the delivery queue.
+- W5 (WGR-03/04/05/08) books push jobs for draft reminders (holder's consenting devices only), sends them after the reminder run and retries them hourly from `/api/cron/push-deliveries` (`17 * * * *`, Vercel Pro). Transport is `simulated` unless live for that person (`docs/push.md`).
+- W4 (WGR-02/07, DEV-01/02/04/06) adds device notification settings, a personal draft-reminder consent and sign-out cleanup. The settings are visible where the server has a VAPID public key, and delivery is simulated. Migration `0057` is already applied on staging and production.
+
+- W3 (WGR-01) adds migration `0057_push_subscriptions.sql`.
+
+- W2 adds service worker v1, the public offline page and the notification deep-link bridge with draft and checkout protection. `PWA_SW_ENABLED` is optional and unset by default. W2 requires no migration.
+
+- W1a adopts FlyLabs Kit `pwa` 1.0, removes the installed app's portrait lock, and opens the future service worker path to anonymous requests. No migration or configuration is required. [PWA rollout note](./2026-11-26-pwa-base.md)
 
 ## Recent releases
 
+- **1.54.0** (2026-11-26): the deadline reads the same everywhere, and moving the close of an open cycle notifies members (PR #475).
 - **1.53.0** (2026-11-23): Treasury records manual credits and charges with a reason and a balance preview (PR #473).
 - **1.52.3** (2026-11-22): compact Admin cycle activity and a searchable cycle picker (PRs #468, #469 and #471).
 - **1.52.2** (2026-11-20): updated FlyLabs signature and post-transfer release workflow fixes.

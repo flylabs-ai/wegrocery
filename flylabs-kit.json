@@ -1,7 +1,7 @@
 {
   "app": "wegrocery",
   "profile": "white-label",
-  "kit": "0.24",
+  "kit": "0.25",
   "modules": {
     "auth": {
       "version": "1.0.1",
@@ -28,6 +28,10 @@
       "version": "1.0",
       "path": "lib/payments/shared"
     },
+    "pwa": {
+      "version": "1.1",
+      "path": "lib/pwa"
+    },
     "shell": {
       "version": "1.1",
       "path": "components/shell"
@@ -43,6 +47,10 @@
     "ui": {
       "version": "1.1",
       "path": "components/ui"
+    },
+    "web-push": {
+      "version": "0.1",
+      "path": "lib/web-push"
     }
   },
   "templates": {
@@ -58,9 +66,10 @@
     "email/unsubscribe.ts": "Confronto della firma con timingSafeEqualString del modulo sicurezza (lib/security/secrets.ts) invece di timingSafeEqual di Node, come in tutta l'app; stesso comportamento",
     "pagamenti/events.test.ts": "Non copiato: la prova usa pg e PostgreSQL 17 locale; il registro è provato su Neon da lib/payments/webhook-receive.integration.test.ts e test/int/migration-0056",
     "pagamenti/signature.ts": "Confronto della firma Stripe con timingSafeEqualString del modulo sicurezza (lib/security/secrets.ts) invece di timingSafeEqual di Node, come in tutta l'app; stesso comportamento",
+    "pwa/icons.ts": "Keep the existing local logo filename handling, including backslashes, to preserve icon rendering during adoption",
     "shell/app-nav": "Wrapper dell'app in components/app-nav.tsx: voci da nav-items con le sezioni Admin come sottovoci, logo, campanella e avatar in header, Notifiche e Profilo in fondo alla sidebar, onReselect che torna in cima e aggiorna (non sulla pagina ordine); la shell non usa più la cornice a 480 px su sm",
-    "tema/theme-choice.tsx": "Non copiato: scelta del tema nel Profilo con components/profile/theme-row.tsx, stessa logica",
-    "tema/theme.ts": "Non copiato: lib/theme.ts proprio (cookie wegrocery_theme); la barra di stato usa statusBarColors del modulo in app/layout.tsx, con la scelta del tema dal cookie",
+    "tema/theme-choice.tsx": "Symlink to the existing profile theme row, used with the app theme action.",
+    "tema/theme.ts": "Symlink to the existing app theme contract and wegrocery_theme cookie.",
     "templates/backup": "Origine del template: nomi dei file gas-backup-*, invarianti del denaro dopo il dump e controlli rclone propri",
     "templates/dependabot": "Better Auth in ignore (aggiornato a mano, Playbook 1.5) e gruppi minor/patch e major separati",
     "templates/deploy-health": "Origine del template: chiave di bypass a parte per la demo",
@@ -68,6 +77,14 @@
     "templates/restore-test": "Origine del template: invarianti del denaro sul ramo ripristinato e lettura dei dump in chiaro ancora su Drive fino a febbraio 2027",
     "templates/vercel": "Cron giornalieri (apertura dei cicli, promemoria delle bozze); il template non ha cron",
     "ui/adapters": "Adattatori dell'app in components/app-ui: toast con le chiamate esistenti (toast.success/error/warning/message, 3 s e 8 s), conferma a Promise sopra ConfirmDialog, Sheet con etichetta Chiudi dalla lingua, soglia 640 px e senza chiusura mentre una conferma è aperta, Label con il margine dei moduli",
-    "ui/native-select.tsx": "Riesporta select.tsx per gli import esistenti, come previsto dal modulo"
+    "ui/native-select.tsx": "Riesporta select.tsx per gli import esistenti, come previsto dal modulo",
+    "pwa/sw.js": "The app configures the public bootstrap with offline-v1, existing notification fallback, same-origin destinations, icons and opening marker.",
+    "pwa/bridge": "The app adapter provides Next.js routing, persistent toast, localized strings and usage counters.",
+    "web-push/adapters": "WeGrocery retains device labels and browser lifecycle, environment and pilot policy, app payloads, logging, outcome counters and queue behavior.",
+    "tema/tokens.ts": "Preserve the existing dark FlyLabs signature colour during the PWA-only alignment.",
+    "pwa/sw-core.js": "Canonical module path points to the byte-identical core served from public/sw-core.js."
+  },
+  "notAdopted": {
+    "guardia": "Outside W7. Keep the existing monitoring workflows as configured."
   }
 }
