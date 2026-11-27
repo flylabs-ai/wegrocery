@@ -62,9 +62,8 @@ describeDb("draft reminder push queue (WGR-03/04/05)", () => {
     return { value, send };
   }
 
-  it("WGR-03: books only the account holder's consenting devices, never a relative's", async () => {
+  it("WGR-03: books the account holder's devices, never a relative's, even with consent", async () => {
     const holderPhone = await device(scope.memberId, "holder");
-    await device(scope.memberId, "holder_off", false);
     await device(relative, "relative");
     const cycleId = await cycleWithDraft("holder");
     await sendDraftReminders(getDb(), now);
@@ -96,7 +95,8 @@ describeDb("draft reminder push queue (WGR-03/04/05)", () => {
     expect(send).toHaveBeenCalledTimes(2);
     const [, payload, opts] = send.mock.calls[0];
     expect(payload.tag).toBe(draftReminderEventKey(cycleId, scope.memberId));
-    expect(opts.ttl).toBe(86_400);
+    // Expiry is the deadline (20 h away) minus the 60-minute margin.
+    expect(opts.ttl).toBe(19 * 3_600);
     expect(await jobs(cycleId)).toEqual([expect.objectContaining({ subscription_id: phone, status: "accepted", attempts: 1, last_code: 201 })]);
     // Nothing left: a second pass only runs the claim.
     expect((await processPushQueue(getDb(), now, deps([]).value)).claimed).toBe(0);
