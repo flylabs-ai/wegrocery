@@ -19,7 +19,7 @@ describe("proxy matcher", () => {
   });
 
   it("leaves the public endpoints open and guards the pages", () => {
-    for (const url of ["/api/health", "/api/instance-stats", "/api/cron/open-cycles", "/api/unsubscribe", "/api/csp-report", "/manifest.webmanifest"]) {
+    for (const url of ["/api/health", "/api/instance-stats", "/api/cron/open-cycles", "/api/cron/draft-reminders", "/api/cron/push-deliveries", "/api/unsubscribe", "/api/csp-report", "/manifest.webmanifest"]) {
       expect(matches(url)).toBe(false);
     }
     for (const url of ["/", "/ordine", "/admin", "/changelog", "/api/health/x"]) {

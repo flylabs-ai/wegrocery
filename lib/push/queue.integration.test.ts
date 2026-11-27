@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { getDb } from "@/lib/db/client";
 import { describeDb, makeScope } from "@/test/int/fixtures";
 import { sendDraftReminders } from "@/lib/notifications/draft-reminder-store";
+import { runPushQueue } from "./queue-runtime";
 import { cleanPushQueue, draftReminderEventKey, processPushQueue, type QueueDeps, type QueueOutcome } from "./queue";
 
 // WGR-03/04/05/08 on the real tables (migration 0057), with a fake sender:
@@ -186,6 +187,14 @@ describeDb("draft reminder push queue (WGR-03/04/05)", () => {
     expect(await processPushQueue(getDb(), now, value)).toMatchObject({ retry: 1 });
     expect((await jobs(cycleId))[0].status).toBe("pending");
     expect(await sql`SELECT 1 FROM notifications WHERE href = ${`/ordine?cycleId=${cycleId}`}`).toHaveLength(1);
+  });
+
+  it("the real wiring records simulated outside a live production deployment", async () => {
+    await device(scope.memberId, "wired");
+    const cycleId = await cycleWithDraft("wired");
+    await sendDraftReminders(getDb(), now);
+    expect(await runPushQueue(getDb(), now)).toMatchObject({ simulated: 1 });
+    expect((await jobs(cycleId))[0].status).toBe("simulated");
   });
 
   it("cleanup drops old jobs and the devices of deactivated people (DEV-05)", async () => {
