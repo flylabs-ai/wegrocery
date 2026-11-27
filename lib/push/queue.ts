@@ -60,7 +60,7 @@ export type QueueDeps = {
   send: (target: QueueTarget, payload: QueuePayload, opts: { ttl: number; topic: string }) =>
     Promise<{ outcome: QueueOutcome; code: number | null }>;
   topic: (key: string) => string;
-  payload: (input: { cycleId: string; closeAt: Date; eventKey: string }) => QueuePayload;
+  payload: (input: { cycleId: string; closeAt: Date; eventKey: string }) => QueuePayload | Promise<QueuePayload>;
   /** Called once per run with every final outcome (OPS-02 counters). */
   count?: (outcomes: Array<QueueOutcome | "skipped">) => Promise<void>;
   budgetMs?: number;
@@ -159,7 +159,7 @@ export async function processPushQueue(db: Db, now: Date, deps: QueueDeps): Prom
 
     const deliver = async (job: Eligible) => {
       const closeAt = asDate(job.order_close_at);
-      const payload = deps.payload({ cycleId: job.cycle_id, closeAt, eventKey: job.event_key });
+      const payload = await deps.payload({ cycleId: job.cycle_id, closeAt, eventKey: job.event_key });
       const target = { subscriptionId: job.subscription_id, endpoint: job.endpoint, p256dh: job.p256dh, auth: job.auth, personId: job.person_id };
       const topic = deps.topic(job.event_key);
       let last: { outcome: QueueOutcome; code: number | null } = { outcome: "transient", code: null };

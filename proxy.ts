@@ -83,7 +83,8 @@ function loginUrl(request: NextRequest): URL {
 // Stripe and authenticated by its signature, api/health is a public liveness
 // check that returns no data, api/instance-stats answers only a request signed
 // with INSTANCE_STATS_SECRET (404 otherwise), api/cron/open-cycles answers
-// only Vercel Cron's CRON_SECRET (404 otherwise), as does api/cron/draft-reminders.
+// only Vercel Cron's CRON_SECRET (404 otherwise), as do api/cron/draft-reminders and
+// api/cron/push-deliveries.
 // api/unsubscribe acts only on a
 // token signed with AUTH_SECRET (one-click unsubscribe from a notification email).
 // api/csp-report takes the browser's CSP reports (lib/security/csp.ts), which
@@ -93,6 +94,6 @@ function loginUrl(request: NextRequest): URL {
 // Browsers can also request the app manifest and service worker without one.
 export const config = {
   matcher: [
-    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/unsubscribe$|api/csp-report$|mail/|manifest.webmanifest$|sw\\.js$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/cron/push-deliveries$|api/unsubscribe$|api/csp-report$|mail/|manifest.webmanifest$|sw\\.js$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
