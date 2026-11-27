@@ -11,6 +11,8 @@ export type WeGroceryFlyLabsStats = InstanceStats & {
   lastClosedAt: string | null;
   paymentMode: string;
   setupCompleted: boolean;
+  push?: WeGroceryInstanceStats["push"];
+  pushToday?: WeGroceryInstanceStats["pushToday"];
 };
 
 export const APP_ID = "wegrocery";
@@ -35,5 +37,6 @@ export function toFlyLabsStats(s: WeGroceryInstanceStats): WeGroceryFlyLabsStats
     lastClosedAt: s.cycles.lastClosedAt,
     paymentMode: s.paymentMode,
     setupCompleted: s.setupCompleted,
+    ...(s.push === undefined ? {} : { push: s.push, pushToday: s.pushToday }),
   };
 }

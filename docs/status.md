@@ -2,7 +2,7 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-27 (W4 device notification settings).
+Last updated: 2026-11-27 (W6 Web Push transport).
 
 ## Versions and migrations
 
@@ -21,6 +21,8 @@ FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 - Version 1.54.0: members read the same deadline and pickups everywhere (`formatDeadlineLong`, `formatPickupsLong`), and moving the close of an open cycle sends `cycle_deadline_changed` (PR #475). No migration or configuration change.
 
 ## In review
+
+- W6 provides the Web Push transport, VAPID diagnostics and anonymous daily counters. W5 connects the delivery queue.
 
 - W4 (WGR-02/07, DEV-01/02/04/06) adds device notification settings, a personal draft-reminder consent and sign-out cleanup. The settings are visible where the server has a VAPID public key, and delivery is simulated. Apply migration `0057` to the staging database before merging W4 into `staging`.
 

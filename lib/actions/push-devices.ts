@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { requireActiveMember } from "@/lib/auth/session";
+import { recordUsage } from "@/lib/usage/events";
 import { getDb } from "@/lib/db/client";
 import {
   currentDeviceId,
@@ -32,6 +33,7 @@ export async function savePushDeviceAction(input: unknown): Promise<{ ok: true }
   const subscription = parseSubscription(input);
   if (!subscription) return { ok: false, error: "invalid" };
   await saveDevice(getDb(), personId, subscription, deviceLabel((await headers()).get("user-agent")));
+  await recordUsage("push_device_on");
   return { ok: true };
 }
 
@@ -66,5 +68,7 @@ export async function listPushDevicesAction(
 export async function removePushDeviceByIdAction(subscriptionId: unknown): Promise<{ ok: boolean }> {
   const { personId } = await requireActiveMember();
   if (typeof subscriptionId !== "string" || subscriptionId.length > 64) return { ok: false };
-  return { ok: await removeDeviceById(getDb(), personId, subscriptionId) };
+  const ok = await removeDeviceById(getDb(), personId, subscriptionId);
+  if (ok) await recordUsage("push_device_off");
+  return { ok };
 }

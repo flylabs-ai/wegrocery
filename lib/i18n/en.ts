@@ -1,7 +1,7 @@
 import type { Strings } from "./it";
 
 export const en: Strings = {
-  pwa: { notificationReady: "Notification ready to open", openNotification: "Open", offlineTitle: "You are offline", offlineBody: "Reload this page when your connection returns." },
+  pwa: { draftReminder: (deadline: string) => `Confirm your order by ${deadline}.`, notificationReady: "Notification ready to open", openNotification: "Open", offlineTitle: "You are offline", offlineBody: "Reload this page when your connection returns." },
   common: {
     save: "Save",
     cancel: "Cancel",
@@ -987,9 +987,13 @@ export const en: Strings = {
         dbRole: "Database access with a restricted role",
         fleet: "Anonymous stats for the console (FlyLabs Console)",
         autoOpen: "Planned cycles opening by themselves",
+        push: "Push notifications",
         pwaWorker: "App service worker",
       } as Record<string, string>,
       notes: {
+        misconfigured: "The VAPID keys or contact are invalid.",
+        pushSimulated: "Push delivery is simulated.",
+        pushLive: "Push delivery is enabled.",
         noAdmin: "No admin yet: set BOOTSTRAP_ADMIN_EMAIL and sign in with that address.",
         bootstrapWaiting: "The first sign-in with this address creates the admin.",
         bootstrapDone: "An admin exists: the variable is ignored and can be removed.",
@@ -1799,6 +1803,16 @@ export const en: Strings = {
       usageHint: "Anonymous counts: no member, no text, no demo data.",
       usageEmpty: "No data yet.",
       usageEvents: {
+        pwa_launch_standalone: "Standalone launches",
+        pwa_launch_browser: "Browser launches",
+        push_device_on: "Devices enabled",
+        push_device_off: "Devices disconnected",
+        push_accepted: "Push accepted",
+        push_expired: "Subscriptions expired",
+        push_failed: "Push failed",
+        push_skipped: "Push skipped",
+        push_simulated: "Push simulated",
+        push_opened: "Push opened",
         login: "Sign-ins",
         order_saved: "Orders confirmed",
         order_cancelled: "Orders cancelled",

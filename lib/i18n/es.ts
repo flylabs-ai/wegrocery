@@ -1,7 +1,7 @@
 import type { Strings } from "./it";
 
 export const es: Strings = {
-  pwa: { notificationReady: "Notificación lista para abrir", openNotification: "Abrir", offlineTitle: "Estás sin conexión", offlineBody: "Recarga la página cuando vuelva la conexión." },
+  pwa: { draftReminder: (deadline: string) => `Confirma el pedido antes de ${deadline}.`, notificationReady: "Notificación lista para abrir", openNotification: "Abrir", offlineTitle: "Estás sin conexión", offlineBody: "Recarga la página cuando vuelva la conexión." },
   common: {
     save: "Guardar",
     cancel: "Cancelar",
@@ -987,9 +987,13 @@ export const es: Strings = {
         dbRole: "Acceso a la base de datos con un rol restringido",
         fleet: "Estadísticas anónimas para la consola (FlyLabs Console)",
         autoOpen: "Apertura automática de los ciclos programados",
+        push: "Notificaciones push",
         pwaWorker: "Service worker de la aplicación",
       } as Record<string, string>,
       notes: {
+        misconfigured: "Las claves VAPID o el contacto no son válidos.",
+        pushSimulated: "Los envíos push se simulan.",
+        pushLive: "Los envíos push están habilitados.",
         noAdmin: "Aún no hay admin: define BOOTSTRAP_ADMIN_EMAIL y entra con esa dirección.",
         bootstrapWaiting: "El primer acceso con esta dirección crea el admin.",
         bootstrapDone: "Ya existe un admin: la variable se ignora y se puede quitar.",
@@ -1799,6 +1803,16 @@ export const es: Strings = {
       usageHint: "Recuentos anónimos: ningún socio, ningún texto, ningún dato de la demo.",
       usageEmpty: "Aún no hay datos.",
       usageEvents: {
+        pwa_launch_standalone: "Aperturas como aplicación",
+        pwa_launch_browser: "Aperturas en el navegador",
+        push_device_on: "Dispositivos activados",
+        push_device_off: "Dispositivos desconectados",
+        push_accepted: "Push aceptadas",
+        push_expired: "Suscripciones caducadas",
+        push_failed: "Push fallidas",
+        push_skipped: "Push omitidas",
+        push_simulated: "Push simuladas",
+        push_opened: "Push abiertas",
         login: "Accesos",
         order_saved: "Pedidos confirmados",
         order_cancelled: "Pedidos cancelados",

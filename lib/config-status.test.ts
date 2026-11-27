@@ -23,6 +23,12 @@ const complete = {
 const item = (items: ConfigItem[], id: string) => items.find((i) => i.id === id)!;
 
 describe("MIGRATIONS", () => {
+  it("shows a VAPID mismatch without exposing any environment values", () => {
+    const result = item(configStatus({ ...complete, VAPID_PUBLIC_KEY: "synthetic-public", VAPID_PRIVATE_KEY: "synthetic-private" }, facts), "push");
+    expect(result).toMatchObject({ id: "push", status: "warning", note: "misconfigured" });
+    expect(JSON.stringify(result)).not.toContain("synthetic-");
+  });
+
   it("lists every file in drizzle/, in order", () => {
     const files = readdirSync("drizzle").filter((f) => f.endsWith(".sql") && !f.endsWith("_down.sql")).sort();
     expect(MIGRATIONS).toEqual(files);

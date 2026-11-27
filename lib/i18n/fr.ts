@@ -1,7 +1,7 @@
 import type { Strings } from "./it";
 
 export const fr: Strings = {
-  pwa: { notificationReady: "Notification prête à ouvrir", openNotification: "Ouvrir", offlineTitle: "Vous êtes hors ligne", offlineBody: "Rechargez la page quand la connexion revient." },
+  pwa: { draftReminder: (deadline: string) => `Confirmez votre commande avant ${deadline}.`, notificationReady: "Notification prête à ouvrir", openNotification: "Ouvrir", offlineTitle: "Vous êtes hors ligne", offlineBody: "Rechargez la page quand la connexion revient." },
   common: {
     save: "Enregistrer",
     cancel: "Annuler",
@@ -987,9 +987,13 @@ export const fr: Strings = {
         dbRole: "Accès à la base de données avec un rôle restreint",
         fleet: "Statistiques anonymes pour la console (FlyLabs Console)",
         autoOpen: "Ouverture automatique des cycles programmés",
+        push: "Notifications push",
         pwaWorker: "Service worker de l’application",
       } as Record<string, string>,
       notes: {
+        misconfigured: "Les clés VAPID ou le contact sont invalides.",
+        pushSimulated: "Les envois push sont simulés.",
+        pushLive: "Les envois push sont activés.",
         noAdmin: "Pas encore d'admin : définissez BOOTSTRAP_ADMIN_EMAIL et connectez-vous avec cette adresse.",
         bootstrapWaiting: "La première connexion avec cette adresse crée l'admin.",
         bootstrapDone: "Un admin existe : la variable est ignorée et peut être supprimée.",
@@ -1799,6 +1803,16 @@ export const fr: Strings = {
       usageHint: "Décomptes anonymes : aucun membre, aucun texte, aucune donnée de démo.",
       usageEmpty: "Pas encore de données.",
       usageEvents: {
+        pwa_launch_standalone: "Ouvertures en mode application",
+        pwa_launch_browser: "Ouvertures dans le navigateur",
+        push_device_on: "Appareils activés",
+        push_device_off: "Appareils dissociés",
+        push_accepted: "Push acceptées",
+        push_expired: "Abonnements expirés",
+        push_failed: "Push en échec",
+        push_skipped: "Push ignorées",
+        push_simulated: "Push simulées",
+        push_opened: "Push ouvertes",
         login: "Connexions",
         order_saved: "Commandes confirmées",
         order_cancelled: "Commandes annulées",

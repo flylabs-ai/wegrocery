@@ -1,5 +1,6 @@
 "use client";
 
+import { recordPushClientUsage } from "@/lib/actions/push-usage";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/toast";
@@ -21,6 +22,13 @@ async function updateRegistration(workers: ServiceWorkerContainer, mode: "regist
   }
 }
 
+// Shared across effect remounts while the document is still visible.
+let launchRecorded = false;
+
+function count(event: "pwa_launch_standalone" | "pwa_launch_browser" | "push_opened") {
+  void recordPushClientUsage(event).catch(() => {});
+}
+
 export function ServiceWorkerBridge({ mode, title, open }: {
   mode: ReturnType<typeof workerMode>;
   title: string;
@@ -37,10 +45,40 @@ export function ServiceWorkerBridge({ mode, title, open }: {
   }, [mode]);
 
   useEffect(() => {
+    function onVisibilityChange() {
+      if (document.visibilityState !== "visible") {
+        launchRecorded = false;
+        return;
+      }
+      if (launchRecorded) return;
+      launchRecorded = true;
+      const standalone = window.matchMedia("(display-mode: standalone)").matches ||
+        (navigator as Navigator & { standalone?: boolean }).standalone === true;
+      count(standalone ? "pwa_launch_standalone" : "pwa_launch_browser");
+    }
+
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("_push_open")) {
+      url.searchParams.delete("_push_open");
+      window.history.replaceState(window.history.state, "", url);
+      count("push_opened");
+    }
+
+    onVisibilityChange();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
+
+  useEffect(() => {
     const workers = navigator.serviceWorker;
     if (!workers) return;
 
     function openFromWorker(event: MessageEvent) {
+      if (event.source !== workers.controller) return;
+      if (event.data?.type === "flylabs:push-opened") {
+        count("push_opened");
+        return;
+      }
       const port = event.ports[0];
       if (event.data?.type !== "flylabs:open" || !port) return;
 
@@ -63,6 +101,7 @@ export function ServiceWorkerBridge({ mode, title, open }: {
       } else {
         router.push(url);
       }
+      count("push_opened");
       port.postMessage("handled");
       port.close();
     }

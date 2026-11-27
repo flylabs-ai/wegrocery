@@ -33,6 +33,11 @@ describe("toFlyLabsStats", () => {
     });
   });
 
+  it("adds only a push state and anonymous daily totals for the Console", () => {
+    const result = toFlyLabsStats({ ...legacy, push: "simulated", pushToday: { push_simulated: 2 } });
+    expect(result).toEqual({ ...toFlyLabsStats(legacy), push: "simulated", pushToday: { push_simulated: 2 } });
+  });
+
   it("keeps every count a finite number", () => {
     expect(Object.values(toFlyLabsStats(legacy).counts).every(Number.isFinite)).toBe(true);
   });
