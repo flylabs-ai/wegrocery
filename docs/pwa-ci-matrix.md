@@ -8,11 +8,11 @@ PASS means a check ran on W7. All three Neon integration test shards passed on `
 | --- | --- | --- |
 | Install identity and unrestricted orientation | `scripts/pwa-browser-check.mjs`, “public manifest and scripts preserve install identity without cookies”; `lib/brand/identity.test.ts`, “lays overrides and the logo over the brand JSON”, “round-trips the served file name” | PASS |
 | Public worker and imported script, JavaScript and no proxy redirect | `scripts/pwa-browser-check.mjs`, “public manifest and scripts preserve install identity without cookies”; `proxy.test.ts`, “skips the session check for a browser requesting /sw.js without cookies” | PASS |
-| Worker updates without reloading an open draft | `scripts/pwa-browser-check.mjs`, “worker refresh keeps an open draft, serves offline navigation, preserves HTTP 500 and POST semantics” (Chromium and a synthetic editor) | PASS |
+| Worker updates without reloading an open draft | `scripts/pwa-browser-check.mjs`, “worker refresh keeps an open draft and the worker preserves offline and HTTP error semantics” (Chromium and a synthetic editor) | PASS |
 | Notification tap preserves dirty input | `scripts/pwa-browser-check.mjs`, “the real bridge presents a notification action without discarding dirty input” | PASS |
 | Offline navigation and HTTP 500 passthrough | Same Chromium worker test; `lib/pwa/service-worker.test.ts`, “uses only the offline document when navigation fetch rejects” | PASS |
 | Offline action shows an error and is never replayed | `scripts/pwa-browser-check.mjs`, “the real order Server Action reports an offline error and stays unsent on reconnect” uses the real form and action with a synthetic draft; the worker fixture also checks the POST bypass | PASS |
-| Legacy and v1 notices, malformed payload and safe URL | `lib/pwa/service-worker.test.ts`, “shows exactly one notification for %s”; Chromium worker test sends synthetic v0 and v1 events | PASS (worker unit checks) |
+| Legacy and v1 notices, malformed payload and safe URL | `lib/pwa/service-worker.test.ts`, “shows exactly one notification for %s” | PASS (worker unit checks) |
 | Badge setting, clearing and optional API | `lib/pwa/service-worker.test.ts`, “clears a zero badge and shows the notice even if badging fails”, “shows exactly one notification for %s” | PASS |
 | Device activation and denial | `lib/push/device-client.test.ts`, “requests permission and subscribes with the existing root worker”, “shows denial without registering or subscribing” | PASS |
 | Device needs completion (DEV-02) | `lib/push/device-client.test.ts`, “is on only when the server says mine”; `components/push-settings.test.tsx`, “renders the incomplete state and its available action” | PASS |

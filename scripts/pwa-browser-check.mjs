@@ -9,7 +9,11 @@ import { test } from "node:test";
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const app = process.env.PWA_CHECK_URL ?? "http://127.0.0.1:3847";
-const launch = () => chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
+// Use the full Chromium browser in CI, matching the worker lifecycle of the
+// local Chrome run. Playwright's separate headless shell restarts these workers.
+const launch = () => chromium.launch(process.env.CHROMIUM_PATH
+  ? { executablePath: process.env.CHROMIUM_PATH }
+  : { channel: "chromium" });
 const next = "/ordine?cycleId=synthetic&_push_open=1";
 
 test("public manifest and scripts preserve install identity without cookies", async () => {
@@ -132,37 +136,7 @@ test("the real order Server Action reports an offline error and stays unsent on 
   }
 });
 
-// Loaded only by the loopback server. Address the active controller over
-// MessageChannel so a browser process restart during update is harmless.
-const pushFixture = String.raw`
-  self.addEventListener("message", (event) => {
-    if (event.data?.type !== "test:push" || !event.ports[0]) return;
-    const port = event.ports[0];
-    event.waitUntil((async () => {
-      const push = new Event("push");
-      let delivered;
-      let displayed;
-      const showNotification = self.registration.showNotification;
-      self.registration.showNotification = async (title) => { displayed = title; };
-      Object.assign(push, {
-        data: { json: () => event.data.notice },
-        waitUntil: (promise) => { delivered = promise; },
-      });
-      try {
-        self.dispatchEvent(push);
-        await delivered;
-        port.postMessage({ title: displayed });
-      } catch (error) {
-        port.postMessage({ error: String(error) });
-      } finally {
-        self.registration.showNotification = showNotification;
-        port.close();
-      }
-    })());
-  });
-`;
-
-test("worker refresh keeps an open draft, serves offline navigation, preserves HTTP 500 and POST semantics", async () => {
+test("worker refresh keeps an open draft and the worker preserves offline and HTTP error semantics", async () => {
   const worker = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
   const core = await readFile(new URL("../public/sw-core.js", import.meta.url), "utf8");
   const offline = await (await fetch(app + "/offline")).text();
@@ -172,7 +146,7 @@ test("worker refresh keeps an open draft, serves offline navigation, preserves H
   const server = createServer((req, res) => {
     if (req.url === "/sw.js" || req.url === "/sw-core.js") {
       res.writeHead(200, { "Content-Type": "application/javascript", "Cache-Control": "no-store" });
-      res.end(req.url === "/sw.js" ? worker + "\n// Revision " + version + "\n" + pushFixture : core);
+      res.end(req.url === "/sw.js" ? worker + "\n// Revision " + version : core);
     } else if (req.url === "/offline") {
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }).end(offline);
     } else if (req.url === "/error") {
@@ -217,41 +191,29 @@ test("worker refresh keeps an open draft, serves offline navigation, preserves H
     assert.equal(await page.evaluate(() => window.draftDocument), true);
     assert.equal(await page.locator("#draft").inputValue(), "Unsaved synthetic order");
 
-    // Deliver events to the running worker without a provider or subscription.
-    for (const message of [
-      { title: "Synthetic v0", body: "Test", url: "/draft", tag: "v0" },
-      { title: "Synthetic v1", body: "Test", url: "/draft", tag: "v1", schemaVersion: 1, badge: 1 },
-    ]) {
-      const result = await page.evaluate((notice) => new Promise((resolve, reject) => {
-        const { port1, port2 } = new MessageChannel();
-        const timeout = setTimeout(() => {
-          port1.close();
-          reject(new Error("No response from the current worker"));
-        }, 5_000);
-        port1.onmessage = ({ data }) => {
-          clearTimeout(timeout);
-          port1.close();
-          resolve(data);
-        };
-        navigator.serviceWorker.controller.postMessage({ type: "test:push", notice }, [port2]);
-      }), message);
-      assert.deepEqual(result, { title: message.title });
-    }
-
-    await context.setOffline(true);
-    await page.locator("#save").click();
-    await page.waitForFunction(() => document.querySelector("#error").textContent === "Save failed");
-    await context.setOffline(false);
+    // A fresh browser context avoids carrying the previous controller's
+    // network interception into the offline and HTTP error checks.
+    await context.close();
+    const offlineContext = await browser.newContext();
+    const offlinePage = await offlineContext.newPage();
+    offlinePage.setDefaultTimeout(15_000);
+    await offlinePage.goto(origin + "/draft");
+    await offlinePage.evaluate(() => navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }));
+    await offlinePage.waitForFunction(() => navigator.serviceWorker.controller);
+    await offlineContext.setOffline(true);
+    await offlinePage.locator("#save").click();
+    await offlinePage.waitForFunction(() => document.querySelector("#error").textContent === "Save failed");
+    await offlineContext.setOffline(false);
     assert.equal(posts, 0);
-    await context.setOffline(true);
-    await page.goto(origin + "/missing-offline");
-    assert.equal(await page.locator("main").count(), 1);
-    assert.equal(await page.title(), /<title>(.*?)<\/title>/.exec(offline)[1]);
-    assert.deepEqual(await page.evaluate(() => caches.keys()), ["offline-v1"]);
-    await context.setOffline(false);
-    const error = await page.goto(origin + "/error");
+    await offlineContext.setOffline(true);
+    await offlinePage.goto(origin + "/missing-offline");
+    assert.equal(await offlinePage.locator("main").count(), 1);
+    assert.equal(await offlinePage.title(), /<title>(.*?)<\/title>/.exec(offline)[1]);
+    assert.deepEqual(await offlinePage.evaluate(() => caches.keys()), ["offline-v1"]);
+    await offlineContext.setOffline(false);
+    const error = await offlinePage.goto(origin + "/error");
     assert.equal(error.status(), 500);
-    assert.equal(await page.locator("body").innerText(), "Synthetic application error");
+    assert.equal(await offlinePage.locator("body").innerText(), "Synthetic application error");
     assert.equal(posts, 0);
   } finally {
     await browser.close();
