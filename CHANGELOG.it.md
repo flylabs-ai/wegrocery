@@ -25,6 +25,10 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+## [1.55.0] - 2026-11-27
+
+*Le notifiche sui dispositivi si preparano: l'app installata funziona offline e i link portano dove puntano.*
+
 ### Aggiunte
 - [tecnico] 🔔 **Invio push dei promemoria delle bozze.** Il giro dei promemoria ora invia i lavori push che prenota, e la nuova rotta oraria `/api/cron/push-deliveries` ritenta quelli in sospeso. L'invio resta simulato finché il push non è attivo per quella persona (vedi `docs/push.md`). I cron orari richiedono Vercel Pro: le installazioni su Hobby tolgono quella voce da `vercel.json`.
 - [tecnico] 🔔 **Coda push per i promemoria delle bozze.** Il giro dei promemoria prenota un lavoro push per ogni dispositivo del titolare che ha dato il consenso, nella stessa istruzione del promemoria; i familiari non lo ricevono mai. I lavori si elaborano con nuovi tentativi e scadono un'ora prima della chiusura. L'elaborazione viene collegata quando arriva il trasporto push.
@@ -1033,6 +1037,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ---
 
+[1.55.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.55.0
 [1.54.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.54.0
 [1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2

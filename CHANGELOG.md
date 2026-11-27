@@ -24,6 +24,10 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+## [1.55.0] - 2026-11-27
+
+*Device notifications get ready: the installed app works offline and links land where they point.*
+
 ### Added
 - [tech] 🔔 **Push delivery for draft reminders.** The reminder run now sends the push jobs it books, and a new hourly `/api/cron/push-deliveries` route retries what is pending. Delivery stays simulated unless push is live for that person (see `docs/push.md`). Hourly crons need Vercel Pro: Hobby installations remove that entry from `vercel.json`.
 - [tech] 🔔 **Push queue for draft reminders.** The reminder run now books one push job per consenting device of the account holder in the same statement as the reminder itself; family members never receive it. Jobs are processed with retries and expire an hour before the deadline. Processing is wired up once the push transport lands.
@@ -1031,6 +1035,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ---
 
+[1.55.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.55.0
 [1.54.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.54.0
 [1.53.0]: https://github.com/flylabs-ai/wegrocery/releases/tag/v1.53.0
 [1.52.2]: https://github.com/flylabs-ai/wegrocery/compare/v1.52.1...v1.52.2
