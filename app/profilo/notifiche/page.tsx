@@ -2,6 +2,8 @@ import { BackLink } from "@/components/ui/back-link";
 import { adminAccess } from "@/lib/auth/access";
 import { AppShell } from "@/components/app-shell";
 import { NotificationPreferencesForm } from "@/components/notification-preferences-form";
+import { PushSettings } from "@/components/push-settings";
+import { readPushConsentAction } from "@/lib/actions/push-consents";
 import { t } from "@/lib/i18n";
 import { requireUserSession } from "@/lib/auth/session";
 import { getNotificationPreferences } from "@/lib/db/queries";
@@ -15,7 +17,11 @@ export default async function NotificationSettingsPage() {
   const session = await requireUserSession();
   const memberId = session.user.memberId!;
 
-  const rows = await getNotificationPreferences(memberId);
+  const publicKey = process.env.VAPID_PUBLIC_KEY?.trim();
+  const [rows, draftReminder] = await Promise.all([
+    getNotificationPreferences(memberId),
+    publicKey ? readPushConsentAction("draft_reminder") : false,
+  ]);
   const initial = resolvePreferences(rows);
 
   return (
@@ -34,6 +40,7 @@ export default async function NotificationSettingsPage() {
       </p>
 
       <NotificationPreferencesForm initial={initial} />
+      {publicKey && <PushSettings publicKey={publicKey} initialDraftReminder={draftReminder} />}
     </AppShell>
   );
 }
