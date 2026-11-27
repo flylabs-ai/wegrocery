@@ -50,9 +50,11 @@ jobs:
         run: |
           npm install --no-save --package-lock=false --no-audit playwright@1.61.1
           npx playwright install --with-deps chromium
+          mkdir app/login/w7-browser-order
+          cp scripts/pwa-browser-order.fixture.tsx app/login/w7-browser-order/page.tsx
           NODE_OPTIONS="--import=./scripts/pwa-browser-fixtures.mjs" npm run dev -- --hostname 127.0.0.1 --port 3847 > "$RUNNER_TEMP/pwa-next.log" 2>&1 &
           app_pid=$!
-          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          trap 'kill "$app_pid" 2>/dev/null || true; rm app/login/w7-browser-order/page.tsx; rmdir app/login/w7-browser-order' EXIT
           curl --fail --silent --show-error --retry 30 --retry-delay 1 --retry-connrefused http://127.0.0.1:3847/sw.js -o /dev/null
           node --test scripts/pwa-browser-check.mjs
 

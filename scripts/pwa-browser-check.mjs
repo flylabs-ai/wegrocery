@@ -101,6 +101,37 @@ test("the real bridge presents a notification action without discarding dirty in
   }
 });
 
+test("the real order Server Action reports an offline error and stays unsent on reconnect", async () => {
+  const browser = await launch();
+  try {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    page.setDefaultTimeout(15_000);
+    const fixture = app + "/login/w7-browser-order";
+    const order = await page.goto(fixture);
+    assert.equal(order.status(), 200);
+    await page.waitForFunction(() => navigator.serviceWorker.controller);
+    const confirmOrder = page.getByRole("button", { name: /^(Confirm order|Conferma ordine|Confirmar pedido|Confirmer la commande)$/i }).first();
+    await confirmOrder.waitFor();
+    let reconnectPosts = 0;
+    let reconnected = false;
+    page.on("request", (request) => {
+      if (reconnected && request.method() === "POST" && request.url() === fixture) reconnectPosts++;
+    });
+    await context.setOffline(true);
+    await confirmOrder.click();
+    await page.getByText(/^(Order not saved|Ordine non salvato|Pedido no guardado|Commande non enregistrée)/).waitFor();
+    reconnected = true;
+    await context.setOffline(false);
+    // Allow the draft's autosave debounce to elapse after reconnect.
+    await page.waitForTimeout(1_000);
+    assert.equal(reconnectPosts, 0);
+    assert.equal(page.url(), fixture);
+  } finally {
+    await browser.close();
+  }
+});
+
 test("worker refresh keeps an open draft, serves offline navigation, preserves HTTP 500 and POST semantics", async () => {
   const worker = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
   const core = await readFile(new URL("../public/sw-core.js", import.meta.url), "utf8");
