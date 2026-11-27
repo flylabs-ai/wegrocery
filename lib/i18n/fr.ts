@@ -1,7 +1,7 @@
 import type { Strings } from "./it";
 
 export const fr: Strings = {
-  pwa: { notificationReady: "Notification prête à ouvrir", openNotification: "Ouvrir" },
+  pwa: { notificationReady: "Notification prête à ouvrir", openNotification: "Ouvrir", offlineTitle: "Vous êtes hors ligne", offlineBody: "Rechargez la page quand la connexion revient." },
   common: {
     save: "Enregistrer",
     cancel: "Annuler",

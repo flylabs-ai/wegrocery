@@ -1,7 +1,7 @@
 // Italian language pack: the source of truth for the Strings type.
 // Group keys by route/feature. Values needing params are functions.
 export const it = {
-  pwa: { notificationReady: "Notifica pronta da aprire", openNotification: "Apri" },
+  pwa: { notificationReady: "Notifica pronta da aprire", openNotification: "Apri", offlineTitle: "Sei offline", offlineBody: "Ricarica la pagina quando torna la connessione." },
   common: {
     save: "Salva",
     cancel: "Annulla",
