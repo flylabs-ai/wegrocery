@@ -1,4 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
+import { ActionError } from "@/lib/action-error";
 import { requireActiveMember } from "@/lib/auth/session";
 import { recordUsage } from "@/lib/usage/events";
 import { recordPushClientUsage } from "./push-usage";
@@ -15,8 +16,14 @@ it("only records explicitly allowed events from authenticated members", async ()
   expect(requireActiveMember).not.toHaveBeenCalled();
   expect(recordUsage).not.toHaveBeenCalled();
 
-  vi.mocked(requireActiveMember).mockRejectedValueOnce(new Error("not signed in"));
-  await expect(recordPushClientUsage("push_opened")).rejects.toThrow("not signed in");
+  // A visitor who is not signed in (the bridge runs on /login too): nothing recorded, nothing thrown.
+  vi.mocked(requireActiveMember).mockRejectedValueOnce(new ActionError("unauthorized"));
+  await expect(recordPushClientUsage("pwa_launch_browser")).resolves.toBeUndefined();
+  expect(recordUsage).not.toHaveBeenCalled();
+
+  // Any other failure still surfaces.
+  vi.mocked(requireActiveMember).mockRejectedValueOnce(new Error("db down"));
+  await expect(recordPushClientUsage("push_opened")).rejects.toThrow("db down");
   expect(recordUsage).not.toHaveBeenCalled();
 
   for (const event of ["pwa_launch_standalone", "pwa_launch_browser", "push_opened"]) {

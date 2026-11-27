@@ -24,6 +24,9 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ## [Unreleased]
 
+### Fixed
+- [tech] **Quieter logs on public pages.** Opening the sign-in page or the group page without being signed in no longer logs an "Unauthorized access" error from the app launch counter.
+
 ## [1.55.0] - 2026-11-27
 
 *Device notifications get ready: the installed app works offline and links land where they point.*
