@@ -198,20 +198,22 @@ test("worker refresh keeps an open draft, serves offline navigation, preserves H
     await page.evaluate(async () => {
       await navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" });
     });
-    const first = context.serviceWorkers()[0] ?? await context.waitForEvent("serviceworker");
     await page.waitForFunction(() => navigator.serviceWorker.controller);
     assert.equal(await page.evaluate(() => navigator.serviceWorker.controller.scriptURL), origin + "/sw.js");
     await page.locator("#draft").fill("Unsaved synthetic order");
-    await page.evaluate(() => { window.draftDocument = true; });
-    version++;
-    const updated = context.waitForEvent("serviceworker");
-    await page.evaluate(async () => {
-      window.updatedController = new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
-      await (await navigator.serviceWorker.ready).update();
+    await page.evaluate(() => {
+      window.draftDocument = true;
+      window.previousController = navigator.serviceWorker.controller;
     });
-    const active = await updated;
-    assert.notEqual(active, first);
-    await page.evaluate(async () => { await window.updatedController; });
+    version++;
+    await page.evaluate(() => {
+      void navigator.serviceWorker.ready.then((registration) => registration.update()).catch((error) => {
+        window.updateError = String(error);
+      });
+    });
+    await page.waitForFunction(() => window.updateError ||
+      (navigator.serviceWorker.controller && navigator.serviceWorker.controller !== window.previousController));
+    assert.equal(await page.evaluate(() => window.updateError), undefined);
     assert.equal(await page.evaluate(() => window.draftDocument), true);
     assert.equal(await page.locator("#draft").inputValue(), "Unsaved synthetic order");
 
