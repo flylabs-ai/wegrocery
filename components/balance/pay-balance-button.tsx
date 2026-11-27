@@ -1,5 +1,7 @@
 "use client";
 
+import { useUnsavedChanges } from "@/lib/pwa/use-unsaved-changes";
+
 import { useTransition } from "react";
 import { toast } from "@/components/app-ui/toast";
 import { startBalancePayment } from "@/lib/actions/balance-payment";
@@ -8,6 +10,7 @@ import { t } from "@/lib/i18n";
 // The amount is shown, never sent: the server computes what is due.
 export function PayBalanceButton({ amountLabel }: { amountLabel: string }) {
   const [isPending, startTransition] = useTransition();
+  useUnsavedChanges(isPending);
 
   function handlePay() {
     startTransition(async () => {

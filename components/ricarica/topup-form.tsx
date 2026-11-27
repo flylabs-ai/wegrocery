@@ -1,5 +1,7 @@
 "use client";
 
+import { useUnsavedChanges } from "@/lib/pwa/use-unsaved-changes";
+
 import { useState, useTransition } from "react";
 import { toast } from "@/components/app-ui/toast";
 import { startOnlineTopup } from "@/lib/actions/topup";
@@ -38,6 +40,7 @@ export function TopupForm({ presets, minCents, maxCents }: Props) {
     debt?.cents ?? usual.find((p) => p.cents === 5000)?.cents ?? usual[0]?.cents ?? maxCents;
   const [amount, setAmount] = useState(toInput(initialCents));
   const [isPending, startTransition] = useTransition();
+  useUnsavedChanges(amount !== toInput(initialCents) || isPending);
 
   const cents = toCents(amount);
   const valid = Number.isFinite(cents) && cents >= minCents && cents <= maxCents;

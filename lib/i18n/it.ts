@@ -1,6 +1,7 @@
 // Italian language pack: the source of truth for the Strings type.
 // Group keys by route/feature. Values needing params are functions.
 export const it = {
+  pwa: { notificationReady: "Notifica pronta da aprire", openNotification: "Apri" },
   common: {
     save: "Salva",
     cancel: "Annulla",
@@ -966,6 +967,7 @@ export const it = {
         dbRole: "Accesso al database con ruolo limitato",
         fleet: "Statistiche anonime per la console (FlyLabs Console)",
         autoOpen: "Apertura automatica dei cicli in programma",
+        pwaWorker: "Service worker dell’app",
       } as Record<string, string>,
       notes: {
         noAdmin: "Nessun admin: imposta BOOTSTRAP_ADMIN_EMAIL e accedi con quell'indirizzo.",
@@ -1049,6 +1051,7 @@ export const it = {
           "Serve solo a chi gestisce più gruppi: la sua console legge numeri anonimi (soci, cicli, ordini, versione) senza entrare nel database. Per il gruppo non cambia nulla.",
           "Genera un segreto (openssl rand -hex 32), mettilo in INSTANCE_STATS_SECRET e incollalo uguale nella console, alla voce Aggiungi istanza. Un segreto diverso per ogni installazione.",
         ],
+        pwaWorker: ["Chi ospita l’app può attivare o rimuovere il service worker con PWA_SW_ENABLED.", "Lascia il campo vuoto per mantenere la registrazione del browser."],
         autoOpen: [
           "I cicli in programma aprono gli ordini da soli la mattina del giorno previsto, se le date non sono indicative. Senza, li apre l'admin con Apri gli ordini.",
           "Genera un segreto (openssl rand -hex 32) e mettilo in CRON_SECRET nel progetto Vercel: Vercel lo usa per il controllo di ogni mattina. Poi rifai il deploy.",

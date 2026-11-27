@@ -29,6 +29,21 @@ describe("proxy matcher", () => {
 });
 
 describe("proxy redirect", () => {
+  it("lets the standalone offline document through without cookies", async () => {
+    const { proxy } = await import("./proxy");
+    const { NextRequest } = await import("next/server");
+    const { GET } = await import("./app/offline/route");
+    const response = proxy(new NextRequest("https://app.example/offline"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("content-security-policy")).toContain("worker-src 'self'");
+    expect(proxy(new NextRequest("https://app.example/offline/extra")).status).toBe(307);
+    const offline = GET();
+    expect(offline.status).toBe(200);
+    expect(offline.headers.get("content-type")).toBe("text/html; charset=utf-8");
+    expect(await offline.text()).not.toMatch(/<script\b/i);
+  });
+
   it("lets /aderisci through without a session, and nothing under it", async () => {
     const { proxy } = await import("./proxy");
     const { NextRequest } = await import("next/server");

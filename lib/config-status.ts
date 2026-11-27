@@ -1,3 +1,4 @@
+import { workerMode } from "./pwa/worker-mode";
 import { MIGRATIONS } from "./migrations";
 import { MIN_SECRET_LENGTH } from "./instance-stats/constants";
 import { REQUIRED_STRIPE_EVENTS, resolveStripeKey, stripeModeRefusal } from "./payments/config";
@@ -47,7 +48,8 @@ export type ConfigItemId =
   | "membership"
   | "sentry"
   | "fleet"
-  | "autoOpen";
+  | "autoOpen"
+  | "pwaWorker";
 
 export type ConfigItem = {
   id: ConfigItemId;
@@ -190,6 +192,12 @@ export function configStatus(env: Env, facts: ConfigFacts): ConfigItem[] {
     dbRole(facts),
     fleet(env),
     autoOpen(env),
+    {
+      id: "pwaWorker",
+      required: false,
+      vars: ["PWA_SW_ENABLED"],
+      status: workerMode(env.PWA_SW_ENABLED) === "register" ? "ok" : "off",
+    },
   ];
 }
 

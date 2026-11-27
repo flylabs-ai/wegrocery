@@ -1,6 +1,7 @@
 import type { Strings } from "./it";
 
 export const fr: Strings = {
+  pwa: { notificationReady: "Notification prête à ouvrir", openNotification: "Ouvrir" },
   common: {
     save: "Enregistrer",
     cancel: "Annuler",
@@ -964,6 +965,7 @@ export const fr: Strings = {
         dbRole: "Accès à la base de données avec un rôle restreint",
         fleet: "Statistiques anonymes pour la console (FlyLabs Console)",
         autoOpen: "Ouverture automatique des cycles programmés",
+        pwaWorker: "Service worker de l’application",
       } as Record<string, string>,
       notes: {
         noAdmin: "Pas encore d'admin : définissez BOOTSTRAP_ADMIN_EMAIL et connectez-vous avec cette adresse.",
@@ -1047,6 +1049,7 @@ export const fr: Strings = {
           "Uniquement pour qui gère plusieurs groupes : sa console lit des décomptes anonymes (membres, cycles, commandes, version) sans toucher à la base de données. Rien ne change pour le groupe.",
           "Générez un secret (openssl rand -hex 32), définissez-le comme INSTANCE_STATS_SECRET et collez la même valeur dans la console, sous Ajouter une instance. Utilisez un secret différent pour chaque installation.",
         ],
+        pwaWorker: ["L’hébergeur peut activer ou retirer le service worker avec PWA_SW_ENABLED.", "Laissez-la vide pour conserver l’enregistrement du navigateur."],
         autoOpen: [
           "Les cycles programmés ouvrent leurs commandes seuls le matin du jour prévu, si leurs dates ne sont pas indicatives. Sinon, un admin les ouvre avec Ouvrir les commandes.",
           "Générez un secret (openssl rand -hex 32) et mettez-le dans CRON_SECRET dans le projet Vercel : Vercel s'en sert pour le contrôle de chaque matin. Puis redéployez.",
