@@ -1,0 +1,30 @@
+# PWA and Web Push CI matrix
+
+W7 starts from WeGrocery `fe8b8dd` and FlyLabs Kit `1d491f6` (Kit 0.25). The baseline was 129 passing tests in 13 files before the refactor. The same 129 tests passed after it. The service worker test harness now executes the bootstrap and its imported core in the same worker context.
+
+PASS means a check ran on W7. All three Neon integration test shards passed on `8e168f8` in [GitHub Actions](https://github.com/flylabs-ai/wegrocery/actions/runs/45980960059). BLOCKED means a required environment or real flow has yet to be verified. The browser suite uses loopback HTTP, fake auth responses, a read-only settings fixture, a seeded order form and synthetic worker events. It never contacts a push provider.
+
+| Spec §11 check | File and test | W7 result |
+| --- | --- | --- |
+| Install identity and unrestricted orientation | `scripts/pwa-browser-check.mjs`, “public manifest and scripts preserve install identity without cookies”; `lib/brand/identity.test.ts`, “lays overrides and the logo over the brand JSON”, “round-trips the served file name” | PASS |
+| Public worker and imported script, JavaScript and no proxy redirect | `scripts/pwa-browser-check.mjs`, “public manifest and scripts preserve install identity without cookies”; `proxy.test.ts`, “skips the session check for a browser requesting /sw.js without cookies” | PASS |
+| Worker updates without reloading an open draft | `scripts/pwa-browser-check.mjs`, “worker refresh keeps an open draft and the worker preserves offline and HTTP error semantics” (Chromium and a synthetic editor) | PASS |
+| Notification tap preserves dirty input | `scripts/pwa-browser-check.mjs`, “the real bridge presents a notification action without discarding dirty input” | PASS |
+| Offline navigation and HTTP 500 passthrough | Same Chromium worker test; `lib/pwa/service-worker.test.ts`, “uses only the offline document when navigation fetch rejects” | PASS |
+| Offline action shows an error and is never replayed | `scripts/pwa-browser-check.mjs`, “the real order Server Action reports an offline error and stays unsent on reconnect” uses the real form and action with a synthetic draft; the worker fixture also checks the POST bypass | PASS |
+| Legacy and v1 notices, malformed payload and safe URL | `lib/pwa/service-worker.test.ts`, “shows exactly one notification for %s” | PASS (worker unit checks) |
+| Badge setting, clearing and optional API | `lib/pwa/service-worker.test.ts`, “clears a zero badge and shows the notice even if badging fails”, “shows exactly one notification for %s” | PASS |
+| Device activation and denial | `lib/push/device-client.test.ts`, “requests permission and subscribes with the existing root worker”, “shows denial without registering or subscribing” | PASS |
+| Device needs completion (DEV-02) | `lib/push/device-client.test.ts`, “is on only when the server says mine”; `components/push-settings.test.tsx`, “renders the incomplete state and its available action” | PASS |
+| Two phones and logout (DEV-03/04) | `lib/push/devices.integration.test.ts`, “DEV-04: logout on phone 1 keeps phone 2; B cannot remove A's row”; `lib/push/logout-client.test.ts`, “signs out after a bounded wait when the unbind action never responds” | PASS |
+| Session expires and another user returns in the same browser | `lib/push/devices.integration.test.ts`, “DEV-03: B presenting A's endpoint drops A's row and binds nothing to B”, “re-saving the same browser as another person moves it to them” | PASS for device ownership reconciliation at the database boundary |
+| Holder gets reminders, family member does not (WGR-03) | `lib/push/queue.integration.test.ts`, “WGR-03: books the account holder's devices, never a relative's, even with consent” | PASS |
+| Duplicate or concurrent job (WGR-04) | `lib/push/queue.integration.test.ts`, “WGR-04: two parallel runs reserve once and book one job per device”, “WGR-05: a timeout then 201 ends accepted in the same run, with tag and TTL” (second drain claims zero) | PASS |
+| Crash after claim commits and uncertain provider timeout (WGR-05) | `lib/push/queue.integration.test.ts`, “WGR-05: a crash after the claim is recovered once the lease expires”, “WGR-05: transient three times goes back to pending in 5 minutes, then is retried”; `lib/push/transport.test.ts`, “classifies a network failure and aborts a hung sender after five seconds” | PASS |
+| Draft confirmed or cycle closed before sending | `lib/push/queue.integration.test.ts`, “WGR-05: a draft confirmed or a cycle closed before the attempt is skipped, nothing sent” | PASS |
+| Staging, ordinary preview and demo with credentials make no provider calls | `lib/push/transport.test.ts`, “makes zero provider calls without isolated-origin approval: %j” | PASS |
+| Slow or hung provider stays within the run budget | `lib/push/transport.test.ts`, “stops waiting on hung work at the budget, leaving only unstarted items” | PASS |
+| Disallowed host and outcome compatibility | `lib/push/transport.test.ts`, sender outcome cases; `lib/push/queue.integration.test.ts`, “WGR-05: the transport's rejected_host finalizes as rejected without retry”, “WGR-05: transient three times goes back to pending in 5 minutes, then is retried” | PASS |
+| OTP and Google retain the push deep link (WGR-06) | `scripts/pwa-browser-check.mjs`, “WGR-06 keeps the notification deep link through OTP and Google handoff” (real login UI, mocked endpoints and provider return) | PASS |
+| Order and payment invariants | `lib/invariants.integration.test.ts`, “finds nothing in consistent rows”, “finds each kind of break”, “checks balance payments and settled pay-per-order cycles”, “checks the wallet in card payments: split, refund cap and transfer pairs” | PASS |
+| OS install UX, permission prompts, background delivery and OS badges | [Physical checklist](./push-physical-checklist.md) | BLOCKED pending device testing |

@@ -94,6 +94,6 @@ function loginUrl(request: NextRequest): URL {
 // Browsers can also request the app manifest and service worker without one.
 export const config = {
   matcher: [
-    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/cron/push-deliveries$|api/unsubscribe$|api/csp-report$|mail/|manifest.webmanifest$|sw\\.js$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/auth|api/stripe/webhook|api/health$|api/instance-stats$|api/cron/open-cycles$|api/cron/draft-reminders$|api/cron/push-deliveries$|api/unsubscribe$|api/csp-report$|mail/|manifest.webmanifest$|sw(?:-core)?\\.js$|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

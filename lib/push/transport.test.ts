@@ -110,6 +110,17 @@ describe("delivery", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  it.each([
+    { VERCEL_ENV: "preview", VERCEL_URL: "staging.example.test" },
+    { VERCEL_ENV: "preview", VERCEL_URL: "preview.example.test" },
+    { VERCEL_ENV: "production", DEMO_MODE: "true" },
+  ])("makes zero provider calls without isolated-origin approval: %j", async (overrides) => {
+    const send = vi.fn();
+    await expect(sendPush(target, payload, { ttl: 60, topic: "test", env: { ...env, ...overrides }, send }))
+      .resolves.toEqual({ outcome: "simulated", code: null });
+    expect(send).not.toHaveBeenCalled();
+  });
+
   it("never sends in simulation or with an oversized UTF-8 payload", async () => {
     const send = vi.fn();
     expect(await sendPush(target, payload, { ...opts, env: {}, send })).toEqual({ outcome: "simulated", code: null });

@@ -9,13 +9,13 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       ...securityHeaderRules(),
-      {
-        source: "/sw.js",
+      ...["/sw.js", "/sw-core.js"].map((source) => ({
+        source,
         headers: [
           { key: "Content-Type", value: "application/javascript; charset=utf-8" },
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
         ],
-      },
+      })),
     ];
   },
   images: {

@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db/client";
 import { describeDb, makeScope } from "@/test/int/fixtures";
 import { sendDraftReminders } from "@/lib/notifications/draft-reminder-store";
 import { runPushQueue } from "./queue-runtime";
+import { sendPush } from "./transport";
 import { cleanPushQueue, draftReminderEventKey, processPushQueue, type QueueDeps, type QueueOutcome } from "./queue";
 
 // WGR-03/04/05/08 on the real tables (migration 0057), with a fake sender:
@@ -113,6 +114,20 @@ describeDb("draft reminder push queue (WGR-03/04/05)", () => {
     expect((await processPushQueue(getDb(), now, deps([]).value)).claimed).toBe(0);
     const later = new Date(now.getTime() + 5 * 60_000);
     expect(await processPushQueue(getDb(), later, deps(["accepted"]).value)).toMatchObject({ accepted: 1 });
+  });
+
+  it("WGR-05: the transport's rejected_host finalizes as rejected without retry", async () => {
+    const phone = await device(scope.memberId, "blocked");
+    const cycleId = await cycleWithDraft("blocked");
+    await sendDraftReminders(getDb(), now);
+    const provider = vi.fn();
+    const send = vi.fn<QueueDeps["send"]>((target, payload, opts) =>
+      sendPush({ ...target, endpoint: "https://excluded.example.test/synthetic" }, payload, { ...opts, env: {}, send: provider }));
+    const { value } = deps([], { send });
+    expect(await processPushQueue(getDb(), now, value)).toMatchObject({ failed: 1, retry: 0 });
+    expect(await jobs(cycleId)).toEqual([expect.objectContaining({ subscription_id: phone, status: "rejected", attempts: 1 })]);
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(provider).not.toHaveBeenCalled();
   });
 
   it("WGR-05: a crash after the claim is recovered once the lease expires", async () => {

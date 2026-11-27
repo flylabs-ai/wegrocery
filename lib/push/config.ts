@@ -1,35 +1,16 @@
-import { createECDH, createHash } from "node:crypto";
+import { createHash } from "node:crypto";
 import { decodeKey } from "./subscription";
+import { pushKeys as kitPushKeys, resolveTransport as resolveKitTransport, type TransportPolicy } from "@/lib/web-push/config";
 
 type Env = Record<string, string | undefined>;
 export type PushState = "off" | "simulated" | "live" | "misconfigured";
 
-function validSubject(subject: string): boolean {
-  if (/\s/.test(subject)) return false;
-  try {
-    const url = new URL(subject);
-    return url.protocol === "mailto:"
-      ? /^[^@]+@[^@]+$/.test(url.pathname) && !url.search && !url.hash
-      : subject.startsWith("https://") && url.hostname !== "localhost" && !url.username && !url.password;
-  } catch {
-    return false;
-  }
+function vapidInput(env: Env) {
+  return { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY, subject: env.VAPID_SUBJECT };
 }
 
 export function pushKeys(env: Env = process.env) {
-  const publicKey = decodeKey(env.VAPID_PUBLIC_KEY?.trim() ?? "", 65);
-  const privateKey = decodeKey(env.VAPID_PRIVATE_KEY?.trim() ?? "", 32);
-  const subject = env.VAPID_SUBJECT?.trim() ?? "";
-  if (!publicKey || !privateKey || !validSubject(subject)) return null;
-
-  try {
-    const ecdh = createECDH("prime256v1");
-    ecdh.setPrivateKey(privateKey);
-    if (!ecdh.getPublicKey().equals(publicKey)) return null;
-  } catch {
-    return null;
-  }
-  return { publicKey: publicKey.toString("base64url"), privateKey: privateKey.toString("base64url"), subject };
+  return kitPushKeys(vapidInput(env));
 }
 
 export function vapidFingerprint(env: Env): string | null {
@@ -58,17 +39,29 @@ function segregatedOriginMatches(env: Env): boolean {
 }
 
 function allowsLive(env: Env): boolean {
-  return env.PUSH_TRANSPORT === "live" &&
-    ((env.VERCEL_ENV === "production" && env.DEMO_MODE !== "true") || segregatedOriginMatches(env));
+  return env.PUSH_TRANSPORT === "live" && environmentAllowed(env);
+}
+
+function environmentAllowed(env: Env): boolean {
+  return (env.VERCEL_ENV === "production" && env.DEMO_MODE !== "true") || segregatedOriginMatches(env);
 }
 
 function pilotMembers(env: Env): string[] | undefined {
   return env.PUSH_PILOT_MEMBER_IDS?.split(",").map((id) => id.trim()).filter(Boolean);
 }
 
-export function resolveTransport(env: Env, personId: string): "live" | "simulated" {
+export function transportPolicy(env: Env, personId: string): TransportPolicy {
   const pilot = pilotMembers(env);
-  return allowsLive(env) && (!pilot || pilot.includes(personId)) && pushKeys(env) ? "live" : "simulated";
+  return {
+    requested: env.PUSH_TRANSPORT === "live",
+    environmentAllowed: environmentAllowed(env),
+    recipientAllowed: !pilot || pilot.includes(personId),
+    vapid: vapidInput(env),
+  };
+}
+
+export function resolveTransport(env: Env, personId: string): "live" | "simulated" {
+  return resolveKitTransport(transportPolicy(env, personId)).mode;
 }
 
 export function pushState(env: Env = process.env): PushState {

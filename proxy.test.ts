@@ -16,6 +16,8 @@ describe("proxy matcher", () => {
     expect(matches("/sw.js")).toBe(false);
     expect(matches("/sw.js?v=1")).toBe(false);
     expect(matches("/sw.js/extra")).toBe(true);
+    expect(matches("/sw-core.js")).toBe(false);
+    expect(matches("/sw-core.js/extra")).toBe(true);
   });
 
   it("leaves the public endpoints open and guards the pages", () => {

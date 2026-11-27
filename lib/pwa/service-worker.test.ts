@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
 import { MessageChannel } from "node:worker_threads";
-import { runInNewContext } from "node:vm";
+import { createContext, runInContext } from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 
 const ORIGIN = "https://wegrocery.invalid";
 const worker = readFileSync(new URL("../../public/sw.js", import.meta.url), "utf8");
+const core = readFileSync(new URL("../../public/sw-core.js", import.meta.url), "utf8");
 type WorkerEvent = {
   waitUntil?: (promise: Promise<unknown>) => void;
   respondWith?: (promise: Promise<Response>) => void;
@@ -40,7 +41,14 @@ function loadWorker() {
   };
   const fetch = vi.fn<typeof globalThis.fetch>();
   const setTimer = vi.fn(setTimeout);
-  runInNewContext(worker, { self, caches, fetch, Request, Response, URL, MessageChannel, setTimeout: setTimer, clearTimeout });
+  const context = createContext({
+    self, caches, fetch, Request, Response, URL, MessageChannel, setTimeout: setTimer, clearTimeout,
+    importScripts(path: string) {
+      expect(path).toBe("/sw-core.js");
+      runInContext(core, context);
+    },
+  });
+  runInContext(worker, context);
   function dispatch(type: string, event: WorkerEvent = {}) {
     const waitUntil = vi.fn<(promise: Promise<unknown>) => void>();
     const respondWith = vi.fn<(promise: Promise<Response>) => void>();

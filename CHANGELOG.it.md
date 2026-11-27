@@ -34,6 +34,7 @@ dettagli tecnici", la release su GitHub la tiene.
 - [tecnico] 🗄️ **Preparazione del database per le notifiche push.** Applicare la migrazione `0057` prima di distribuire il codice che abilita le iscrizioni dei dispositivi.
 
 ### Modificato
+- [tecnico] **Moduli PWA e Web Push condivisi.** WeGrocery usa FlyLabs Kit 0.25 per il worker, la navigazione dalle notifiche e la logica push comune.
 - 🔗 **I link portano dove puntano, anche dopo l'accesso.** Chi apre il link a una pagina dell'app (un ordine, una notifica) senza aver fatto l'accesso ci torna dopo il link email, il codice o Google, invece di finire in home.
 
 ### Risolto
