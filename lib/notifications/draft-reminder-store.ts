@@ -5,6 +5,7 @@ import { summarizeCycleDrafts } from "@/lib/admin/cycle-drafts";
 import { formatDeadlineLong } from "@/lib/i18n/deadline";
 import { normalizeDraftLines } from "@/lib/order-draft";
 import { canAccessCycle } from "@/lib/roles";
+import { bookDraftReminderPushes } from "@/lib/push/queue";
 import { dispatchWithBodies } from "./dispatch";
 import { DRAFT_REMINDER_LEAD_HOURS, DRAFT_REMINDER_MIN_MINUTES, draftReminderDue, draftReminderMessage } from "./draft-reminder";
 
@@ -54,14 +55,23 @@ export async function sendDraftReminders(db: Db, now: Date): Promise<{ sent: num
     // One guarded reservation statement. Replays and concurrent runs get no
     // rows back; a confirm that already removed the draft is left alone.
     const candidates = sql.join(summaries.map((draft) => sql`${draft.memberId}`), sql`, `);
+    // WGR-04: the same statement books the push jobs of the members it has
+    // just reserved, one per eligible device (WGR-03: the account holder's
+    // own devices, with their consent; never a relative's). neon-http has no
+    // interactive transactions, so one statement is the atomic unit.
     const reserved = await db.execute<{ member_id: string }>(sql`
-      INSERT INTO draft_reminders (cycle_id, member_id, sent_at)
-      SELECT c.cycle_id, m.member_id, ${now}
-      FROM order_cycles c CROSS JOIN members m
-      WHERE c.cycle_id = ${cycle.cycleId} AND c.status = 'open' AND c.order_close_at > ${now}
-        AND m.member_id IN (${candidates}) AND m.active AND m.merged_into IS NULL
-        AND EXISTS (SELECT 1 FROM order_drafts d WHERE d.cycle_id = c.cycle_id AND d.member_id = m.member_id)
-      ON CONFLICT (cycle_id, member_id) DO NOTHING RETURNING member_id
+      WITH reserved AS (
+        INSERT INTO draft_reminders (cycle_id, member_id, sent_at)
+        SELECT c.cycle_id, m.member_id, ${now}
+        FROM order_cycles c CROSS JOIN members m
+        WHERE c.cycle_id = ${cycle.cycleId} AND c.status = 'open' AND c.order_close_at > ${now}
+          AND m.member_id IN (${candidates}) AND m.active AND m.merged_into IS NULL
+          AND EXISTS (SELECT 1 FROM order_drafts d WHERE d.cycle_id = c.cycle_id AND d.member_id = m.member_id)
+        ON CONFLICT (cycle_id, member_id) DO NOTHING RETURNING cycle_id, member_id
+      ), jobs AS (
+        ${bookDraftReminderPushes(sql`reserved`, now)}
+      )
+      SELECT member_id FROM reserved
     `);
     if (reserved.rows.length === 0) continue;
 

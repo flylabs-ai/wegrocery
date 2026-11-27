@@ -26,6 +26,7 @@ dettagli tecnici", la release su GitHub la tiene.
 ## [Unreleased]
 
 ### Aggiunte
+- [tecnico] 🔔 **Coda push per i promemoria delle bozze.** Il giro dei promemoria prenota un lavoro push per ogni dispositivo del titolare che ha dato il consenso, nella stessa istruzione del promemoria; i familiari non lo ricevono mai. I lavori si elaborano con nuovi tentativi e scadono un'ora prima della chiusura. L'elaborazione viene collegata quando arriva il trasporto push.
 - [tecnico] 📱 **Schermata offline per l’app installata.** Con il service worker attivo, se la pagina non raggiunge la rete compare una schermata offline. Aprire una notifica mentre si modifica un ordine o si avvia un pagamento chiede conferma prima di uscire.
 - 📱 **Gestisci le notifiche sui tuoi dispositivi.** Quando sono disponibili, puoi collegare questo dispositivo, scollegare quelli che non usi più e scegliere se ricevere i promemoria delle bozze. L’invio è ancora simulato.
 - [tecnico] 🗄️ **Preparazione del database per le notifiche push.** Applicare la migrazione `0057` prima di distribuire il codice che abilita le iscrizioni dei dispositivi.
