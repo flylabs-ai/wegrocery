@@ -25,6 +25,9 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ## [Unreleased]
 
+### Risolto
+- [tecnico] **Log più puliti sulle pagine pubbliche.** Aprire la pagina di accesso o quella del gruppo senza aver fatto l'accesso non registra più un errore "Accesso non autorizzato" dal contatore di avvio dell'app.
+
 ## [1.55.0] - 2026-11-27
 
 *Le notifiche sui dispositivi si preparano: l'app installata funziona offline e i link portano dove puntano.*
