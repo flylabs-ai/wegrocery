@@ -2,16 +2,16 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-27 (W5 push queue, part 2).
+Last updated: 2026-11-27 (W7 PWA and Web Push kit sync).
 
 ## Versions and migrations
 
 | Installation | Version | Migrations applied |
 |---|---|---|
-| Production (`main`) | 1.53.0 (2026-11-23) | up to `0056` |
+| Production (`main`) | 1.53.0 (2026-11-23) | up to `0057` |
 | Public demo (`main`) | 1.53.0 | up to `0056` |
 | Example brand installation | 1.52.1 | up to `0056` (migrates on build) |
-| Staging (`staging`) | 1.54.0 prepared | up to `0056` (Neon branch `staging`) |
+| Staging (`staging`) | 1.54.0 prepared | up to `0057` (Neon branch `staging`) |
 
 FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, changelog, console, email, firma, guida, i18n, ics, migrazioni, pagamenti, shell, sicurezza, tema and ui adopted.
 
@@ -22,11 +22,13 @@ FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## In review
 
+- W7 adopts Kit 0.25 with PWA 1.1 and Web Push 0.1. The worker URL, scope, offline cache, push payload and queue contracts carry forward. See [PWA and push CI coverage](./pwa-ci-matrix.md).
+
 - W6 provides the Web Push transport, VAPID diagnostics and anonymous daily counters. W5 connects the delivery queue.
 - W5 (WGR-03/04/05/08) books push jobs for draft reminders (holder's consenting devices only), sends them after the reminder run and retries them hourly from `/api/cron/push-deliveries` (`17 * * * *`, Vercel Pro). Transport is `simulated` unless live for that person (`docs/push.md`).
-- W4 (WGR-02/07, DEV-01/02/04/06) adds device notification settings, a personal draft-reminder consent and sign-out cleanup. The settings are visible where the server has a VAPID public key, and delivery is simulated. Migration `0057` is applied to the staging database (2026-11-27); apply it to production before releasing to `main`.
+- W4 (WGR-02/07, DEV-01/02/04/06) adds device notification settings, a personal draft-reminder consent and sign-out cleanup. The settings are visible where the server has a VAPID public key, and delivery is simulated. Migration `0057` is already applied on staging and production.
 
-- W3 (WGR-01) adds migration `0057_push_subscriptions.sql`. It is pending and has not been applied to any installation. Apply it before W4.
+- W3 (WGR-01) adds migration `0057_push_subscriptions.sql`.
 
 - W2 adds service worker v1, the public offline page and the notification deep-link bridge with draft and checkout protection. `PWA_SW_ENABLED` is optional and unset by default. W2 requires no migration.
 

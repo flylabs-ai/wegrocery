@@ -44,6 +44,18 @@ jobs:
       - name: Unit tests
         run: npx vitest run
 
+      - name: Chromium PWA and Web Push checks
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: |
+          npm install --no-save --package-lock=false --no-audit playwright@1.61.1
+          npx playwright install --with-deps chromium
+          NODE_OPTIONS="--import=./scripts/pwa-browser-fixtures.mjs" npm run dev -- --hostname 127.0.0.1 --port 3847 > "$RUNNER_TEMP/pwa-next.log" 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          curl --fail --silent --show-error --retry 30 --retry-delay 1 --retry-connrefused http://127.0.0.1:3847/sw.js -o /dev/null
+          node --test scripts/pwa-browser-check.mjs
+
   integration:
     runs-on: ubuntu-latest
     timeout-minutes: 20
