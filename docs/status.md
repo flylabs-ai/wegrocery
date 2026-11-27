@@ -23,8 +23,8 @@ FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 ## In review
 
 - W6 provides the Web Push transport, VAPID diagnostics and anonymous daily counters. W5 connects the delivery queue.
-
-- W4 (WGR-02/07, DEV-01/02/04/06) adds device notification settings, a personal draft-reminder consent and sign-out cleanup. The settings are visible where the server has a VAPID public key, and delivery is simulated. Apply migration `0057` to the staging database before merging W4 into `staging`.
+- W5 part 1 (WGR-03/04/05) books push jobs for draft reminders (holder's consenting devices only) and adds the queue processor (`lib/push/queue.ts`). The processor and the hourly `/api/cron/push-deliveries` route are wired in part 2, after the push transport (P13). Until then booked jobs stay pending and expire.
+- W4 (WGR-02/07, DEV-01/02/04/06) adds device notification settings, a personal draft-reminder consent and sign-out cleanup. The settings are visible where the server has a VAPID public key, and delivery is simulated. Migration `0057` is applied to the staging database (2026-11-27); apply it to production before releasing to `main`.
 
 - W3 (WGR-01) adds migration `0057_push_subscriptions.sql`. It is pending and has not been applied to any installation. Apply it before W4.
 
