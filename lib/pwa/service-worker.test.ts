@@ -55,8 +55,8 @@ function windowClient(path: string) {
     url: new URL(path, ORIGIN).href,
     focus: vi.fn(async () => {}),
     navigate: vi.fn(),
-    postMessage: vi.fn<(message: unknown, ports: [MessageChannel["port2"]]) => void>()
-      .mockImplementation((_message, [port]) => port.close()),
+    postMessage: vi.fn<(message: unknown, ports?: [MessageChannel["port2"]]) => void>()
+      .mockImplementation((_message, ports) => ports?.[0].close()),
   };
 }
 
@@ -138,7 +138,7 @@ describe("notificationclick", () => {
     await click(state, "/impostazioni");
     expect(matching.focus).toHaveBeenCalledOnce();
     expect(recent.postMessage).not.toHaveBeenCalled();
-    expect(matching.postMessage).not.toHaveBeenCalled();
+    expect(matching.postMessage).toHaveBeenCalledExactlyOnceWith({ type: "flylabs:push-opened" });
     expect(state.self.clients.openWindow).not.toHaveBeenCalled();
   });
 
@@ -146,9 +146,10 @@ describe("notificationclick", () => {
     const state = loadWorker();
     const recent = windowClient("/");
     const older = windowClient("/voce");
-    recent.postMessage.mockImplementation((_message, [port]) => {
-      port.postMessage("handled");
-      port.close();
+    recent.postMessage.mockImplementation((_message, ports) => {
+      const port = ports?.[0];
+      port?.postMessage("handled");
+      port?.close();
     });
     state.self.clients.matchAll.mockResolvedValue([recent, older]);
     await click(state, "/impostazioni");
@@ -168,13 +169,13 @@ describe("notificationclick", () => {
     await click(state, "/impostazioni");
     expect(state.setTimer).toHaveBeenCalledExactlyOnceWith(expect.any(Function), 1000);
     expect(oldPage.focus).not.toHaveBeenCalled();
-    expect(state.self.clients.openWindow).toHaveBeenCalledExactlyOnceWith(ORIGIN + "/impostazioni");
+    expect(state.self.clients.openWindow).toHaveBeenCalledExactlyOnceWith(ORIGIN + "/impostazioni?_push_open=1");
   });
 
   it("opens a new window with a safe destination when there are no windows", async () => {
     const state = loadWorker();
     await click(state, "//elsewhere.invalid/");
-    expect(state.self.clients.openWindow).toHaveBeenCalledExactlyOnceWith(ORIGIN + "/");
+    expect(state.self.clients.openWindow).toHaveBeenCalledExactlyOnceWith(ORIGIN + "/?_push_open=1");
   });
 });
 

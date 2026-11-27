@@ -1,17 +1,23 @@
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
+import { pushState } from "@/lib/push/config";
+import { getPushTotalsToday } from "@/lib/usage/events";
 import { checkHealth, healthResponse } from "@/lib/health";
 import packageJson from "@/package.json";
 
 // Liveness for uptime monitors, the post-deploy smoke test and the FlyLabs
-// Console (Playbook 7.1, FlyLabs Kit module `console`): { ok, version, db },
-// 200 or 503, no-store. Public (excluded from the auth proxy): it says only
-// whether the app answers and reaches its database within 3 seconds, never
-// any data, configuration or error text. A failure is not logged: the
-// endpoint is public, and a probe must not be able to fill the log.
+// Console (Playbook 7.1). The probe returns health plus the push state and
+// anonymous UTC counters. Probe failures are silent because it is public.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(): Promise<Response> {
-  return healthResponse(await checkHealth(() => getDb().execute(sql`SELECT 1`), { version: packageJson.version }));
+  let pushToday: Awaited<ReturnType<typeof getPushTotalsToday>> = {};
+  const options = { version: packageJson.version };
+  const [health, totalsProbe] = await Promise.all([
+    checkHealth(() => getDb().execute(sql`SELECT 1`), options),
+    checkHealth(async () => { pushToday = await getPushTotalsToday(); }, options),
+  ]);
+  const response = { ...health, push: pushState(), pushToday: totalsProbe.ok ? pushToday : {} };
+  return healthResponse(response);
 }

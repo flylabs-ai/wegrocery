@@ -123,10 +123,16 @@ self.addEventListener("notificationclick", (event) => {
     // Controlled windows are returned in most recently focused order.
     const windows = await self.clients.matchAll({ type: "window" });
     const matching = windows.find((client) => client.url === target);
-    if (matching) return matching.focus();
+    if (matching) {
+      await matching.focus();
+      matching.postMessage({ type: "flylabs:push-opened" });
+      return;
+    }
 
     const recent = windows[0];
     if (recent && await askPage(recent, url)) return recent.focus();
-    return self.clients.openWindow(target);
+    const opened = new URL(target);
+    opened.searchParams.set("_push_open", "1");
+    return self.clients.openWindow(opened.href);
   })());
 });

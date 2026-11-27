@@ -206,6 +206,14 @@ on Hobby each may run at any minute of its scheduled hour. See the official
 [cron configuration](https://vercel.com/docs/schedules/cron-jobs/manage-cron-jobs#reading-the-cron-schedule-header)
 and [limits](https://vercel.com/docs/schedules/cron-jobs/usage-and-pricing).
 
+### Web Push
+
+Push requires the service worker, a VAPID key pair and contact, and a permitted
+deployment. See [Web Push operations](./push.md) for the environment variables
+and pilot controls. Once W5 connects the queue, installations without a frequent
+delivery cron recover pending work on the next scheduled draft-reminder run,
+subject to the reminder deadline.
+
 ### Membership card check (WallyFor)
 
 Specific to groups that manage their membership on WallyFor: with
