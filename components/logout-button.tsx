@@ -1,5 +1,7 @@
 "use client";
 
+import { signOutWithDevice } from "@/lib/push/logout-client";
+
 import { t } from "@/lib/i18n";
 import { confirm } from "@/components/app-ui/confirm";
 
@@ -19,7 +21,7 @@ export function LogoutButton({ action, appName }: Props) {
       confirmLabel: t.logout.confirmButton,
       cancelLabel: t.common.cancel,
     });
-    if (ok) await action();
+    if (ok) await signOutWithDevice(action);
   }
 
   return (

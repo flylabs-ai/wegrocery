@@ -2,7 +2,7 @@
 
 The living snapshot of what is released, what waits on `staging` and what is planned. Any agent (Claude Code, Codex or another) reads it before starting and updates it in the same PR that changes the picture: a release, a migration applied somewhere, a plan approved or dropped. Keep it short; the detail lives in `CHANGELOG.md`, the dated plans in `docs/` and the PRs.
 
-Last updated: 2026-11-26 (1.54.0 prepared for promotion).
+Last updated: 2026-11-27 (W4 device notification settings).
 
 ## Versions and migrations
 
@@ -22,7 +22,7 @@ FlyLabs Kit 0.24, profile `white-label` (`flylabs-kit.json`): modules auth, chan
 
 ## In review
 
-- W4 server (DEV-02/03/04/06): `lib/push/` validates subscriptions (same rules as Stellar S2) and stores a person's devices by `personId`, never the family account; `lib/actions/push-devices.ts` exposes save, status (`mine`/`other`/`none`, deleting another person's row), unbind and list without endpoints. No UI yet (W4 UI next). Needs `0057` applied before it is deployed with a UI.
+- W4 (WGR-02/07, DEV-01/02/04/06) adds device notification settings, a personal draft-reminder consent and sign-out cleanup. The settings are visible where the server has a VAPID public key, and delivery is simulated. Apply migration `0057` to the staging database before merging W4 into `staging`.
 
 - W3 (WGR-01) adds migration `0057_push_subscriptions.sql`. It is pending and has not been applied to any installation. Apply it before W4.
 

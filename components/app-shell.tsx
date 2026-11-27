@@ -5,6 +5,7 @@ import { DemoBanner } from "@/components/demo-banner";
 import { AppNav } from "@/components/app-nav";
 import { CONTENT_WIDTH, type ShellLayout } from "@/components/shell-width";
 import { WelcomeResume } from "@/components/home/welcome-resume";
+import { PushDeviceCheck } from "@/components/push-device-check";
 import { AppRefresh } from "@/components/app-refresh";
 import { NamePrompt } from "@/components/name-prompt";
 import { TermsPrompt } from "@/components/terms-prompt";
@@ -65,6 +66,7 @@ export async function AppShell({ children, email, name, admin, memberId, personI
           <DemoBanner />
         </div>
         <AppRefresh />
+        {process.env.VAPID_PUBLIC_KEY?.trim() && <PushDeviceCheck personId={personId ?? memberId} />}
         {!blocking && <WelcomeResume />}
         <div className={CONTENT_WIDTH[layout]}>
           {mustAccept && settings.termsVersion ? (

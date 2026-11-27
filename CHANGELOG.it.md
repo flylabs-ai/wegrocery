@@ -27,7 +27,7 @@ dettagli tecnici", la release su GitHub la tiene.
 
 ### Aggiunte
 - [tecnico] 📱 **Schermata offline per l’app installata.** Con il service worker attivo, se la pagina non raggiunge la rete compare una schermata offline. Aprire una notifica mentre si modifica un ordine o si avvia un pagamento chiede conferma prima di uscire.
-- [tecnico] 📱 **Parte server delle notifiche sul dispositivo.** Salvataggio, verifica e scollegamento dei dispositivi di una persona, con il cambio di persona sullo stesso telefono e lo scollegamento all'uscita. Non ancora visibile: la schermata delle impostazioni arriva in una versione successiva e richiede la migrazione `0057`.
+- 📱 **Gestisci le notifiche sui tuoi dispositivi.** Quando sono disponibili, puoi collegare questo dispositivo, scollegare quelli che non usi più e scegliere se ricevere i promemoria delle bozze. L’invio è ancora simulato.
 - [tecnico] 🗄️ **Preparazione del database per le notifiche push.** Applicare la migrazione `0057` prima di distribuire il codice che abilita le iscrizioni dei dispositivi.
 
 ### Modificato

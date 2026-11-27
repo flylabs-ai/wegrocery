@@ -26,7 +26,7 @@ A bullet that only matters to whoever hosts, runs or develops the app
 
 ### Added
 - [tech] 📱 **Offline fallback for the installed app.** When the service worker is enabled, a page that cannot reach the network shows an offline screen. Opening a notification while editing an order or starting checkout asks before leaving.
-- [tech] 📱 **Server side of device notifications.** Saving, checking and unlinking a person's devices, with the switch of person on a shared phone and the unlinking at sign-out. Not visible yet: the settings screen arrives in a later release, and it needs migration `0057`.
+- 📱 **Manage notifications on your devices.** When device notifications are available, you can link this device, unlink devices you no longer use and choose whether you want draft reminders. Delivery is still simulated.
 - [tech] 🗄️ **Database preparation for push notifications.** Apply migration `0057` before deploying the code that enables device subscriptions.
 
 ### Changed

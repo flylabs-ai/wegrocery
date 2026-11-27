@@ -1,5 +1,7 @@
 "use client";
 
+import { signOutWithDevice } from "@/lib/push/logout-client";
+
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
@@ -69,7 +71,7 @@ export function TermsPrompt({
       <Button variant="brand" block className="mt-4" disabled={isPending} onClick={handleAccept}>
         {isPending ? t.admin.common.saving : s.accept}
       </Button>
-      <form action={signOut} className="mt-3 text-center">
+      <form action={() => signOutWithDevice(signOut)} className="mt-3 text-center">
         <button type="submit" className="min-h-11 text-[13px] font-semibold text-secondary-foreground underline">
           {s.signOut}
         </button>
